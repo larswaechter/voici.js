@@ -57,7 +57,7 @@ export const getDefaultConfig = (config: Partial<Config>): Required<Config> =>
         bgColor: '',
         highlightCell: {
           textColor: '#FFBA08',
-          values: null
+          func: null
         },
         highlightRow: {
           bgColor: '#FFBA08',
@@ -96,3 +96,34 @@ export const getDefaultConfig = (config: Partial<Config>): Required<Config> =>
     },
     config
   );
+
+export const getPrintConfig = (config: Required<Config>): Required<Config> =>
+  _.merge(config, {
+    bgColorColumns: [],
+    body: {
+      bgColor: '',
+      highlightCell: {
+        textColor: '',
+        func: null
+      },
+      highlightRow: {
+        bgColor: '',
+        func: null
+      },
+      striped: false,
+      textColor: ''
+    },
+    border: {
+      color: ''
+    },
+    computed: {
+      bgColor: ''
+    },
+    header: {
+      bgColor: '',
+      bold: false,
+      italic: false,
+      textColor: '',
+      underline: false
+    }
+  });

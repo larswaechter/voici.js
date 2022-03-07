@@ -4,10 +4,10 @@ import * as jstream from 'JSONStream';
 
 import chalk, { Chalk } from 'chalk';
 import { resolve as resolvePath } from 'path';
-import { createReadStream } from 'fs';
+import { createReadStream, openSync, writeFileSync, OpenMode } from 'fs';
 
 import { getComputed } from './computed';
-import { Config, getDefaultConfig, Order } from './config';
+import { Config, getDefaultConfig, getPrintConfig, Order } from './config';
 
 type ColumnWidths = {
   [key: string]: number;
@@ -24,7 +24,7 @@ type CellContent = [string, string, string];
 
 export class Table<T = Row> {
   private _data: T[];
-  private readonly _config: Required<Config>;
+  private _config: Required<Config>;
 
   private _computed: Partial<T>;
 
@@ -193,6 +193,36 @@ export class Table<T = Row> {
   toString() {
     this.build();
     return this.buildHeader() + '\n' + this.buildBody();
+  }
+
+  /**
+   * Get the table as plain string without styling.
+   *
+   * @returns - The plain table string
+   */
+  toPlainString() {
+    const config = this.config;
+    this._config = getPrintConfig(this.config);
+
+    this.build(true);
+    const res = this.buildHeader() + '\n' + this.buildBody();
+
+    this._config = config;
+
+    return res;
+  }
+
+  /**
+   * Write the unstyled table to the given file.
+   *
+   * @param filepath - The filepath
+   * @param mode - The file's open mode
+   */
+  writeFile(filepath: string, mode: OpenMode = 'w') {
+    const fd = openSync(filepath, mode);
+    writeFileSync(fd, this.toPlainString(), {
+      encoding: 'utf-8'
+    });
   }
 
   /**
@@ -651,10 +681,12 @@ export class Table<T = Row> {
   }
 
   /**
-   * Build the table.
+   * Build the table
+   *
+   * @param force - Force build
    */
-  private build() {
-    if (this.touched) {
+  private build(force: boolean = false) {
+    if (this.touched || force) {
       this._computed = this.getComputedRow();
       this.calculateColumnWidths();
       if (this.config.order.key.length) this.sort(this.config.order);

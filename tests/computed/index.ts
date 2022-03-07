@@ -7,11 +7,7 @@ import * as voici from '../../dist/index';
 const data = [[2], [7], [15], [3], [201], [87], [42]];
 
 const config: voici.Config = {
-  body: {
-    striped: false
-  },
   header: {
-    underline: false,
     numeration: false
   },
   padding: {
@@ -37,7 +33,7 @@ describe('Computed table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('MAX', () => {
@@ -57,7 +53,7 @@ describe('Computed table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('SUM', () => {
@@ -77,7 +73,7 @@ describe('Computed table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('MEAN', () => {
@@ -97,7 +93,7 @@ describe('Computed table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('MEDIAN', () => {
@@ -117,7 +113,7 @@ describe('Computed table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('VAR', () => {
@@ -137,7 +133,7 @@ describe('Computed table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('STD', () => {
@@ -157,7 +153,7 @@ describe('Computed table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('RANGE', () => {
@@ -177,7 +173,7 @@ describe('Computed table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('COUNT', () => {
@@ -199,7 +195,7 @@ describe('Computed table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('FREQ', () => {
@@ -221,7 +217,7 @@ describe('Computed table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('INFREQ', () => {
@@ -243,6 +239,6 @@ describe('Computed table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 });

@@ -36,11 +36,7 @@ const data = [
 ];
 
 const config: voici.Config = {
-  body: {
-    striped: false
-  },
   header: {
-    underline: false,
     numeration: false
   },
   padding: {
@@ -56,7 +52,7 @@ describe('Simple table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('Align right', () => {
@@ -69,7 +65,7 @@ describe('Simple table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('Align center', () => {
@@ -82,7 +78,7 @@ describe('Simple table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('Array dataset', () => {
@@ -99,7 +95,7 @@ describe('Simple table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('Border', () => {
@@ -115,7 +111,7 @@ describe('Simple table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('Numeration', () => {
@@ -131,7 +127,7 @@ describe('Simple table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('Order', () => {
@@ -146,7 +142,7 @@ describe('Simple table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('Padding', () => {
@@ -162,6 +158,6 @@ describe('Simple table', () => {
       encoding: 'utf-8'
     });
 
-    assert.strictEqual(table.toString(), result);
+    assert.strictEqual(table.toPlainString(), result);
   });
 });

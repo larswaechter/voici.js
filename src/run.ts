@@ -1,4 +1,5 @@
 import { join } from 'path';
+import { openSync } from 'fs';
 import { ComputeFunction } from './computed';
 
 import { Table } from './table';
@@ -77,6 +78,9 @@ const table = new Table(data, {
 });
 
 table.print();
+
+table.writeFile(join(__dirname, '../', 'tmp.txt'));
+
 /*
 Table.fromCSV(join(__dirname, '../', 'data.csv'), { delimiter: ',', headers: true }, {}).then(
   (table) => {
