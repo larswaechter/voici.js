@@ -1,13 +1,12 @@
 import _ from 'lodash';
 import * as csv from 'fast-csv';
 import * as jstream from 'JSONStream';
-
 import chalk, { Chalk } from 'chalk';
 import { resolve as resolvePath } from 'path';
 import { createReadStream, openSync, writeFileSync, OpenMode } from 'fs';
 
 import { getComputed } from './computed';
-import { Config, getDefaultConfig, getPrintConfig, Order } from './config';
+import { Config, getDefaultConfig, getPlainConfig, Order } from './config';
 
 type ColumnWidths = {
   [key: string]: number;
@@ -202,7 +201,7 @@ export class Table<T = Row> {
    */
   toPlainString() {
     const config = this.config;
-    this._config = getPrintConfig(this.config);
+    this._config = getPlainConfig(this.config);
 
     this.build(true);
     const res = this.buildHeader() + '\n' + this.buildBody();

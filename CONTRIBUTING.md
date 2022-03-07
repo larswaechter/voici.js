@@ -1,4 +1,4 @@
-Feel free to contribute to this project:
+Feel free to contribute to voici.js:
 
 1. Create a fork
 2. Make your changes

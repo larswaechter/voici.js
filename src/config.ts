@@ -97,7 +97,7 @@ export const getDefaultConfig = (config: Partial<Config>): Required<Config> =>
     config
   );
 
-export const getPrintConfig = (config: Required<Config>): Required<Config> =>
+export const getPlainConfig = (config: Required<Config>): Required<Config> =>
   _.merge(config, {
     bgColorColumns: [],
     body: {
