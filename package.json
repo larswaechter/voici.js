@@ -1,0 +1,56 @@
+{
+  "name": "voici.js",
+  "version": "1.0.0",
+  "description": "A Node.js library for displaying table data on the terminal.",
+  "author": {
+    "name": "Lars Wächter",
+    "url": "https://larswaechter.dev/"
+  },
+  "main": "dist/index.js",
+  "homepage": "https://larswaechter.github.io/voici.js/",
+  "scripts": {
+    "build": "rm -rf ./dist && tsc",
+    "test": "npm run build && npm run test:run",
+    "test:run": "mocha -r ts-node/register ./tests/**/*.ts",
+    "docs": "typedoc",
+    "prettier": "prettier --config ./.prettierrc --write ./src/**/*.ts",
+    "lint": "tslint -p tsconfig.json",
+    "prepare": "npm run build",
+    "preversion": "npm run lint",
+    "version": "npm run prettier && npm run docs && git add .",
+    "postversion": "git push && git push --tags",
+    "prepublishOnly": "npm run lint && npm run build && npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/larswaechter/voici.js"
+  },
+  "bugs": {
+    "url": "https://github.com/larswaechter/voici.js/issues"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "types": "dist/index.d.ts",
+  "keywords": [
+    "console",
+    "terminal",
+    "table",
+    "data"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/lodash": "^4.14.179",
+    "prettier": "^2.5.1",
+    "tslint": "^6.1.3",
+    "tslint-config-prettier": "^1.18.0",
+    "typedoc": "^0.22.12",
+    "typescript": "^4.5.5"
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "fast-csv": "^4.3.6",
+    "lodash": "^4.17.21",
+    "JSONStream": "^1.3.5"
+  }
+}
