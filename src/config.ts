@@ -40,6 +40,7 @@ export type Config = Partial<{
     textColor: string;
     underline: boolean;
     width: number | 'auto';
+    maxWidth: number | 'auto';
   }>;
   order: Order;
   padding: Partial<{
@@ -83,7 +84,8 @@ export const getDefaultConfig = (config: Partial<Config>): Required<Config> =>
         numeration: true,
         textColor: '',
         underline: true,
-        width: 'auto'
+        width: 'auto',
+        maxWidth: 'auto'
       },
       order: {
         key: '',

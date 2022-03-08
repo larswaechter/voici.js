@@ -162,13 +162,17 @@ describe('Simple table', () => {
 
   it('Width', () => {
     const arrData = [
-      ['jdaiwwai jldaw ijal ijdawdaw', 'djawiddwa ad', 'dkowa öodoaw kaowd'],
-      ['dkowöadok öakdöoaw koö', 'kdaowd', 'dwoak ohkt mv ei i flnsli ngirlgk nksln ie'],
-      ['oöwd k', 'jdilw jd n iad', 'kodöwa on rln slem '],
+      ['abcdefghijklmn', 'opqrstuv wxyz abcdefghijklmnopq', 'rstuv wx y z abcd ef ghi jklmnop'],
       [
-        'dkawöo koöwdak oö',
-        'adwökw oaköd nawd  anda wnkdöoawkdoö akdoöa wkfjgridlgjirld ji gd ',
-        'kowda kaoöw'
+        'abc def gh ijklm nopqrstuv wxyzabcd efg h',
+        'ijklmno pqr stuvw xy',
+        'abcd efgh iklmn op qr stuvq xyz'
+      ],
+      ['ab cd ef gh', 'ij kl mn op', 'qrstuvw xyzabc defgh'],
+      [
+        'abcdefghijklmnopqrstuv wxyz abcdefghijklmn opqr stuvw',
+        'abc defg hijkl mnopqr stuv wxyz abc defgh ijkl mn opqr st uvw xyzabcdefghijklmn',
+        'abc def ghi jk lmnop'
       ]
     ];
 
@@ -180,6 +184,32 @@ describe('Simple table', () => {
     });
 
     const result = readFileSync(__dirname + '/width.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('MaxWidth', () => {
+    const arrData = [
+      ['abcdefghijklmn', 'opqrstuv wxyz abcdefghijklmnopq', 'rstuv wx y z abcd ef ghi jklmnop'],
+      ['abc def gh ', 'ijklmno pqr stuvw xy', 'abcd efgh iklmn op qr stuvq xyz'],
+      ['ab cd ef gh', 'ij kl mn op', 'qrstuvw xyzabc defgh'],
+      [
+        'abcdef ghi',
+        'abc defg hijkl mnopqr stuv wxyz abc defgh ijkl mn opqr st uvw xyzabcdefghijklmn',
+        'abc def ghi jk lmnop'
+      ]
+    ];
+
+    const table = new voici.Table(arrData, {
+      ...config,
+      header: {
+        maxWidth: 30
+      }
+    });
+
+    const result = readFileSync(__dirname + '/max_width.txt', {
       encoding: 'utf-8'
     });
 
