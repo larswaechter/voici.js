@@ -30,8 +30,8 @@ export type Config = Partial<{
   body: Partial<{
     bgColor: string;
     highlightCell: Partial<{
-      textColor: string;
       func: (content: any, row: number, col: string | number) => boolean;
+      textColor: string;
     }>;
     highlightRow: Partial<{
       bgColor: string;
@@ -42,9 +42,9 @@ export type Config = Partial<{
     textColor: string;
   }>;
   border: Partial<{
-    vertical: string;
-    horizontal: string;
     color: string;
+    horizontal: string;
+    vertical: string;
   }>;
   computed: Partial<{
     bgColor: string;
@@ -62,8 +62,8 @@ export type Config = Partial<{
   }>;
   order: Order;
   padding: Partial<{
-    size: number;
     char: string;
+    size: number;
   }>;
 }>;
 
@@ -81,8 +81,8 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
       body: {
         bgColor: '',
         highlightCell: {
-          textColor: '#FFBA08',
-          func: null
+          func: null,
+          textColor: '#FFBA08'
         },
         highlightRow: {
           bgColor: '#FFBA08',
@@ -93,9 +93,9 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         textColor: ''
       },
       border: {
-        vertical: '',
+        color: '',
         horizontal: '',
-        color: ''
+        vertical: ''
       },
       computed: {
         bgColor: '',
@@ -112,12 +112,12 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         maxWidth: 'auto'
       },
       order: {
-        key: '',
-        direction: 'ASC'
+        direction: 'ASC',
+        key: ''
       },
       padding: {
-        size: 2,
-        char: ' '
+        char: ' ',
+        size: 2
       }
     },
     config

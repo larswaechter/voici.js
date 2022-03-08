@@ -797,10 +797,8 @@ export class Table<T = Row> {
   private buildBodyRowOverflow(row: number, overflow: string[]) {
     const { align, padding } = this.config;
 
-    let content = '';
+    let content = '\n';
     let hasMore = false;
-
-    content += '\n';
 
     for (let i = 0; i < overflow.length; i++) {
       const colName = this.columnNames[i];
