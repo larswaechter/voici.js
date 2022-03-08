@@ -6,6 +6,24 @@ export type Order = Partial<{
   direction: 'ASC' | 'DESC';
 }>;
 
+export type ImageExportConfig = Partial<{
+  backgroundColor: string;
+  color: string;
+  font: string;
+  padding: number;
+}>;
+
+export const mergeImageExportConfig = (config: ImageExportConfig): Required<ImageExportConfig> =>
+  _.merge(
+    {
+      backgroundColor: 'black',
+      color: 'white',
+      font: '16px Consolas',
+      padding: 4
+    },
+    config
+  );
+
 export type Config = Partial<{
   align: 'LEFT' | 'CENTER' | 'RIGHT';
   bgColorColumns: string[];

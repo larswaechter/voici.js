@@ -42,6 +42,19 @@ const config: voici.Config = {
 };
 
 describe('Simple table', () => {
+  it('Align center', () => {
+    const table = new voici.Table(data, {
+      align: 'CENTER',
+      ...config
+    });
+
+    const result = readFileSync(__dirname + '/align_center.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('Align left', () => {
     const table = new voici.Table(data, config);
 
@@ -59,19 +72,6 @@ describe('Simple table', () => {
     });
 
     const result = readFileSync(__dirname + '/align_right.txt', {
-      encoding: 'utf-8'
-    });
-
-    assert.strictEqual(table.toPlainString(), result);
-  });
-
-  it('Align center', () => {
-    const table = new voici.Table(data, {
-      align: 'CENTER',
-      ...config
-    });
-
-    const result = readFileSync(__dirname + '/align_center.txt', {
       encoding: 'utf-8'
     });
 
@@ -105,6 +105,103 @@ describe('Simple table', () => {
     });
 
     const result = readFileSync(__dirname + '/border.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Empty', () => {
+    const arrData = [
+      [1, 'John', 'Doe', '', 'Male'],
+      [421, 'Jane', 'Doe', 'doe@yahoo.com', 'Female'],
+      [2003, '', 'Parker', 'spiderman@dummynet.com', 'Male'],
+      [55, 'Michael', 'Jackson', 'michael@j]ackson.com', '']
+    ];
+
+    const table = new voici.Table(arrData, config);
+
+    const result = readFileSync(__dirname + '/empty.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('MaxWidth align center', () => {
+    const arrData = [
+      ['abcdefghijklmn', 'opqrstuv wxyz abcdefghijklmnopq', 'rstuv wx y z abcd ef ghi jklmnop'],
+      ['abc def gh ', 'ijklmno pqr stuvw xy', 'abcd efgh iklmn op qr stuvq xyz'],
+      ['ab cd ef gh', 'ij kl mn op', 'qrstuvw xyzabc defgh'],
+      [
+        'abcdef ghi',
+        'abc defg hijkl mnopqr stuv wxyz abc defgh ijkl mn opqr st uvw xyzabcdefghijklmn',
+        'abc def ghi jk lmnop'
+      ]
+    ];
+
+    const table = new voici.Table(arrData, {
+      ...config,
+      align: 'CENTER',
+      header: {
+        maxWidth: 30
+      }
+    });
+
+    const result = readFileSync(__dirname + '/max_width_center.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('MaxWidth align left', () => {
+    const arrData = [
+      ['abcdefghijklmn', 'opqrstuv wxyz abcdefghijklmnopq', 'rstuv wx y z abcd ef ghi jklmnop'],
+      ['abc def gh ', 'ijklmno pqr stuvw xy', 'abcd efgh iklmn op qr stuvq xyz'],
+      ['ab cd ef gh', 'ij kl mn op', 'qrstuvw xyzabc defgh'],
+      [
+        'abcdef ghi',
+        'abc defg hijkl mnopqr stuv wxyz abc defgh ijkl mn opqr st uvw xyzabcdefghijklmn',
+        'abc def ghi jk lmnop'
+      ]
+    ];
+
+    const table = new voici.Table(arrData, {
+      ...config,
+      header: {
+        maxWidth: 30
+      }
+    });
+
+    const result = readFileSync(__dirname + '/max_width_left.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('MaxWidth align right', () => {
+    const arrData = [
+      ['abcdefghijklmn', 'opqrstuv wxyz abcdefghijklmnopq', 'rstuv wx y z abcd ef ghi jklmnop'],
+      ['abc def gh ', 'ijklmno pqr stuvw xy', 'abcd efgh iklmn op qr stuvq xyz'],
+      ['ab cd ef gh', 'ij kl mn op', 'qrstuvw xyzabc defgh'],
+      [
+        'abcdef ghi',
+        'abc defg hijkl mnopqr stuv wxyz abc defgh ijkl mn opqr st uvw xyzabcdefghijklmn',
+        'abc def ghi jk lmnop'
+      ]
+    ];
+
+    const table = new voici.Table(arrData, {
+      ...config,
+      align: 'RIGHT',
+      header: {
+        maxWidth: 30
+      }
+    });
+
+    const result = readFileSync(__dirname + '/max_width_right.txt', {
       encoding: 'utf-8'
     });
 
@@ -156,6 +253,26 @@ describe('Simple table', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('Precision', () => {
+    const arrData = [
+      [0.1, 0.435342],
+      [5.9651, 3158.23]
+    ];
+
+    const table = new voici.Table(arrData, {
+      ...config,
+      body: {
+        precision: 2
+      }
+    });
+
+    const result = readFileSync(__dirname + '/precision.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('Width', () => {
     const arrData = [
       ['abcdefghijklmn', 'opqrstuv wxyz abcdefghijklmnopq', 'rstuv wx y z abcd ef ghi jklmnop'],
@@ -180,32 +297,6 @@ describe('Simple table', () => {
     });
 
     const result = readFileSync(__dirname + '/width.txt', {
-      encoding: 'utf-8'
-    });
-
-    assert.strictEqual(table.toPlainString(), result);
-  });
-
-  it('MaxWidth', () => {
-    const arrData = [
-      ['abcdefghijklmn', 'opqrstuv wxyz abcdefghijklmnopq', 'rstuv wx y z abcd ef ghi jklmnop'],
-      ['abc def gh ', 'ijklmno pqr stuvw xy', 'abcd efgh iklmn op qr stuvq xyz'],
-      ['ab cd ef gh', 'ij kl mn op', 'qrstuvw xyzabc defgh'],
-      [
-        'abcdef ghi',
-        'abc defg hijkl mnopqr stuv wxyz abc defgh ijkl mn opqr st uvw xyzabcdefghijklmn',
-        'abc def ghi jk lmnop'
-      ]
-    ];
-
-    const table = new voici.Table(arrData, {
-      ...config,
-      header: {
-        maxWidth: 30
-      }
-    });
-
-    const result = readFileSync(__dirname + '/max_width.txt', {
       encoding: 'utf-8'
     });
 

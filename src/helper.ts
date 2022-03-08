@@ -1,8 +1,8 @@
 /**
- * Count the occurrences of each value.
+ * Counts the occurrences of each value.
  *
- * @param data - The dataset
- * @returns A `Map<Value, Occurrence>` map
+ * @param data  the dataset
+ * @returns a `Map<Value, Occurrences>` map
  */
 export const countOccurrences = (data: any[]) => {
   const table = new Map<string, number>();
@@ -10,10 +10,8 @@ export const countOccurrences = (data: any[]) => {
   for (const value of data) {
     const str = String(value);
     if (str === 'undefined') continue;
-
-    if (table.has(str)) {
-      table.set(str, table.get(str) + 1);
-    } else table.set(str, 1);
+    if (table.has(str)) table.set(str, table.get(str) + 1);
+    else table.set(str, 1);
   }
 
   return table;

@@ -7,7 +7,14 @@ import { resolve as resolvePath } from 'path';
 import { createReadStream, openSync, writeFileSync, OpenMode } from 'fs';
 
 import { getComputed } from './computed';
-import { Config, mergeDefaultConfig, mergePlainConfig, Order } from './config';
+import {
+  Config,
+  ImageExportConfig,
+  mergeDefaultConfig,
+  mergeImageExportConfig,
+  mergePlainConfig,
+  Order
+} from './config';
 
 type ColumnWidths = {
   [key: string]: number;
@@ -152,7 +159,6 @@ export class Table<T = Row> {
    */
   getDataCell(row: number, col: string | number) {
     const { header } = this.config;
-
     if (header.numeration && col === '#') return row;
     return this.data[row][col];
   }
@@ -195,9 +201,7 @@ export class Table<T = Row> {
       } else {
         const colName = _.isNumber(col) ? this.columnNames[col] : col;
         for (const row of this.data) {
-          const copy = { ...row };
-          delete copy[colName];
-          data.push(copy);
+          data.push(_.omit(row as {}, colName));
         }
         this.data = data;
         this.columnNames = this.columnNames.filter((name) => name !== colName);
@@ -223,6 +227,14 @@ export class Table<T = Row> {
   }
 
   /**
+   * Prints the plain (unstyled) table to the console.
+   */
+  printPlain() {
+    // tslint:disable-next-line: no-console
+    console.log(this.toPlainString());
+  }
+
+  /**
    * Gets the table as string.
    * Can be used to print the table on the console.
    *
@@ -240,7 +252,7 @@ export class Table<T = Row> {
    * @returns the plain table string
    */
   toPlainString() {
-    const config = this.config;
+    const configBackup = this.config;
     this._config = {
       ...mergePlainConfig(this.config)
     };
@@ -248,7 +260,7 @@ export class Table<T = Row> {
     this.build(true);
     const res = this.buildHeader() + '\n' + this.buildBody();
 
-    this._config = config;
+    this._config = configBackup;
 
     return res;
   }
@@ -270,22 +282,13 @@ export class Table<T = Row> {
    * Exports the plain table as .png file.
    *
    * @param filepath the filepath
-   * @param fontSize the image's font size.
+   * @param config the image export config
    */
-  exportImage(filepath: string, fontSize: number = 16) {
+  exportImage(filepath: string, config: ImageExportConfig = {}) {
     const fd = openSync(filepath, 'w');
-    writeFileSync(
-      fd,
-      text2png(this.toPlainString(), {
-        backgroundColor: 'black',
-        color: 'white',
-        font: `${fontSize}px Consolas`,
-        padding: 4
-      }),
-      {
-        encoding: 'utf-8'
-      }
-    );
+    writeFileSync(fd, text2png(this.toPlainString(), mergeImageExportConfig(config)), {
+      encoding: 'utf-8'
+    });
   }
 
   /**
@@ -322,7 +325,6 @@ export class Table<T = Row> {
 
     if (this.data.length) {
       const type = typeof this.getDataCell(0, key);
-
       switch (type) {
         case 'number':
           this.data.sort((a, b) => (direction === 'ASC' ? a[key] - b[key] : b[key] - a[key]));
@@ -338,11 +340,10 @@ export class Table<T = Row> {
   }
 
   /**
-   * Gets the text width of the given column.
-   * This does not include padding.
+   * Gets the raw text width of the given column.
    *
    * @param col the column
-   * @returns the column's width
+   * @returns the column's text width
    */
   private getColumnTextWidth(col: string | number) {
     const { header } = this.config;
@@ -451,7 +452,7 @@ export class Table<T = Row> {
   }
 
   /**
-   * Builds the cell content.
+   * Builds a cell content array.
    *
    * @param leftPadding the cell's left padding
    * @param text the cell's text
@@ -463,12 +464,12 @@ export class Table<T = Row> {
   }
 
   /**
-   * Builds an empty cell.
+   * Builds an empty cell content.
    *
    * @param col the cell's column
-   * @returns an empty cell
+   * @returns the empty cell content
    */
-  private buildEmptyCell(col: string | number) {
+  private buildEmptyCellContent(col: string | number) {
     const { padding } = this.config;
     return this.buildCellContent(
       padding.size,
@@ -494,28 +495,29 @@ export class Table<T = Row> {
   }
 
   /**
-   * Gets the text of given given cell.
+   * Gets the text of given the given cell.
    *
-   * @param row the cell's row index
-   * @param col the cell's column name
-   * @param full whether the text should be cropped or not.
+   * @param row the cell's row
+   * @param col the cell's column
+   * @param cropped whether the text should be cropped or not.
    * @returns the cell text
    */
   private getCellText(row: number, col: string, cropped: boolean = true) {
-    let res = '';
-    if (row === -1) res = this.parseCellText(this._computed[col]) || '';
-    else if (col === '#') res = this.parseCellText(row);
-    else res = this.parseCellText(this.getDataCell(row, col));
+    let text = '';
 
-    if (cropped) res = res.substring(0, this.getColumnTextWidth(col));
+    if (row === -1) text = this.parseCellText(this._computed[col]);
+    else if (col === '#') text = this.parseCellText(row);
+    else text = this.parseCellText(this.getDataCell(row, col));
 
-    return res || '';
+    if (cropped) text = text.substring(0, this.getColumnTextWidth(col));
+
+    return text;
   }
 
   /**
    * Calculates the header cell padding.
    *
-   * @param col the cell's column name
+   * @param col the cell's column
    * @returns the cell padding
    */
   private calculateHeaderCellPadding(col: string) {
@@ -526,26 +528,27 @@ export class Table<T = Row> {
   /**
    * Formats the content of the given header cell.
    *
-   * @param col cell's column index
+   * @param col cell's column
    * @param content cell's content
    * @returns the formatted cell content and its text length
    */
-  private formatHeaderCellContent(col: number, content: CellContent): [string, number] {
+  private formatHeaderCellContent(col: string, content: CellContent): [string, number] {
     const { bgColorColumns, border, header } = this.config;
     const { bgColor, bold, italic, textColor, underline } = header;
 
+    const colIndex = this.columnToIndex(col);
     const contentCopy = content.slice();
 
     // Border
     if (border.vertical.length) {
-      if (col === 0) contentCopy.unshift(border.vertical);
+      if (colIndex === 0) contentCopy.unshift(border.vertical);
       contentCopy.push(border.vertical);
     }
 
     const textIndex = contentCopy.length === 5 ? 2 : 1;
 
-    let res = '';
-    let len = 0;
+    let cellContent = '';
+    let cellContentLen = 0;
 
     for (let i = 0; i < contentCopy.length; i++) {
       const text = contentCopy[i];
@@ -553,7 +556,7 @@ export class Table<T = Row> {
 
       // Background
       if (bgColorColumns.length) {
-        styled = styled.bgHex(bgColorColumns[col % bgColorColumns.length]);
+        styled = styled.bgHex(bgColorColumns[colIndex % bgColorColumns.length]);
       } else if (bgColor.length) {
         styled = styled.bgHex(bgColor);
       }
@@ -569,24 +572,23 @@ export class Table<T = Row> {
         if (underline) styled = styled.underline;
       }
 
-      len += text.length;
-      res += styled(text);
+      cellContentLen += text.length;
+      cellContent += styled(text);
     }
 
-    return [res, len];
+    return [cellContent, cellContentLen];
   }
 
   /**
    * Builds the given header cell content.
    *
-   * @param col the cell's column name
+   * @param col the cell's column
    * @returns the cell content and its text length
    */
   private buildHeaderCell(col: string): [string, number] {
     const { align, padding } = this.config;
 
     let content: CellContent;
-    const colIndex = this.columnToIndex(col);
 
     switch (align) {
       case 'CENTER':
@@ -605,7 +607,7 @@ export class Table<T = Row> {
         content = this.buildCellContent(padding.size, col, rPadding);
     }
 
-    return this.formatHeaderCellContent(colIndex, content);
+    return this.formatHeaderCellContent(col, content);
   }
 
   /**
@@ -614,27 +616,27 @@ export class Table<T = Row> {
    * @returns the header content
    */
   private buildHeader() {
-    let res = '';
-    let len = 0;
+    let content = '';
+    let contentLen = 0;
 
     for (const col of this.columnNames) {
       const [_res, _len] = this.buildHeaderCell(col);
-      res += _res;
-      len += _len;
+      content += _res;
+      contentLen += _len;
     }
 
-    this.tableWidth = len;
+    this.tableWidth = contentLen;
 
-    res += '\n' + '='.repeat(len);
+    content += '\n' + '='.repeat(contentLen);
 
-    return res;
+    return content;
   }
 
   /**
    * Calculates the body cell padding.
    *
-   * @param row the cell's row index
-   * @param col the cell's column name
+   * @param row the cell's row
+   * @param col the cell's column
    * @returns the cell padding
    */
   private calculateBodyCellPadding(row: number, col: string) {
@@ -645,39 +647,41 @@ export class Table<T = Row> {
   /**
    * Formats the content of the given body cell.
    *
-   * @param row the cell's row index
-   * @param col the cell's column index
+   * @param row the cell's row
+   * @param col the cell's column
    * @param content the cell's content
    * @returns the formatted cell content
    */
-  private formatBodyCellContent(row: number, col: number, colName: string, content: CellContent) {
+  private formatBodyCellContent(row: number, col: string, content: CellContent) {
     const { bgColorColumns, body, border, computed } = this.config;
     const { highlightCell, textColor } = body;
 
+    const colIndex = this.columnToIndex(col);
     const contentCopy = content.slice();
 
     // Border
     if (border.vertical.length) {
-      if (col === 0) contentCopy.unshift(border.vertical);
+      if (colIndex === 0) contentCopy.unshift(border.vertical);
       contentCopy.push(border.vertical);
     }
 
     const textIndex = contentCopy.length === 5 ? 2 : 1;
 
-    let res = '';
+    let cellContent = '';
     for (let i = 0; i < contentCopy.length; i++) {
       const text = contentCopy[i];
 
       // Computed row
       if (row === -1 && computed.bgColor.length) {
-        res += chalk.bgHex(computed.bgColor)(text);
+        cellContent += chalk.bgHex(computed.bgColor)(text);
         continue;
       }
 
       let styled: Chalk = chalk;
 
       // Column background
-      if (bgColorColumns.length) styled = chalk.bgHex(bgColorColumns[col % bgColorColumns.length]);
+      if (bgColorColumns.length)
+        styled = chalk.bgHex(bgColorColumns[colIndex % bgColorColumns.length]);
 
       if (this.isBorder(text) && border.color.length) styled = styled.hex(border.color);
       else if (i === textIndex) {
@@ -687,63 +691,56 @@ export class Table<T = Row> {
         // Highlight value
         if (
           _.isFunction(highlightCell.func) &&
-          highlightCell.func(
-            this.getDataCell(row, colName),
-            row,
-            _.isNumber(colName) ? +colName : colName
-          )
+          highlightCell.func(this.getDataCell(row, col), row, col)
         )
           styled = styled.hex(highlightCell.textColor);
       }
 
-      res += styled(text);
+      cellContent += styled(text);
     }
 
-    return res;
+    return cellContent;
   }
 
   /**
    * Builds the given body cell content.
    *
-   * @param row the cell's row index
-   * @param col the cell's column index
+   * @param row the cell's row
+   * @param col the cell's column
    * @returns the cell content
    */
-  private buildBodyCell(row: number, col: number) {
+  private buildBodyCell(row: number, col: string) {
     const { align, padding } = this.config;
 
     let content: CellContent;
 
-    const colName = this.columnNames[col];
-    const colText = this.getCellText(row, colName);
-    const overflow = this.getCellText(row, colName, false).substring(
-      this.getColumnTextWidth(colName)
-    );
+    const colText = this.getCellText(row, col);
+    const overflow = this.getCellText(row, col, false).substring(this.getColumnTextWidth(col));
 
     switch (align) {
       case 'CENTER':
-        const toFill = this.getColumnTextWidth(colName) - colText.length;
+        const toFill = this.getColumnTextWidth(col) - colText.length;
         const lrPadding = Math.floor(toFill / 2) + padding.size;
         content = this.buildCellContent(lrPadding, colText, lrPadding + (toFill % 2 ? 1 : 0));
         break;
 
       case 'RIGHT':
-        const lPadding = this.calculateBodyCellPadding(row, colName);
+        const lPadding = this.calculateBodyCellPadding(row, col);
         content = this.buildCellContent(lPadding, colText, padding.size);
         break;
 
       default:
-        const rPadding = this.calculateBodyCellPadding(row, colName);
+        const rPadding = this.calculateBodyCellPadding(row, col);
         content = this.buildCellContent(padding.size, colText, rPadding);
     }
 
-    return [this.formatBodyCellContent(row, col, colName, content), overflow];
+    return [this.formatBodyCellContent(row, col, content), overflow];
   }
 
   /**
    * Formats the content of the given body row.
    *
-   * @param row the cell's row index
+   * @param row the cell's row
    * @param content the rows's content
    * @returns the formatted row content
    */
@@ -765,7 +762,7 @@ export class Table<T = Row> {
   /**
    * Builds the given body row.
    *
-   * @param row the row's index
+   * @param row the row
    * @returns the row content
    */
   private buildBodyRow(row: number) {
@@ -773,8 +770,8 @@ export class Table<T = Row> {
     let hasOverflow = false;
     const colsOverflow: string[] = [];
 
-    for (let i = 0; i < this.columnNames.length; i++) {
-      const [str, overflow] = this.buildBodyCell(row, i);
+    for (const name of this.columnNames) {
+      const [str, overflow] = this.buildBodyCell(row, name);
       content += str;
       colsOverflow.push(overflow);
       if (overflow.length) hasOverflow = true;
@@ -798,30 +795,54 @@ export class Table<T = Row> {
    * @returns the subsequent lines
    */
   private buildBodyRowOverflow(row: number, overflow: string[]) {
+    const { align, padding } = this.config;
+
     let content = '';
-    let overflowLeft = false;
+    let hasMore = false;
 
     content += '\n';
 
     for (let i = 0; i < overflow.length; i++) {
       const colName = this.columnNames[i];
       const colWidth = this.getColumnTextWidth(colName);
-      const textLeft = overflow[i].substring(0, colWidth);
+      const text = overflow[i].substring(0, colWidth);
 
-      if (!textLeft.length)
-        content += this.formatBodyCellContent(row, i, colName, this.buildEmptyCell(colName));
+      if (!text.length)
+        content += this.formatBodyCellContent(row, colName, this.buildEmptyCellContent(colName));
       else {
-        content += this.formatBodyCellContent(row, i, colName, [
-          this.getPadding(this.config.padding.size),
-          textLeft,
-          this.getPadding(colWidth - textLeft.length + this.config.padding.size)
-        ]);
+        switch (align) {
+          case 'CENTER':
+            const toFill = colWidth - text.length;
+            const lrPadding = Math.floor(toFill / 2) + padding.size;
+            content += this.formatBodyCellContent(
+              row,
+              colName,
+              this.buildCellContent(lrPadding, text, lrPadding + (toFill % 2 ? 1 : 0))
+            );
+            break;
+
+          case 'RIGHT':
+            content += this.formatBodyCellContent(
+              row,
+              colName,
+              this.buildCellContent(colWidth - text.length + padding.size, text, padding.size)
+            );
+            break;
+
+          default:
+            content += this.formatBodyCellContent(
+              row,
+              colName,
+              this.buildCellContent(padding.size, text, colWidth - text.length + padding.size)
+            );
+        }
+
         overflow[i] = overflow[i].substring(colWidth);
-        if (overflow[i].length) overflowLeft = true;
+        if (overflow[i].length) hasMore = true;
       }
     }
 
-    if (overflowLeft) content += this.buildBodyRowOverflow(row, overflow);
+    if (hasMore) content += this.buildBodyRowOverflow(row, overflow);
 
     return content;
   }
@@ -832,14 +853,17 @@ export class Table<T = Row> {
    * @returns the body content
    */
   private buildBody() {
-    let res = this.data.reduce((prev, __, i) => prev + this.buildBodyRow(i), '');
+    let content = this.data.reduce((prev, __, i) => prev + this.buildBodyRow(i), '');
+
+    // Computed row
     if (this.config.computed.columns.length)
-      res += this.getRowSeparator('-') + this.buildBodyRow(-1);
+      content += this.getRowSeparator('-') + this.buildBodyRow(-1);
 
     // Remove last linebreak (\n)
-    if (res.charCodeAt(res.length - 1) === 10) res = res.substring(0, res.length - 1);
+    if (content.charCodeAt(content.length - 1) === 10)
+      content = content.substring(0, content.length - 1);
 
-    return res;
+    return content;
   }
 
   /**

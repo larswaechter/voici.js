@@ -19,6 +19,5 @@ const table = new Table(data, {
   }
 });
 
-console.log(table.toPlainString());
-
+table.printPlain();
 table.exportImage(join(__dirname, '../', 'img.png'));
