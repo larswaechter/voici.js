@@ -7,7 +7,7 @@ import { resolve as resolvePath } from 'path';
 import { createReadStream, openSync, writeFileSync, OpenMode } from 'fs';
 
 import { getComputed } from './computed';
-import { Config, getDefaultConfig, getPlainConfig, Order } from './config';
+import { Config, mergeDefaultConfig, mergePlainConfig, Order } from './config';
 
 type ColumnWidths = {
   [key: string]: number;
@@ -23,24 +23,43 @@ export type Row =
 type CellContent = [string, string, string];
 
 export class Table<T = Row> {
+  /**
+   * The dataset.
+   */
   private _data: T[];
+
+  /**
+   * The table config.
+   */
   private _config: Required<Config>;
 
+  /**
+   * The auto computed row.
+   */
   private _computed: Partial<T>;
 
+  /**
+   * The column names.
+   */
   private _columnNames: string[] = [];
 
   /**
-   * Max. column text widths
+   * The maximum width of each column.
    */
   private columnWidths: ColumnWidths;
 
+  /**
+   * The table width.
+   */
   private tableWidth: number;
 
+  /**
+   * A flag to check whether the header or body has changed since the last build.
+   */
   private touched: boolean = true;
 
   /**
-   * Create a new `Table` instance from .csv file stream.
+   * Creates a new `Table` instance from a .csv file stream.
    *
    * @param path the .csv filepath
    * @param csvConfig the fast-csv config
@@ -69,7 +88,7 @@ export class Table<T = Row> {
   }
 
   /**
-   * Create a new `Table` instance from .json file stream.
+   * Creates a new `Table` instance from a .json file stream.
    *
    * @param path the .json filepath
    * @param tableConfig the table config
@@ -94,8 +113,8 @@ export class Table<T = Row> {
 
   constructor(data: T[], config: Config = {}) {
     this._data = data.slice();
-    this._config = getDefaultConfig(config);
-    this.buildHeaderNames();
+    this._config = mergeDefaultConfig(config);
+    this.buildColumnNames();
   }
 
   public get data() {
@@ -125,13 +144,13 @@ export class Table<T = Row> {
   }
 
   /**
-   * Get the value of the given cell.
+   * Gets the value of the given cell in the dataset.
    *
    * @param row the cell's row
    * @param col the cell's col
-   * @returns the cell value
+   * @returns the cell's value
    */
-  public getDataCell(row: number, col: string | number) {
+  getDataCell(row: number, col: string | number) {
     const { header } = this.config;
 
     if (header.numeration && col === '#') return row;
@@ -139,7 +158,7 @@ export class Table<T = Row> {
   }
 
   /**
-   * Append the given row to the dataset.
+   * Appends the given row to the dataset.
    *
    * @param row the row to append
    */
@@ -148,7 +167,16 @@ export class Table<T = Row> {
   }
 
   /**
-   * Remove the given column from the dataset.
+   * Remove the given row from the dataset.
+   *
+   * @param row the row to remove
+   */
+  removeRow(row: number) {
+    this.data.splice(row, 1);
+  }
+
+  /**
+   * Removes the given column from the dataset.
    *
    * @param col the column to remove
    */
@@ -163,7 +191,7 @@ export class Table<T = Row> {
             data.push(copy);
           }
         }
-        this.buildHeaderNames();
+        this.buildColumnNames();
       } else {
         const colName = _.isNumber(col) ? this.columnNames[col] : col;
         for (const row of this.data) {
@@ -178,16 +206,7 @@ export class Table<T = Row> {
   }
 
   /**
-   * Remove the given row from the dataset.
-   *
-   * @param row the row to remove
-   */
-  removeRow(row: number) {
-    this.data.splice(row, 1);
-  }
-
-  /**
-   * Shufle the dataset.
+   * Shuffles the dataset.
    */
   shuffle() {
     if (this.config.order.key.length)
@@ -196,7 +215,7 @@ export class Table<T = Row> {
   }
 
   /**
-   * Print the table.
+   * Prints the table to the console.
    */
   print() {
     // tslint:disable-next-line: no-console
@@ -204,7 +223,8 @@ export class Table<T = Row> {
   }
 
   /**
-   * Get the table as string.
+   * Gets the table as string.
+   * Can be used to print the table on the console.
    *
    * @returns the table string
    */
@@ -214,14 +234,15 @@ export class Table<T = Row> {
   }
 
   /**
-   * Get the table as plain string without styling.
+   * Gets the table as plain string without styling.
+   * Can be used to write the table to a file.
    *
    * @returns the plain table string
    */
   toPlainString() {
     const config = this.config;
     this._config = {
-      ...getPlainConfig(this.config)
+      ...mergePlainConfig(this.config)
     };
 
     this.build(true);
@@ -233,12 +254,12 @@ export class Table<T = Row> {
   }
 
   /**
-   * Write the plain table to the given file (without style).
+   * Exports the plain table to the given file (without style).
    *
    * @param filepath the filepath
    * @param mode the file's open mode
    */
-  writeFile(filepath: string, mode: OpenMode = 'w') {
+  exportFile(filepath: string, mode: OpenMode = 'w') {
     const fd = openSync(filepath, mode);
     writeFileSync(fd, this.toPlainString(), {
       encoding: 'utf-8'
@@ -246,12 +267,12 @@ export class Table<T = Row> {
   }
 
   /**
-   * Write the plain table as .png file.
+   * Exports the plain table as .png file.
    *
    * @param filepath the filepath
    * @param fontSize the image's font size.
    */
-  writeImage(filepath: string, fontSize: number = 16) {
+  exportImage(filepath: string, fontSize: number = 16) {
     const fd = openSync(filepath, 'w');
     writeFileSync(
       fd,
@@ -268,30 +289,17 @@ export class Table<T = Row> {
   }
 
   /**
-   * Get the character padding of given size
+   * Gets the character padding of the given size.
    *
    * @param size the padding size
    * @returns the character padding
    */
   private getPadding(size: number) {
-    return this.config.padding.char.repeat(Math.max(size, 0));
+    return this.config.padding.char.repeat(size);
   }
 
   /**
-   * Get the width of the given column.
-   *
-   * @param col the column
-   * @returns the column's width
-   */
-  private getColumnWidth(col: string | number) {
-    const { header } = this.config;
-    const colName = _.isNumber(col) ? this.columnNames[col] : col;
-    if (_.isNumber(header.maxWidth)) return Math.min(this.columnWidths[colName], header.maxWidth);
-    return this.columnWidths[colName];
-  }
-
-  /**
-   * Check whether the given text is a `border` character.
+   * Checks whether the given text is a `border` character.
    *
    * @param text the text to check
    * @returns whether the text is a `border` character
@@ -305,7 +313,7 @@ export class Table<T = Row> {
   }
 
   /**
-   * Sort the dataset using a given sort order.
+   * Sorts the dataset using a given sort order.
    *
    * @param order the sort order
    */
@@ -330,9 +338,23 @@ export class Table<T = Row> {
   }
 
   /**
-   * Build the header names from the dataset.
+   * Gets the text width of the given column.
+   * This does not include padding.
+   *
+   * @param col the column
+   * @returns the column's width
    */
-  private buildHeaderNames() {
+  private getColumnTextWidth(col: string | number) {
+    const { header } = this.config;
+    const colName = _.isNumber(col) ? this.columnNames[col] : col;
+    if (_.isNumber(header.maxWidth)) return Math.min(this.columnWidths[colName], header.maxWidth);
+    return this.columnWidths[colName];
+  }
+
+  /**
+   * Builds the column names from the dataset.
+   */
+  private buildColumnNames() {
     if (!this.data.length) return;
 
     const names = [];
@@ -345,33 +367,7 @@ export class Table<T = Row> {
   }
 
   /**
-   * Get the values of the computed row.
-   *
-   * @returns the values of the computed row
-   */
-  private getComputedRow() {
-    const { computed } = this.config;
-    const { columns } = computed;
-
-    if (!columns.length) return {};
-
-    const values = {};
-
-    // Initalize empty arrays
-    for (const comp of columns) values[comp.column] = [];
-
-    // Collect row data
-    for (const row of this.data)
-      for (const col of columns) values[col.column].push(row[col.column] || '');
-
-    // Compute
-    for (const comp of columns) values[comp.column] = getComputed(values[comp.column], comp.func);
-
-    return values;
-  }
-
-  /**
-   * Calculate the width of each column.
+   * Calculates the width of each column.
    */
   private calculateColumnWidths() {
     const { header } = this.config;
@@ -409,25 +405,80 @@ export class Table<T = Row> {
   }
 
   /**
-   * Get the text of given given cell.
+   * Gets the index of the given column.
    *
-   * @param row the cell's row index
-   * @param col the cell's column name
-   * @returns the cell content
+   * @param col the column's name
+   * @returns the column's index
    */
-  private getCellText(row: number, col: string, full: boolean = false) {
-    let res = '';
-    if (row === -1) res = this.parseCellText(this._computed[col]) || '';
-    else if (col === '#') res = this.parseCellText(row);
-    else res = this.parseCellText(this.getDataCell(row, col));
-
-    if (!full) res = res.substring(0, this.getColumnWidth(col));
-
-    return res || '';
+  private columnToIndex(col: string) {
+    return this.columnNames.findIndex((name) => name === col);
   }
 
   /**
-   * Parse the given cell text to `String`.
+   * Gets the row separator (border-bottom).
+   *
+   * @param separator the separator character
+   * @returns the row separator string
+   */
+  private getRowSeparator(separator: string = this.config.border.horizontal) {
+    return separator.length ? separator.repeat(this.tableWidth) + '\n' : '';
+  }
+
+  /**
+   * Gets the values of the computed row.
+   *
+   * @returns the values of the computed row
+   */
+  private getComputedRow() {
+    const { computed } = this.config;
+    const { columns } = computed;
+
+    if (!columns.length) return {};
+
+    const values = {};
+
+    // Initalize empty arrays
+    for (const comp of columns) values[comp.column] = [];
+
+    // Collect row data
+    for (const row of this.data)
+      for (const col of columns) values[col.column].push(row[col.column] || '');
+
+    // Compute
+    for (const comp of columns) values[comp.column] = getComputed(values[comp.column], comp.func);
+
+    return values;
+  }
+
+  /**
+   * Builds the cell content.
+   *
+   * @param leftPadding the cell's left padding
+   * @param text the cell's text
+   * @param rightPadding the cell's right padding
+   * @returns the cell content
+   */
+  private buildCellContent(leftPadding: number, text: string, rightPadding: number): CellContent {
+    return [this.getPadding(leftPadding), text, this.getPadding(rightPadding)];
+  }
+
+  /**
+   * Builds an empty cell.
+   *
+   * @param col the cell's column
+   * @returns an empty cell
+   */
+  private buildEmptyCell(col: string | number) {
+    const { padding } = this.config;
+    return this.buildCellContent(
+      padding.size,
+      this.getPadding(this.getColumnTextWidth(col)),
+      padding.size
+    );
+  }
+
+  /**
+   * Parses the given cell text to `String`.
    *
    * @param text the text to parse
    * @returns the parsed cell text
@@ -443,21 +494,41 @@ export class Table<T = Row> {
   }
 
   /**
-   * Get the index of the given column.
+   * Gets the text of given given cell.
    *
-   * @param col the column's name
-   * @returns the column's index
+   * @param row the cell's row index
+   * @param col the cell's column name
+   * @param full whether the text should be cropped or not.
+   * @returns the cell text
    */
-  private columnToIndex(col: string) {
-    return this.columnNames.findIndex((name) => name === col);
+  private getCellText(row: number, col: string, cropped: boolean = true) {
+    let res = '';
+    if (row === -1) res = this.parseCellText(this._computed[col]) || '';
+    else if (col === '#') res = this.parseCellText(row);
+    else res = this.parseCellText(this.getDataCell(row, col));
+
+    if (cropped) res = res.substring(0, this.getColumnTextWidth(col));
+
+    return res || '';
   }
 
   /**
-   * Format the content of the given header cell.
+   * Calculates the header cell padding.
+   *
+   * @param col the cell's column name
+   * @returns the cell padding
+   */
+  private calculateHeaderCellPadding(col: string) {
+    const { padding } = this.config;
+    return this.getColumnTextWidth(col) - col.length + padding.size;
+  }
+
+  /**
+   * Formats the content of the given header cell.
    *
    * @param col cell's column index
    * @param content cell's content
-   * @returns the formatted content
+   * @returns the formatted cell content and its text length
    */
   private formatHeaderCellContent(col: number, content: CellContent): [string, number] {
     const { bgColorColumns, border, header } = this.config;
@@ -506,21 +577,10 @@ export class Table<T = Row> {
   }
 
   /**
-   * Calculate the header cell padding.
+   * Builds the given header cell content.
    *
    * @param col the cell's column name
-   * @returns the padding
-   */
-  private calculateHeaderCellPadding(col: string) {
-    const { padding } = this.config;
-    return this.getColumnWidth(col) - col.length + padding.size;
-  }
-
-  /**
-   * Build the given header cell.
-   *
-   * @param col the cell's column name
-   * @returns the cell string
+   * @returns the cell content and its text length
    */
   private buildHeaderCell(col: string): [string, number] {
     const { align, padding } = this.config;
@@ -530,32 +590,28 @@ export class Table<T = Row> {
 
     switch (align) {
       case 'CENTER':
-        const toFill = this.getColumnWidth(col) - col.length;
+        const toFill = this.getColumnTextWidth(col) - col.length;
         const lrPadding = Math.floor(toFill / 2) + padding.size;
-        content = [
-          this.getPadding(lrPadding),
-          col,
-          this.getPadding(lrPadding + (toFill % 2 ? 1 : 0))
-        ];
+        content = this.buildCellContent(lrPadding, col, lrPadding + (toFill % 2 ? 1 : 0));
         break;
 
       case 'RIGHT':
         const lPadding = this.calculateHeaderCellPadding(col);
-        content = [this.getPadding(lPadding), col, this.getPadding(padding.size)];
+        content = this.buildCellContent(lPadding, col, padding.size);
         break;
 
       default:
         const rPadding = this.calculateHeaderCellPadding(col);
-        content = [this.getPadding(padding.size), col, this.getPadding(rPadding)];
+        content = this.buildCellContent(padding.size, col, rPadding);
     }
 
     return this.formatHeaderCellContent(colIndex, content);
   }
 
   /**
-   * Build the header.
+   * Builds the header.
    *
-   * @returns the header string
+   * @returns the header content
    */
   private buildHeader() {
     let res = '';
@@ -575,12 +631,24 @@ export class Table<T = Row> {
   }
 
   /**
-   * Format the content of the given body cell.
+   * Calculates the body cell padding.
+   *
+   * @param row the cell's row index
+   * @param col the cell's column name
+   * @returns the cell padding
+   */
+  private calculateBodyCellPadding(row: number, col: string) {
+    const { padding } = this.config;
+    return this.getColumnTextWidth(col) - this.getCellText(row, col).length + padding.size;
+  }
+
+  /**
+   * Formats the content of the given body cell.
    *
    * @param row the cell's row index
    * @param col the cell's column index
    * @param content the cell's content
-   * @returns the formatted content
+   * @returns the formatted cell content
    */
   private formatBodyCellContent(row: number, col: number, colName: string, content: CellContent) {
     const { bgColorColumns, body, border, computed } = this.config;
@@ -635,23 +703,11 @@ export class Table<T = Row> {
   }
 
   /**
-   * Calculate the body cell padding.
-   *
-   * @param row the cell's row index
-   * @param col the cell's column name
-   * @returns the padding
-   */
-  private calculateBodyCellPadding(row: number, col: string) {
-    const { padding } = this.config;
-    return this.getColumnWidth(col) - this.getCellText(row, col).length + padding.size;
-  }
-
-  /**
-   * Build the given body cell.
+   * Builds the given body cell content.
    *
    * @param row the cell's row index
    * @param col the cell's column index
-   * @returns the cell string
+   * @returns the cell content
    */
   private buildBodyCell(row: number, col: number) {
     const { align, padding } = this.config;
@@ -660,11 +716,13 @@ export class Table<T = Row> {
 
     const colName = this.columnNames[col];
     const colText = this.getCellText(row, colName);
-    const overflow = this.getCellText(row, colName, true).substring(this.getColumnWidth(colName));
+    const overflow = this.getCellText(row, colName, false).substring(
+      this.getColumnTextWidth(colName)
+    );
 
     switch (align) {
       case 'CENTER':
-        const toFill = this.getColumnWidth(colName) - colText.length;
+        const toFill = this.getColumnTextWidth(colName) - colText.length;
         const lrPadding = Math.floor(toFill / 2) + padding.size;
         content = this.buildCellContent(lrPadding, colText, lrPadding + (toFill % 2 ? 1 : 0));
         break;
@@ -683,11 +741,11 @@ export class Table<T = Row> {
   }
 
   /**
-   * Format the content of the given body row.
+   * Formats the content of the given body row.
    *
    * @param row the cell's row index
    * @param content the rows's content
-   * @returns the formatted content
+   * @returns the formatted row content
    */
   private formatBodyRowContent(row: number, content: string) {
     const { bgColor, highlightRow, striped } = this.config.body;
@@ -705,47 +763,10 @@ export class Table<T = Row> {
   }
 
   /**
-   * Get the row separator (border-bottom).
+   * Builds the given body row.
    *
-   * @param separator the separator character
-   * @returns the row separator string
-   */
-  private getRowSeparator(separator: string = this.config.border.horizontal) {
-    return separator.length ? separator.repeat(this.tableWidth) + '\n' : '';
-  }
-
-  /**
-   * Build a cell content.
-   *
-   * @param leftPadding the cell's left padding
-   * @param text the cell's text
-   * @param rightPadding the cell's right padding
-   * @returns the cell content
-   */
-  private buildCellContent(leftPadding: number, text: string, rightPadding: number): CellContent {
-    return [this.getPadding(leftPadding), text, this.getPadding(rightPadding)];
-  }
-
-  /**
-   * Build an empty cell.
-   *
-   * @param col the cell's column
-   * @returns an empty cell
-   */
-  private buildEmptyCell(col: string | number) {
-    const { padding } = this.config;
-    return this.buildCellContent(
-      padding.size,
-      this.getPadding(this.getColumnWidth(col)),
-      padding.size
-    );
-  }
-
-  /**
-   * Build the given body row.
-   *
-   * @param row row's index
-   * @returns row string
+   * @param row the row's index
+   * @returns the row content
    */
   private buildBodyRow(row: number) {
     let content = '';
@@ -770,7 +791,7 @@ export class Table<T = Row> {
   }
 
   /**
-   * Build the subsequent lines (overflow) of the given row.
+   * Builds the subsequent lines (overflow) of the given row.
    *
    * @param row the initial row
    * @param overflow the text overflow
@@ -784,7 +805,7 @@ export class Table<T = Row> {
 
     for (let i = 0; i < overflow.length; i++) {
       const colName = this.columnNames[i];
-      const colWidth = this.getColumnWidth(colName);
+      const colWidth = this.getColumnTextWidth(colName);
       const textLeft = overflow[i].substring(0, colWidth);
 
       if (!textLeft.length)
@@ -806,9 +827,9 @@ export class Table<T = Row> {
   }
 
   /**
-   * Build the body.
+   * Builds the body.
    *
-   * @returns the body string
+   * @returns the body content
    */
   private buildBody() {
     let res = this.data.reduce((prev, __, i) => prev + this.buildBodyRow(i), '');
@@ -822,7 +843,7 @@ export class Table<T = Row> {
   }
 
   /**
-   * Build the table
+   * Builds the table.
    *
    * @param force force the build
    */

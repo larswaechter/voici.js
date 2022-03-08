@@ -49,7 +49,13 @@ export type Config = Partial<{
   }>;
 }>;
 
-export const getDefaultConfig = (config: Partial<Config>): Required<Config> =>
+/**
+ * Merges the given config with the default config.
+ *
+ * @param config the config
+ * @returns the merged config
+ */
+export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
   _.merge(
     {
       align: 'LEFT',
@@ -99,7 +105,14 @@ export const getDefaultConfig = (config: Partial<Config>): Required<Config> =>
     config
   );
 
-export const getPlainConfig = (config: Required<Config>): Required<Config> =>
+/**
+ * Merges the given config with the plain config.
+ * The plain config removes all styling options.
+ *
+ * @param config the config
+ * @returns the merged config
+ */
+export const mergePlainConfig = (config: Required<Config>): Required<Config> =>
   _.merge(config, {
     bgColorColumns: [],
     body: {

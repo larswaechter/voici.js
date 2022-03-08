@@ -42,11 +42,11 @@ export enum ComputeFunction {
 }
 
 /**
- * Get the computed value using the given dataset and ComputeFunction.
+ * Gets the computed value using the given dataset and ComputeFunction.
  *
- * @param data - The dataset
- * @param func - The ComputeFunction
- * @returns - The computed value
+ * @param data the dataset
+ * @param func the ComputeFunction
+ * @returns the computed value
  */
 export const getComputed = (data: [], func: ComputeFunction) => {
   switch (func) {
@@ -78,26 +78,26 @@ export const getComputed = (data: [], func: ComputeFunction) => {
 };
 
 /**
- * Calculate the sum.
+ * Calculates the sum.
  *
- * @param data - The dataset
- * @returns The calculated sum
+ * @param data the dataset
+ * @returns the calculated sum
  */
 export const calculateSum = (data: number[]) => _.sum(data);
 
 /**
- * Calculate the mean.
+ * Calculates the mean.
  *
- * @param data - The dataset
- * @returns The calculated mean
+ * @param data the dataset
+ * @returns the calculated mean
  */
 export const calculateMean = (data: number[]) => _.mean(data);
 
 /**
- * Calculate the median.
+ * Calculates the median.
  *
- * @param data - The dataset
- * @returns The calculated median
+ * @param data the dataset
+ * @returns the calculated median
  */
 export const calculateMedian = (data: number[]) => {
   if (!data.length) return 0;
@@ -111,10 +111,10 @@ export const calculateMedian = (data: number[]) => {
 };
 
 /**
- * Calculate the variance.
+ * Calculates the variance.
  *
- * @param data - The dataset
- * @returns The calculated variance
+ * @param data the dataset
+ * @returns the calculated variance
  */
 export const calculateVariance = (data: number[]) => {
   if (!data.length) return 0;
@@ -124,20 +124,20 @@ export const calculateVariance = (data: number[]) => {
 };
 
 /**
- * Calculate the standard deviation.
+ * Calculates the standard deviation.
  *
- * @param data - The dataset
- * @returns The calculated standard deviation
+ * @param data the dataset
+ * @returns the calculated standard deviation
  */
 export const calculateStandardDeviation = (data: number[]) => {
   return Math.sqrt(calculateVariance(data));
 };
 
 /**
- * Calculate the range (difference between min and max).
+ * Calculates the range (difference between min and max).
  *
- * @param data - The dataset
- * @returns The calculated range
+ * @param data the dataset
+ * @returns the calculated range
  */
 export const calculateRange = (data: number[]) => {
   if (!data.length) return 0;
@@ -154,10 +154,10 @@ export const calculateRange = (data: number[]) => {
 };
 
 /**
- * Count the number of values (non-empty cells).
+ * Counts the number of values (non-empty cells).
  *
- * @param data - The dataset
- * @returns The number of values
+ * @param data the dataset
+ * @returns the number of values
  */
 export const calculateCount = (data: any[]) => {
   let counter = 0;
@@ -168,10 +168,10 @@ export const calculateCount = (data: any[]) => {
 };
 
 /**
- * Calculate the most frequent value.
+ * Calculates the most frequent value.
  *
- * @param data - The dataset
- * @returns The calculated most frequent value
+ * @param data the dataset
+ * @returns the calculated most frequent value
  */
 export const calculateMostFrequent = (data: any[]) => {
   const occurrences = countOccurrences(data);
@@ -190,10 +190,10 @@ export const calculateMostFrequent = (data: any[]) => {
 };
 
 /**
- * Calculate the most infrequent value.
+ * Calculates the most infrequent value.
  *
- * @param data - The dataset
- * @returns The calculated most infrequent value
+ * @param data the dataset
+ * @returns the calculated most infrequent value
  */
 export const calculateMostInFrequent = (data: any[]) => {
   const occurrences = countOccurrences(data);

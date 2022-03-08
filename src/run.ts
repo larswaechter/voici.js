@@ -21,4 +21,4 @@ const table = new Table(data, {
 
 console.log(table.toPlainString());
 
-table.writeImage(join(__dirname, '../', 'img.png'));
+table.exportImage(join(__dirname, '../', 'img.png'));
