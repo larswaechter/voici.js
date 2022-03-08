@@ -42,6 +42,7 @@ The top level configuration of voici.js:
 ```js
 const config = {
   align: 'LEFT',
+  bgColorColumns: [],
   body: {},
   border: {},
   computed: {},
@@ -53,15 +54,15 @@ const config = {
 
 ### align
 
-|  Name   |   Type   | Default |     Description     |
-| :-----: | :------: | :-----: | :-----------------: |
+| Name    | Type     | Default | Description         |
+| ------- | -------- | ------- | ------------------- |
 | `align` | `string` | `LEFT`  | The text alignment. |
 
 ### bgColorColumns
 
-|       Name       |    Type    | Default |              Description              |
-| :--------------: | :--------: | :-----: | :-----------------------------------: |
-| `bgColorColumns` | `string[]` |  `[]`   | The background color for each column. |
+| Name             | Type       | Default | Description                           |
+| ---------------- | ---------- | ------- | ------------------------------------- |
+| `bgColorColumns` | `string[]` | `[]`    | The background color for each column. |
 
 ### body
 
@@ -78,26 +79,26 @@ const body = {
 
 #### bgColor
 
-|    Name     |   Type    | Default |                 Description                  |
-| :---------: | :-------: | :-----: | :------------------------------------------: |
-|  `bgColor`  | `string`  |  `''`   |      The background color of the body.       |
-| `precision` | `number`  |   `3`   |   The floating point precision of numbers.   |
-|  `striped`  | `boolean` | `true`  | Whether the row background should be striped |
-| `textColor` | `string`  |  `''`   |         The text color of the rows.          |
+| Name        | Type      | Default | Description                                  |
+| ----------- | --------- | ------- | -------------------------------------------- |
+| `bgColor`   | `string`  | `''`    | The background color of the body.            |
+| `precision` | `number`  | `3`     | The floating point precision of numbers.     |
+| `striped`   | `boolean` | `true`  | Whether the row background should be striped |
+| `textColor` | `string`  | `''`    | The text color of the rows.                  |
 
 #### highlightCell
 
-|    Name     |                              Type                               | Default |                      Description                       |
-| :---------: | :-------------------------------------------------------------: | :-----: | :----------------------------------------------------: |
-| `textColor` |                            `string`                             |  `''`   |        The text color of the highlighted cell.         |
-|   `func`    | `(content: any, row: number, col: string \| number) => boolean` | `null`  | The callback to determine whether to highlight or not. |
+| Name        | Type                                                            | Default | Description                                            |
+| ----------- | --------------------------------------------------------------- | ------- | ------------------------------------------------------ |
+| `textColor` | `string`                                                        | `''`    | The text color of the highlighted cell.                |
+| `func`      | `(content: any, row: number, col: string \| number) => boolean` | `null`  | The callback to determine whether to highlight or not. |
 
 #### highlightRow
 
-|   Name    |                  Type                  | Default |                      Description                       |
-| :-------: | :------------------------------------: | :-----: | :----------------------------------------------------: |
-|  `func`   | `(row: any, index: number) => boolean` | `null`  | The callback to determine whether to highlight or not. |
-| `bgColor` |                `string`                |  `''`   |      The background color of the highlighted row.      |
+| Name      | Type                                   | Default | Description                                            |
+| --------- | -------------------------------------- | ------- | ------------------------------------------------------ |
+| `func`    | `(row: any, index: number) => boolean` | `null`  | The callback to determine whether to highlight or not. |
+| `bgColor` | `string`                               | `''`    | The background color of the highlighted row.           |
 
 ### border
 
@@ -109,11 +110,11 @@ const border = {
 };
 ```
 
-|     Name     |   Type   | Default |           Description            |
-| :----------: | :------: | :-----: | :------------------------------: |
-|   `color`    | `string` |  `''`   |        The border color.         |
-| `horizontal` | `string` |  `''`   | The horizontal border character. |
-|  `vertical`  | `string` |  `''`   |  The vertical border character.  |
+| Name         | Type     | Default | Description                      |
+| ------------ | -------- | ------- | -------------------------------- |
+| `color`      | `string` | `''`    | The border color.                |
+| `horizontal` | `string` | `''`    | The horizontal border character. |
+| `vertical`   | `string` | `''`    | The vertical border character.   |
 
 ### computed
 
@@ -124,15 +125,15 @@ const computed = {
 };
 ```
 
-|   Name    |   Type   | Default |                Description                |
-| :-------: | :------: | :-----: | :---------------------------------------: |
-| `bgColor` | `string` |  `''`   | The background color of the computed row. |
+| Name      | Type     | Default | Description                               |
+| --------- | -------- | ------- | ----------------------------------------- |
+| `bgColor` | `string` | `''`    | The background color of the computed row. |
 
 #### columns
 
-|   Name    |       Type       | Default |                 Description                 |
-| :-------: | :--------------: | :-----: | :-----------------------------------------: |
-| `columns` | `ComputedCell[]` |  `[]`   | The configuration for each computed column. |
+| Name      | Type             | Default | Description                                 |
+| --------- | ---------------- | ------- | ------------------------------------------- |
+| `columns` | `ComputedCell[]` | `[]`    | The configuration for each computed column. |
 
 ## 🧩 Contributing
 
