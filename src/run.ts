@@ -1,4 +1,5 @@
 import { Table } from './';
+import { join } from 'path';
 
 const data = [
   [
@@ -18,4 +19,6 @@ const table = new Table(data, {
   }
 });
 
-table.print();
+console.log(table.toPlainString());
+
+table.writeImage(join(__dirname, '../', 'img.png'));

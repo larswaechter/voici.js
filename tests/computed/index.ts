@@ -9,9 +9,6 @@ const data = [[2], [7], [15], [3], [201], [87], [42]];
 const config: voici.Config = {
   header: {
     numeration: false
-  },
-  padding: {
-    char: '.'
   }
 };
 

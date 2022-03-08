@@ -38,9 +38,6 @@ const data = [
 const config: voici.Config = {
   header: {
     numeration: false
-  },
-  padding: {
-    char: '.'
   }
 };
 
@@ -148,8 +145,7 @@ describe('Simple table', () => {
     const table = new voici.Table(data, {
       ...config,
       padding: {
-        size: 4,
-        char: '-'
+        size: 4
       }
     });
 

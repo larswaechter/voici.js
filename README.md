@@ -16,7 +16,7 @@ Main features:
 - Row styling (background, highlighting)
 - Auto computed values (mean, min, sum, variance and more)
 - Data import from .json / .csv
-- Table output export to .txt
+- Table output export to .png / .txt
 - Sorting
 
 ## 💻 Installation
