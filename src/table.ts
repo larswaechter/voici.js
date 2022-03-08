@@ -231,7 +231,7 @@ export class Table<T = Row> {
    * @returns A character padding
    */
   private getPadding(size: number) {
-    return this.config.padding.char.repeat(size);
+    return this.config.padding.char.repeat(Math.max(size, 0));
   }
 
   /**
@@ -327,7 +327,11 @@ export class Table<T = Row> {
 
     if (header.width !== 'auto') {
       // Fixed width
-      for (const name of this.columnNames) widths[name] = name.length + header.width;
+      for (const name of this.columnNames) {
+        if (name.length > header.width)
+          throw new Error(`Column "${name}" is longer than max. column width (${header.width})`);
+        widths[name] = header.width;
+      }
     } else {
       // Initalize with column text length
       for (const name of this.columnNames) widths[name] = name.length;
@@ -355,10 +359,16 @@ export class Table<T = Row> {
    * @param col - The cell's column name
    * @returns The cell content
    */
-  private getCellText(row: number, col: string) {
-    if (row === -1) return this.parseCellText(this._computed[col]) || '';
-    if (col === '#') return this.parseCellText(row);
-    return this.parseCellText(this.getDataCell(row, col));
+  private getCellText(row: number, col: string, full: boolean = false) {
+    let res = '';
+    if (row === -1) res = this.parseCellText(this._computed[col]) || '';
+    else if (col === '#') res = this.parseCellText(row);
+    else res = this.parseCellText(this.getDataCell(row, col));
+
+    if (!full && _.isNumber(this.config.header.width))
+      res = res.substring(0, this.config.header.width);
+
+    return res || '';
   }
 
   /**
@@ -595,29 +605,26 @@ export class Table<T = Row> {
 
     const colName = this.columnNames[col];
     const colText = this.getCellText(row, colName);
+    const overflow = this.getCellText(row, colName, true).substring(this.columnWidths[colName]);
 
     switch (align) {
       case 'CENTER':
         const toFill = this.columnWidths[colName] - colText.length;
         const lrPadding = Math.floor(toFill / 2) + padding.size;
-        content = [
-          this.getPadding(lrPadding),
-          this.getCellText(row, colName),
-          this.getPadding(lrPadding + (toFill % 2 ? 1 : 0))
-        ];
+        content = this.buildCellContent(lrPadding, colText, lrPadding + (toFill % 2 ? 1 : 0));
         break;
 
       case 'RIGHT':
         const lPadding = this.calculateBodyCellPadding(row, colName);
-        content = [this.getPadding(lPadding), colText, this.getPadding(padding.size)];
+        content = this.buildCellContent(lPadding, colText, padding.size);
         break;
 
       default:
         const rPadding = this.calculateBodyCellPadding(row, colName);
-        content = [this.getPadding(padding.size), colText, this.getPadding(rPadding)];
+        content = this.buildCellContent(padding.size, colText, rPadding);
     }
 
-    return this.formatBodyCellContent(row, col, colName, content);
+    return [this.formatBodyCellContent(row, col, colName, content), overflow];
   }
 
   /**
@@ -651,6 +658,48 @@ export class Table<T = Row> {
     return separator.length ? separator.repeat(this.tableWidth) + '\n' : '';
   }
 
+  private buildCellContent(leftPadding: number, text: string, rightPadding: number): CellContent {
+    return [this.getPadding(leftPadding), text, this.getPadding(rightPadding)];
+  }
+
+  private buildEmptyCell(col: string) {
+    const { padding } = this.config;
+    return this.buildCellContent(
+      padding.size,
+      this.getPadding(this.columnWidths[col]),
+      padding.size
+    );
+  }
+
+  private buildBodyRowMultiLine(row: number, overflow: string[]) {
+    let content = '';
+    let overflowLeft = false;
+
+    content += '\n';
+
+    for (let i = 0; i < overflow.length; i++) {
+      const colName = this.columnNames[i];
+      const colWidth = this.columnWidths[colName];
+      const textLeft = overflow[i].substring(0, colWidth);
+
+      if (!textLeft.length)
+        content += this.formatBodyCellContent(row, i, colName, this.buildEmptyCell(colName));
+      else {
+        content += this.formatBodyCellContent(row, i, colName, [
+          this.getPadding(this.config.padding.size),
+          textLeft,
+          this.getPadding(colWidth - textLeft.length + this.config.padding.size)
+        ]);
+        overflow[i] = overflow[i].substring(colWidth);
+        if (overflow[i].length) overflowLeft = true;
+      }
+    }
+
+    if (overflowLeft) content += this.buildBodyRowMultiLine(row, overflow);
+
+    return content;
+  }
+
   /**
    * Build the given body row.
    *
@@ -658,7 +707,19 @@ export class Table<T = Row> {
    * @returns The row string
    */
   private buildBodyRow(row: number) {
-    const content = this.columnNames.reduce((prev, __, i) => prev + this.buildBodyCell(row, i), '');
+    let content = '';
+    let hasOverflow = false;
+    const colsOverflow: string[] = [];
+
+    for (let i = 0; i < this.columnNames.length; i++) {
+      const [str, overflow] = this.buildBodyCell(row, i);
+      content += str;
+      colsOverflow.push(overflow);
+      if (overflow.length) hasOverflow = true;
+    }
+
+    if (hasOverflow) content += this.buildBodyRowMultiLine(row, colsOverflow);
+
     const formattedContent = this.formatBodyRowContent(row, content) + '\n';
 
     // Row separator

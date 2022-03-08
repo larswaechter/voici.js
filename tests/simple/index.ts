@@ -118,7 +118,6 @@ describe('Simple table', () => {
     const table = new voici.Table(data, {
       ...config,
       header: {
-        underline: false,
         numeration: true
       }
     });
@@ -155,6 +154,32 @@ describe('Simple table', () => {
     });
 
     const result = readFileSync(__dirname + '/padding.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Width', () => {
+    const arrData = [
+      ['jdaiwwai jldaw ijal ijdawdaw', 'djawiddwa ad', 'dkowa öodoaw kaowd'],
+      ['dkowöadok öakdöoaw koö', 'kdaowd', 'dwoak ohkt mv ei i flnsli ngirlgk nksln ie'],
+      ['oöwd k', 'jdilw jd n iad', 'kodöwa on rln slem '],
+      [
+        'dkawöo koöwdak oö',
+        'adwökw oaköd nawd  anda wnkdöoawkdoö akdoöa wkfjgridlgjirld ji gd ',
+        'kowda kaoöw'
+      ]
+    ];
+
+    const table = new voici.Table(arrData, {
+      ...config,
+      header: {
+        width: 20
+      }
+    });
+
+    const result = readFileSync(__dirname + '/width.txt', {
       encoding: 'utf-8'
     });
 
