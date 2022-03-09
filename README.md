@@ -11,10 +11,9 @@ voici.js (speak: [/vwasi/](https://dictionary.cambridge.org/dictionary/french-en
 
 Main features:
 
-- Text styling (alignment, bold, italic, underline, color, precision)
-- Column styling (width, padding, background, border, numeration)
-- Row styling (background, highlighting)
-- Calculated columns (mean, min, sum, variance and more)
+- Text / Column / Row styling
+- Accumulation
+- Dynamic columns
 - Data import from .json / .csv
 - Table export to .png / .txt
 - Sorting

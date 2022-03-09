@@ -53,6 +53,7 @@ export type Config = Partial<{
   header: Partial<{
     bgColor: string;
     bold: boolean;
+    columns: string[];
     dynamic: DynamicColumn[];
     italic: boolean;
     numeration: boolean;
@@ -107,6 +108,7 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
       header: {
         bgColor: '',
         bold: false,
+        columns: [],
         dynamic: [],
         italic: false,
         numeration: true,

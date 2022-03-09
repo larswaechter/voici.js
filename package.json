@@ -36,7 +36,9 @@
     "console",
     "terminal",
     "table",
-    "data"
+    "data",
+    "data-science",
+    "data-visualization"
   ],
   "license": "MIT",
   "devDependencies": {

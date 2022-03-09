@@ -50,7 +50,7 @@ export class Table<T extends unknown[] | object = Row> {
   /**
    * The column names.
    */
-  private _columnNames: string[] = [];
+  private columnNames: string[] = [];
 
   /**
    * The maximum width of each column.
@@ -70,6 +70,7 @@ export class Table<T extends unknown[] | object = Row> {
   constructor(data: T[], config: Config = {}) {
     this._data = data.slice();
     this._config = mergeDefaultConfig(config);
+
     this.buildColumnNames();
   }
 
@@ -84,14 +85,6 @@ export class Table<T extends unknown[] | object = Row> {
 
   public get config() {
     return this._config;
-  }
-
-  public get columnNames() {
-    return this._columnNames;
-  }
-
-  private set columnNames(names: string[]) {
-    this._columnNames = names;
   }
 
   /**
@@ -143,7 +136,7 @@ export class Table<T extends unknown[] | object = Row> {
         }
         this.buildColumnNames();
       } else {
-        const colName = _.isNumber(col) ? this.columnNames[col] : col;
+        const colName = _.isNumber(col) ? this.getColumNames()[col] : col;
         for (const row of this.data) {
           data.push(_.omit(row, colName));
         }
@@ -287,16 +280,14 @@ export class Table<T extends unknown[] | object = Row> {
   }
 
   /**
-   * Gets the raw text width of the given column.
+   * Get all column names to show.
    *
-   * @param col the column
-   * @returns the column's text width
+   * @returns the column names
    */
-  private getColumnTextWidth(col: string | number) {
+  private getColumNames() {
     const { header } = this.config;
-    const colName = _.isNumber(col) ? this.columnNames[col] : col;
-    if (_.isNumber(header.maxWidth)) return Math.min(this.columnWidths[colName], header.maxWidth);
-    return this.columnWidths[colName];
+    if (header.columns.length) return header.columns;
+    return this.columnNames;
   }
 
   /**
@@ -316,7 +307,23 @@ export class Table<T extends unknown[] | object = Row> {
 
     if (header.numeration) names.unshift('#');
 
+    for (const col of this.config.header.columns)
+      if (!names.includes(col)) throw new Error(`Unknown column: ${col}`);
+
     this.columnNames = names;
+  }
+
+  /**
+   * Gets the raw text width of the given column.
+   *
+   * @param col the column
+   * @returns the column's text width
+   */
+  private getColumnTextWidth(col: string | number) {
+    const { header } = this.config;
+    const colName = _.isNumber(col) ? this.getColumNames()[col] : col;
+    if (_.isNumber(header.maxWidth)) return Math.min(this.columnWidths[colName], header.maxWidth);
+    return this.columnWidths[colName];
   }
 
   /**
@@ -327,7 +334,7 @@ export class Table<T extends unknown[] | object = Row> {
     const widths: ColumnWidths = {};
 
     const data = this.data.slice();
-    const colNames = this.columnNames.slice();
+    const colNames = this.getColumNames().slice();
 
     // Add dynamic column names => use a Set for faster lookup
     const dynamicColNames = new Set<string>(this.getDynamicColumnsNames());
@@ -382,16 +389,16 @@ export class Table<T extends unknown[] | object = Row> {
    */
   private calculateDynamicColumns() {
     const { header } = this.config;
-    const { dynamic: calculated } = header;
+    const { dynamic } = header;
 
-    const calculatedColumns = new Map<string, unknown[]>();
+    const columns = new Map<string, unknown[]>();
 
-    for (const column of calculated) {
-      const calculatedData = this.data.map((row, i) => column.func(row, i));
-      calculatedColumns.set(column.name, calculatedData);
+    for (const col of dynamic) {
+      const calculatedData = this.data.map((row, i) => col.func(row, i));
+      columns.set(col.name, calculatedData);
     }
 
-    return calculatedColumns;
+    return columns;
   }
 
   /**
@@ -404,9 +411,9 @@ export class Table<T extends unknown[] | object = Row> {
     const dynamics = this.getDynamicColumnsNames();
 
     if (dynamics.includes(col))
-      return dynamics.findIndex((name) => name === col) + this.columnNames.length;
+      return dynamics.findIndex((name) => name === col) + this.getColumNames().length;
 
-    return this.columnNames.findIndex((name) => name === col);
+    return this.getColumNames().findIndex((name) => name === col);
   }
 
   /**
@@ -628,7 +635,7 @@ export class Table<T extends unknown[] | object = Row> {
     let content = '';
     let contentLen = 0;
 
-    for (const col of this.columnNames) {
+    for (const col of this.getColumNames()) {
       const [_res, _len] = this.buildHeaderCell(col);
       content += _res;
       contentLen += _len;
@@ -779,7 +786,7 @@ export class Table<T extends unknown[] | object = Row> {
     let hasOverflow = false;
     const colsOverflow: string[] = [];
 
-    for (const name of this.columnNames) {
+    for (const name of this.getColumNames()) {
       const [str, overflow] = this.buildBodyCell(row, name);
       content += str;
       colsOverflow.push(overflow);
@@ -810,7 +817,7 @@ export class Table<T extends unknown[] | object = Row> {
     let hasMore = false;
 
     for (let i = 0; i < overflow.length; i++) {
-      const colName = this.columnNames[i];
+      const colName = this.getColumNames()[i];
       const colWidth = this.getColumnTextWidth(colName);
       const text = overflow[i].substring(0, colWidth);
 

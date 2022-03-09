@@ -111,6 +111,21 @@ describe('Simple tables', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('Columns', () => {
+    const table = new voici.Table(data, {
+      header: {
+        numeration: false,
+        columns: ['ID', 'Lastname', 'Gender']
+      }
+    });
+
+    const result = readFileSync(__dirname + '/columns.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('Dynamic', () => {
     const table = new voici.Table(data, {
       ...config,
@@ -289,6 +304,19 @@ describe('Simple tables', () => {
     });
 
     assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Unknown column', () => {
+    assert.throws(
+      () =>
+        new voici.Table(data, {
+          header: {
+            numeration: false,
+            columns: ['Missing']
+          }
+        }),
+      Error
+    );
   });
 
   it('Width', () => {
