@@ -52,10 +52,10 @@ const config = {
 };
 ```
 
-| Name             | Type       | Default | Description                           |
-| ---------------- | ---------- | ------- | ------------------------------------- |
-| `align`          | `string`   | `LEFT`  | The text alignment.                   |
-| `bgColorColumns` | `string[]` | `[]`    | The background color for each column. |
+| Name             | Type       | Default                         | Description                           |
+| ---------------- | ---------- | ------------------------------- | ------------------------------------- |
+| `align`          | `string`   | `'LEFT' \| 'CENTER' \| 'RIGHT'` | The text alignment.                   |
+| `bgColorColumns` | `string[]` | `[]`                            | The background color for each column. |
 
 ### body
 
