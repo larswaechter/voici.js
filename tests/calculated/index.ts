@@ -227,6 +227,10 @@ describe('Computed table', () => {
           {
             column: 0,
             func: voici.CalculateFunction.SUM
+          },
+          {
+            column: 'Double',
+            func: voici.CalculateFunction.SUM
           }
         ]
       },
@@ -235,9 +239,7 @@ describe('Computed table', () => {
       }
     });
 
-    table.printPlain();
-
-    const result = readFileSync(__dirname + '/sum.txt', {
+    const result = readFileSync(__dirname + '/sum_dynamic.txt', {
       encoding: 'utf-8'
     });
 

@@ -1,10 +1,7 @@
 import _ from 'lodash';
-import * as csv from 'fast-csv';
-import * as jstream from 'JSONStream';
 import text2png from 'text2png';
 import chalk, { Chalk } from 'chalk';
-import { resolve as resolvePath } from 'path';
-import { createReadStream, openSync, writeFileSync, OpenMode } from 'fs';
+import { openSync, writeFileSync, OpenMode } from 'fs';
 
 import { getCalculated } from './calculated';
 import {
@@ -48,7 +45,7 @@ export class Table<T extends unknown[] | object = Row> {
   /**
    * The dynamic columns' data.
    */
-  private dynamicColumns: Map<string, unknown[]>;
+  private dynamicColumns: Map<string, unknown[]> = new Map();
 
   /**
    * The column names.
@@ -69,59 +66,6 @@ export class Table<T extends unknown[] | object = Row> {
    * A flag to check whether the header or body has changed since the last build.
    */
   private touched: boolean = true;
-
-  /**
-   * Creates a new `Table` instance from a .csv file stream.
-   *
-   * @param path the .csv filepath
-   * @param csvConfig the fast-csv config
-   * @param tableConfig the table config
-   * @returns a new `Table` instance
-   */
-  static fromCSV(
-    path: string,
-    csvConfig: csv.ParserOptionsArgs,
-    tableConfig: Config = {}
-  ): Promise<Table> {
-    return new Promise((resolve, reject) => {
-      const data: Row[] = [];
-      createReadStream(resolvePath(path))
-        .pipe(csv.parse(csvConfig))
-        .on('error', (err) => {
-          reject(err);
-        })
-        .on('data', (row) => {
-          data.push(row);
-        })
-        .on('end', () => {
-          resolve(new Table(data, tableConfig));
-        });
-    });
-  }
-
-  /**
-   * Creates a new `Table` instance from a .json file stream.
-   *
-   * @param path the .json filepath
-   * @param tableConfig the table config
-   * @returns a new `Table` instance
-   */
-  static fromJSON(path: string, tableConfig: Config = {}): Promise<Table> {
-    return new Promise((resolve, reject) => {
-      const data: Row[] = [];
-      createReadStream(resolvePath(path))
-        .pipe(jstream.parse('*'))
-        .on('error', (err: Error) => {
-          reject(err);
-        })
-        .on('data', (row: Row) => {
-          data.push(row);
-        })
-        .on('end', () => {
-          resolve(new Table(data, tableConfig));
-        });
-    });
-  }
 
   constructor(data: T[], config: Config = {}) {
     this._data = data.slice();
@@ -385,7 +329,7 @@ export class Table<T extends unknown[] | object = Row> {
     const data = this.data.slice();
     const colNames = this.columnNames.slice();
 
-    // Add calculated column names => use a Set for faster lookup
+    // Add dynamic column names => use a Set for faster lookup
     const dynamicColNames = new Set<string>(this.getDynamicColumnsNames());
     colNames.push(...dynamicColNames.values());
 
@@ -484,6 +428,9 @@ export class Table<T extends unknown[] | object = Row> {
     const { calculated } = this.config;
     const { columns } = calculated;
 
+    // Add dynamic column names => use a Set for faster lookup
+    const dynamicColNames = new Set<string>(this.getDynamicColumnsNames());
+
     if (!columns.length) return {};
 
     const values = {};
@@ -492,8 +439,14 @@ export class Table<T extends unknown[] | object = Row> {
     for (const comp of columns) values[comp.column] = [];
 
     // Collect row data
-    for (const row of this.data)
-      for (const col of columns) values[col.column].push(row[col.column] || '');
+    for (let iRow = 0; iRow < this.data.length; iRow++) {
+      const row = this.data[iRow];
+      for (const col of columns) {
+        if (dynamicColNames.has(String(col.column)))
+          values[col.column].push(this.dynamicColumns.get(String(col.column))[iRow]);
+        else values[col.column].push(row[col.column] || '');
+      }
+    }
 
     // Calculate
     for (const comp of columns) values[comp.column] = getCalculated(values[comp.column], comp.func);
@@ -926,8 +879,8 @@ export class Table<T extends unknown[] | object = Row> {
    */
   private build(force: boolean = false) {
     if (this.touched || force) {
-      this.calculatedRow = this.computeCalculatedRow();
       this.dynamicColumns = this.calculateDynamicColumns();
+      this.calculatedRow = this.computeCalculatedRow();
       this.calculateColumnWidths();
       if (this.config.order.column.length) this.sort(this.config.order);
     }
