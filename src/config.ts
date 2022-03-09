@@ -57,6 +57,8 @@ export type Config = Partial<{
     numeration: boolean;
     textColor: string;
     underline: boolean;
+    uppercase: boolean;
+    upperFirst: boolean;
     width: number | 'auto';
     maxWidth: number | 'auto';
   }>;
@@ -89,7 +91,7 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
           func: null
         },
         precision: 3,
-        striped: true,
+        striped: false,
         textColor: ''
       },
       border: {
@@ -108,6 +110,8 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         numeration: true,
         textColor: '',
         underline: true,
+        uppercase: false,
+        upperFirst: false,
         width: 'auto',
         maxWidth: 'auto'
       },
@@ -143,7 +147,6 @@ export const mergePlainConfig = (config: Required<Config>): Required<Config> =>
         bgColor: '',
         func: null
       },
-      striped: false,
       textColor: ''
     },
     border: {

@@ -537,7 +537,7 @@ export class Table<T extends unknown[] | object = Row> {
    */
   private formatHeaderCellContent(col: string, content: CellContent): [string, number] {
     const { bgColorColumns, border, header } = this.config;
-    const { bgColor, bold, italic, textColor, underline } = header;
+    const { bgColor, bold, italic, textColor, underline, uppercase, upperFirst } = header;
 
     const colIndex = this.columnToIndex(col);
     const contentCopy = content.slice();
@@ -554,7 +554,7 @@ export class Table<T extends unknown[] | object = Row> {
     let cellContentLen = 0;
 
     for (let i = 0; i < contentCopy.length; i++) {
-      const text = contentCopy[i];
+      let text = contentCopy[i];
       let styled: Chalk = chalk;
 
       // Background
@@ -568,6 +568,9 @@ export class Table<T extends unknown[] | object = Row> {
       else if (i === textIndex) {
         // Text color
         if (textColor.length) chalk.hex(textColor);
+
+        if (uppercase) text = text.toUpperCase();
+        else if (upperFirst) text = _.upperFirst(text);
 
         // Font style
         if (bold) styled = styled.bold;
