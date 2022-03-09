@@ -219,6 +219,31 @@ describe('Computed table', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('SUM dynamic', () => {
+    const table = new voici.Table(data, {
+      ...config,
+      calculated: {
+        columns: [
+          {
+            column: 0,
+            func: voici.CalculateFunction.SUM
+          }
+        ]
+      },
+      header: {
+        dynamic: [{ name: 'Double', func: (row) => row[0] * 2 }]
+      }
+    });
+
+    table.printPlain();
+
+    const result = readFileSync(__dirname + '/sum.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('VAR', () => {
     const table = new voici.Table(data, {
       ...config,

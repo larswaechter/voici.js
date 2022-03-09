@@ -111,6 +111,24 @@ describe('Simple table', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('Dynamic', () => {
+    const table = new voici.Table(data, {
+      ...config,
+      header: {
+        dynamic: [
+          { name: 'Fullname', func: (row) => row['Firstname'] + ' ' + row['Lastname'] },
+          { name: 'Admin', func: (row) => row['ID'] === 1 }
+        ]
+      }
+    });
+
+    const result = readFileSync(__dirname + '/dynamic.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('Empty', () => {
     const arrData = [
       [1, 'John', 'Doe', '', 'Male'],

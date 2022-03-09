@@ -41,9 +41,14 @@ export class Table<T extends unknown[] | object = Row> {
   private _config: Required<Config>;
 
   /**
-   * The auto computed row.
+   * The auto calculated row data.
    */
-  private _computed: Partial<T>;
+  private calculatedRow: Partial<T>;
+
+  /**
+   * The dynamic columns' data.
+   */
+  private dynamicColumns: Map<string, unknown[]>;
 
   /**
    * The column names.
@@ -143,11 +148,6 @@ export class Table<T extends unknown[] | object = Row> {
 
   private set columnNames(names: string[]) {
     this._columnNames = names;
-  }
-
-  public get computed() {
-    this.build();
-    return this._computed;
   }
 
   /**
@@ -361,12 +361,17 @@ export class Table<T extends unknown[] | object = Row> {
   private buildColumnNames() {
     if (!this.data.length) return;
 
+    const { header } = this.config;
     const names = [];
-    if (Array.isArray(this.data[0]))
-      for (let i = 0; i < this.data[0].length; i++) names.push(String(i));
-    else for (const col of Object.keys(this.data[0])) names.push(col);
 
-    if (this.config.header.numeration) names.unshift('#');
+    // Column names from dataset
+    for (const col in this.data[0]) names.push(String(col));
+
+    // Names of dynamic columns
+    for (const entry of header.dynamic) names.push(entry.name);
+
+    if (header.numeration) names.unshift('#');
+
     this.columnNames = names;
   }
 
@@ -378,27 +383,36 @@ export class Table<T extends unknown[] | object = Row> {
     const widths: ColumnWidths = {};
 
     const data = this.data.slice();
+    const colNames = this.columnNames.slice();
 
-    if (this._computed && Object.keys(this._computed).length) data.push(this._computed as T);
+    // Add calculated column names => use a Set for faster lookup
+    const dynamicColNames = new Set<string>(this.getDynamicColumnsNames());
+    colNames.push(...dynamicColNames.values());
 
     if (_.isNumber(header.width)) {
       // Fixed width
-      for (const name of this.columnNames) {
+      for (const name of colNames) {
         if (name.length > header.width)
           throw new Error(`Column "${name}" is longer than max. column width (${header.width})`);
         widths[name] = header.width;
       }
     } else {
+      // Add calculated row to dataset
+      if (Object.keys(this.calculatedRow).length) data.push(this.calculatedRow as T);
+
       // Initalize with column text length
-      for (const name of this.columnNames) widths[name] = name.length;
+      for (const name of colNames) widths[name] = name.length;
 
       // Search longest string / value
-      for (const row of data) {
-        for (const name of this.columnNames) {
-          if (name !== '#') {
-            const width = this.parseCellText(row[name]).length;
-            if (width > widths[name]) widths[name] = width;
-          }
+      for (const col of colNames) {
+        // Dynamic column
+        if (dynamicColNames.has(col)) {
+          const values = this.dynamicColumns.get(col);
+          for (const val of values)
+            widths[col] = Math.max(widths[col], this.parseCellText(val).length);
+        } else {
+          for (let iRow = 0; iRow < data.length; iRow++)
+            widths[col] = Math.max(widths[col], this.parseCellText(data[iRow][col]).length);
         }
       }
 
@@ -409,12 +423,45 @@ export class Table<T extends unknown[] | object = Row> {
   }
 
   /**
+   * Gets the names of the dynamic columns.
+   *
+   * @returns the dynamic columns names.
+   */
+  private getDynamicColumnsNames() {
+    return this.config.header.dynamic.map((col) => col.name);
+  }
+
+  /**
+   * Calculates the data values for the each calculated column.
+   *
+   * @returns the calculated data values
+   */
+  private calculateDynamicColumns() {
+    const { header } = this.config;
+    const { dynamic: calculated } = header;
+
+    const calculatedColumns = new Map<string, unknown[]>();
+
+    for (const column of calculated) {
+      const calculatedData = this.data.map((row, i) => column.func(row, i));
+      calculatedColumns.set(column.name, calculatedData);
+    }
+
+    return calculatedColumns;
+  }
+
+  /**
    * Gets the index of the given column.
    *
    * @param col the column's name
    * @returns the column's index
    */
   private columnToIndex(col: string) {
+    const dynamics = this.getDynamicColumnsNames();
+
+    if (dynamics.includes(col))
+      return dynamics.findIndex((name) => name === col) + this.columnNames.length;
+
     return this.columnNames.findIndex((name) => name === col);
   }
 
@@ -429,11 +476,11 @@ export class Table<T extends unknown[] | object = Row> {
   }
 
   /**
-   * Gets the values of the computed row.
+   * Computes the values of the calculated row.
    *
-   * @returns the values of the computed row
+   * @returns the computed row values
    */
-  private getComputedRow() {
+  private computeCalculatedRow() {
     const { calculated } = this.config;
     const { columns } = calculated;
 
@@ -448,7 +495,7 @@ export class Table<T extends unknown[] | object = Row> {
     for (const row of this.data)
       for (const col of columns) values[col.column].push(row[col.column] || '');
 
-    // Compute
+    // Calculate
     for (const comp of columns) values[comp.column] = getCalculated(values[comp.column], comp.func);
 
     return values;
@@ -508,8 +555,10 @@ export class Table<T extends unknown[] | object = Row> {
   private getCellText(row: number, col: string, cropped: boolean = true) {
     let text = '';
 
-    if (row === -1) text = this.parseCellText(this._computed[col]);
+    if (row === -1) text = this.parseCellText(this.calculatedRow[col]);
     else if (col === '#') text = this.parseCellText(row);
+    else if (Array.from(this.dynamicColumns.keys()).includes(col))
+      text = this.parseCellText(this.dynamicColumns.get(col)[row]);
     else text = this.parseCellText(this.getDataCell(row, col));
 
     if (cropped) text = text.substring(0, this.getColumnTextWidth(col));
@@ -677,7 +726,7 @@ export class Table<T extends unknown[] | object = Row> {
     for (let i = 0; i < contentCopy.length; i++) {
       const text = contentCopy[i];
 
-      // Computed row
+      // Calculate row
       if (row === -1 && calculated.bgColor.length) {
         cellContent += chalk.bgHex(calculated.bgColor)(text);
         continue;
@@ -859,7 +908,7 @@ export class Table<T extends unknown[] | object = Row> {
   private buildBody() {
     let content = this.data.reduce((prev, __, i) => prev + this.buildBodyRow(i), '');
 
-    // Computed row
+    // Calculated row
     if (this.config.calculated.columns.length)
       content += this.getRowSeparator('-') + this.buildBodyRow(-1);
 
@@ -877,7 +926,8 @@ export class Table<T extends unknown[] | object = Row> {
    */
   private build(force: boolean = false) {
     if (this.touched || force) {
-      this._computed = this.getComputedRow();
+      this.calculatedRow = this.computeCalculatedRow();
+      this.dynamicColumns = this.calculateDynamicColumns();
       this.calculateColumnWidths();
       if (this.config.order.column.length) this.sort(this.config.order);
     }

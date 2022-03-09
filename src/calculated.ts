@@ -1,7 +1,12 @@
 import _ from 'lodash';
 import { countOccurrences } from './helper';
 
-export type Calculation = {
+export type DynamicColumn = {
+  name: string;
+  func: <T>(row: T, index: number) => unknown;
+};
+
+export type CalculatedCell = {
   column: string | number;
   func: CalculateFunction;
 };

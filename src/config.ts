@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { Calculation } from './calculated';
+import { DynamicColumn, CalculatedCell } from './calculated';
 
 export type Order = Partial<{
   column: string;
@@ -48,11 +48,12 @@ export type Config = Partial<{
   }>;
   calculated: Partial<{
     bgColor: string;
-    columns: Calculation[];
+    columns: CalculatedCell[];
   }>;
   header: Partial<{
     bgColor: string;
     bold: boolean;
+    dynamic: DynamicColumn[];
     italic: boolean;
     numeration: boolean;
     textColor: string;
@@ -106,6 +107,7 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
       header: {
         bgColor: '',
         bold: false,
+        dynamic: [],
         italic: false,
         numeration: true,
         textColor: '',

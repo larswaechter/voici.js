@@ -1,49 +1,22 @@
-import { Table } from './';
+import * as voici from './';
 import { join } from 'path';
 
 const data = [
-  [
-    'abcdefghijklmnopqrstuvwxyzabcdefghijklmn',
-    'wadwadadwwdwadwadadwwdwadwadadwwdwadwadadwwdwadwadadwwdwadwadadwwdwadwadadwwdwadwadadwwd'
-  ],
-  ['abcdefghijklmnopqrstuvwxyzabcdefghijklmn', 'dwadkowada dai lw ijfs'],
-  [
-    'abcdefghijklmnopqrstuvwxyzabcdefghijklmn',
-    'wadwadadwwdwadwadadwwdwadwadadwwdwadwadadwwdwadwadadwwdwadwadadwwdwadwadadwwdwadwadadwwd'
-  ]
+  { firstname: 'Homer', lastname: 'Simpson', age: 39 },
+  { firstname: 'Marge', lastname: 'Simpson', age: 36 },
+  { firstname: 'Bart', lastname: 'Simpson', age: 10 },
+  { firstname: 'Lisa', lastname: 'Simpson', age: 8 },
+  { firstname: 'Maggie', lastname: 'Simpson', age: 1 }
 ];
 
-interface MyType1 {
-  firstname: string;
-  lastname: string;
-}
-
-const data1: MyType1[] = [
-  { firstname: 'John', lastname: 'Doe' },
-  { firstname: 'Jane', lastname: 'Doe' }
-];
-
-type MyType2 = [string, string];
-
-const data2: MyType2[] = [
-  ['hello', 'world'],
-  ['goodbye', 'world']
-];
-
-const table = new Table<MyType1>(data1, {
+const config: voici.Config = {
   header: {
-    width: 15
-  },
-  body: {
-    highlightRow: {
-      func: <MyType1>(row) => {
-        console.log(row);
-
-        return row.firstname === 'John';
-      }
-    }
+    dynamic: [
+      { name: 'Fullname', func: (row) => row['firstname'] + ' ' + row['lastname'] },
+      { name: 'Adult', func: (row) => row['age'] >= 18 }
+    ]
   }
-});
+};
 
+const table = new voici.Table(data, config);
 table.print();
-table.exportImage(join(__dirname, '../', 'img.png'));
