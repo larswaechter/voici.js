@@ -19,4 +19,4 @@ const config: voici.Config = {
 };
 
 const table = new voici.Table(data, config);
-table.print();
+table.printPlain();

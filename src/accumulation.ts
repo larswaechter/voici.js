@@ -6,12 +6,12 @@ export type DynamicColumn = {
   func: <T>(row: T, index: number) => unknown;
 };
 
-export type CalculatedCell = {
+export type Accumulation = {
   column: string | number;
-  func: CalculateFunction;
+  func: AccumulationFunction;
 };
 
-export enum CalculateFunction {
+export enum AccumulationFunction {
   /** The minimal value */
   MIN,
 
@@ -47,35 +47,35 @@ export enum CalculateFunction {
 }
 
 /**
- * Gets the computed value using the given dataset and ComputeFunction.
+ * Gets the accumulated value using the given dataset and ComputeFunction.
  *
  * @param data the dataset
  * @param func the ComputeFunction
  * @returns the computed value
  */
-export const getCalculated = (data: [], func: CalculateFunction) => {
+export const calculateAccumulation = (data: [], func: AccumulationFunction) => {
   switch (func) {
-    case CalculateFunction.MIN:
+    case AccumulationFunction.MIN:
       return Math.min(...data);
-    case CalculateFunction.MAX:
+    case AccumulationFunction.MAX:
       return Math.max(...data);
-    case CalculateFunction.SUM:
+    case AccumulationFunction.SUM:
       return calculateSum(data);
-    case CalculateFunction.MEAN:
+    case AccumulationFunction.MEAN:
       return calculateMean(data);
-    case CalculateFunction.MEDIAN:
+    case AccumulationFunction.MEDIAN:
       return calculateMedian(data);
-    case CalculateFunction.VAR:
+    case AccumulationFunction.VAR:
       return calculateVariance(data);
-    case CalculateFunction.STD:
+    case AccumulationFunction.STD:
       return calculateStandardDeviation(data);
-    case CalculateFunction.RANGE:
+    case AccumulationFunction.RANGE:
       return calculateRange(data);
-    case CalculateFunction.COUNT:
+    case AccumulationFunction.COUNT:
       return calculateCount(data);
-    case CalculateFunction.FREQ:
+    case AccumulationFunction.FREQ:
       return calculateMostFrequent(data);
-    case CalculateFunction.INFREQ:
+    case AccumulationFunction.INFREQ:
       return calculateMostInFrequent(data);
     default:
       return 0;

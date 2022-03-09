@@ -3,7 +3,7 @@ import text2png from 'text2png';
 import chalk, { Chalk } from 'chalk';
 import { openSync, writeFileSync, OpenMode } from 'fs';
 
-import { getCalculated } from './calculated';
+import { calculateAccumulation } from './accumulation';
 import {
   Config,
   ImageExportConfig,
@@ -38,9 +38,9 @@ export class Table<T extends unknown[] | object = Row> {
   private _config: Required<Config>;
 
   /**
-   * The auto calculated row data.
+   * The accumulated data.
    */
-  private calculatedRow: Partial<T>;
+  private accumulatedRow: Partial<T>;
 
   /**
    * The dynamic columns' data.
@@ -342,7 +342,7 @@ export class Table<T extends unknown[] | object = Row> {
       }
     } else {
       // Add calculated row to dataset
-      if (Object.keys(this.calculatedRow).length) data.push(this.calculatedRow as T);
+      if (Object.keys(this.accumulatedRow).length) data.push(this.accumulatedRow as T);
 
       // Initalize with column text length
       for (const name of colNames) widths[name] = name.length;
@@ -420,13 +420,13 @@ export class Table<T extends unknown[] | object = Row> {
   }
 
   /**
-   * Computes the values of the calculated row.
+   * Computes the values of the accumulated columns.
    *
    * @returns the computed row values
    */
-  private computeCalculatedRow() {
-    const { calculated } = this.config;
-    const { columns } = calculated;
+  private calculateAccumulation() {
+    const { accumulation } = this.config.body;
+    const { columns } = accumulation;
 
     // Add dynamic column names => use a Set for faster lookup
     const dynamicColNames = new Set<string>(this.getDynamicColumnsNames());
@@ -449,7 +449,8 @@ export class Table<T extends unknown[] | object = Row> {
     }
 
     // Calculate
-    for (const comp of columns) values[comp.column] = getCalculated(values[comp.column], comp.func);
+    for (const comp of columns)
+      values[comp.column] = calculateAccumulation(values[comp.column], comp.func);
 
     return values;
   }
@@ -508,7 +509,7 @@ export class Table<T extends unknown[] | object = Row> {
   private getCellText(row: number, col: string, cropped: boolean = true) {
     let text = '';
 
-    if (row === -1) text = this.parseCellText(this.calculatedRow[col]);
+    if (row === -1) text = this.parseCellText(this.accumulatedRow[col]);
     else if (col === '#') text = this.parseCellText(row);
     else if (Array.from(this.dynamicColumns.keys()).includes(col))
       text = this.parseCellText(this.dynamicColumns.get(col)[row]);
@@ -661,8 +662,8 @@ export class Table<T extends unknown[] | object = Row> {
    * @returns the formatted cell content
    */
   private formatBodyCellContent(row: number, col: string, content: CellContent) {
-    const { bgColorColumns, body, border, calculated } = this.config;
-    const { highlightCell, textColor } = body;
+    const { bgColorColumns, body, border } = this.config;
+    const { accumulation, highlightCell, textColor } = body;
 
     const colIndex = this.columnToIndex(col);
     const contentCopy = content.slice();
@@ -680,8 +681,8 @@ export class Table<T extends unknown[] | object = Row> {
       const text = contentCopy[i];
 
       // Calculate row
-      if (row === -1 && calculated.bgColor.length) {
-        cellContent += chalk.bgHex(calculated.bgColor)(text);
+      if (row === -1 && accumulation.bgColor.length) {
+        cellContent += chalk.bgHex(accumulation.bgColor)(text);
         continue;
       }
 
@@ -861,8 +862,8 @@ export class Table<T extends unknown[] | object = Row> {
   private buildBody() {
     let content = this.data.reduce((prev, __, i) => prev + this.buildBodyRow(i), '');
 
-    // Calculated row
-    if (this.config.calculated.columns.length)
+    // Row of accumulation results
+    if (this.config.body.accumulation.columns.length)
       content += this.getRowSeparator('-') + this.buildBodyRow(-1);
 
     // Remove last linebreak (\n)
@@ -880,7 +881,7 @@ export class Table<T extends unknown[] | object = Row> {
   private build(force: boolean = false) {
     if (this.touched || force) {
       this.dynamicColumns = this.calculateDynamicColumns();
-      this.calculatedRow = this.computeCalculatedRow();
+      this.accumulatedRow = this.calculateAccumulation();
       this.calculateColumnWidths();
       if (this.config.order.column.length) this.sort(this.config.order);
     }

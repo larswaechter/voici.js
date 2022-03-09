@@ -12,19 +12,21 @@ const config: voici.Config = {
   }
 };
 
-describe('Computed table', () => {
+describe('Accumulated tables', () => {
   it('COUNT', () => {
     const countData = [[2], [7], [], [3], [201], [], [42]];
 
     const table = new voici.Table(countData, {
       ...config,
-      calculated: {
-        columns: [
-          {
-            column: 0,
-            func: voici.CalculateFunction.COUNT
-          }
-        ]
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.COUNT
+            }
+          ]
+        }
       }
     });
 
@@ -40,13 +42,15 @@ describe('Computed table', () => {
 
     const table = new voici.Table(freqData, {
       ...config,
-      calculated: {
-        columns: [
-          {
-            column: 0,
-            func: voici.CalculateFunction.FREQ
-          }
-        ]
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.FREQ
+            }
+          ]
+        }
       }
     });
 
@@ -62,13 +66,15 @@ describe('Computed table', () => {
 
     const table = new voici.Table(infreqData, {
       ...config,
-      calculated: {
-        columns: [
-          {
-            column: 0,
-            func: voici.CalculateFunction.INFREQ
-          }
-        ]
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.INFREQ
+            }
+          ]
+        }
       }
     });
 
@@ -82,13 +88,15 @@ describe('Computed table', () => {
   it('MAX', () => {
     const table = new voici.Table(data, {
       ...config,
-      calculated: {
-        columns: [
-          {
-            column: 0,
-            func: voici.CalculateFunction.MAX
-          }
-        ]
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.MAX
+            }
+          ]
+        }
       }
     });
 
@@ -102,13 +110,15 @@ describe('Computed table', () => {
   it('MEAN', () => {
     const table = new voici.Table(data, {
       ...config,
-      calculated: {
-        columns: [
-          {
-            column: 0,
-            func: voici.CalculateFunction.MEAN
-          }
-        ]
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.MEAN
+            }
+          ]
+        }
       }
     });
 
@@ -122,13 +132,15 @@ describe('Computed table', () => {
   it('MEDIAN', () => {
     const table = new voici.Table(data, {
       ...config,
-      calculated: {
-        columns: [
-          {
-            column: 0,
-            func: voici.CalculateFunction.MEDIAN
-          }
-        ]
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.MEDIAN
+            }
+          ]
+        }
       }
     });
 
@@ -142,13 +154,15 @@ describe('Computed table', () => {
   it('MIN', () => {
     const table = new voici.Table(data, {
       ...config,
-      calculated: {
-        columns: [
-          {
-            column: 0,
-            func: voici.CalculateFunction.MIN
-          }
-        ]
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.MIN
+            }
+          ]
+        }
       }
     });
 
@@ -162,13 +176,15 @@ describe('Computed table', () => {
   it('RANGE', () => {
     const table = new voici.Table(data, {
       ...config,
-      calculated: {
-        columns: [
-          {
-            column: 0,
-            func: voici.CalculateFunction.RANGE
-          }
-        ]
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.RANGE
+            }
+          ]
+        }
       }
     });
 
@@ -182,13 +198,15 @@ describe('Computed table', () => {
   it('STD', () => {
     const table = new voici.Table(data, {
       ...config,
-      calculated: {
-        columns: [
-          {
-            column: 0,
-            func: voici.CalculateFunction.STD
-          }
-        ]
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.STD
+            }
+          ]
+        }
       }
     });
 
@@ -202,13 +220,15 @@ describe('Computed table', () => {
   it('SUM', () => {
     const table = new voici.Table(data, {
       ...config,
-      calculated: {
-        columns: [
-          {
-            column: 0,
-            func: voici.CalculateFunction.SUM
-          }
-        ]
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.SUM
+            }
+          ]
+        }
       }
     });
 
@@ -222,17 +242,19 @@ describe('Computed table', () => {
   it('SUM dynamic', () => {
     const table = new voici.Table(data, {
       ...config,
-      calculated: {
-        columns: [
-          {
-            column: 0,
-            func: voici.CalculateFunction.SUM
-          },
-          {
-            column: 'Double',
-            func: voici.CalculateFunction.SUM
-          }
-        ]
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.SUM
+            },
+            {
+              column: 'Double',
+              func: voici.AccumulationFunction.SUM
+            }
+          ]
+        }
       },
       header: {
         dynamic: [{ name: 'Double', func: (row) => row[0] * 2 }]
@@ -249,13 +271,15 @@ describe('Computed table', () => {
   it('VAR', () => {
     const table = new voici.Table(data, {
       ...config,
-      calculated: {
-        columns: [
-          {
-            column: 0,
-            func: voici.CalculateFunction.VAR
-          }
-        ]
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.VAR
+            }
+          ]
+        }
       }
     });
 

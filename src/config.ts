@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { DynamicColumn, CalculatedCell } from './calculated';
+import { DynamicColumn, Accumulation } from './accumulation';
 
 export type Order = Partial<{
   column: string;
@@ -28,6 +28,10 @@ export type Config = Partial<{
   align: 'LEFT' | 'CENTER' | 'RIGHT';
   bgColorColumns: string[];
   body: Partial<{
+    accumulation: Partial<{
+      bgColor: string;
+      columns: Accumulation[];
+    }>;
     bgColor: string;
     highlightCell: Partial<{
       func: (content: unknown, row: number, col: string | number) => boolean;
@@ -45,10 +49,6 @@ export type Config = Partial<{
     color: string;
     horizontal: string;
     vertical: string;
-  }>;
-  calculated: Partial<{
-    bgColor: string;
-    columns: CalculatedCell[];
   }>;
   header: Partial<{
     bgColor: string;
@@ -82,6 +82,10 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
       align: 'LEFT',
       bgColorColumns: [],
       body: {
+        accumulation: {
+          bgColor: '',
+          columns: []
+        },
         bgColor: '',
         highlightCell: {
           func: null,
@@ -99,10 +103,6 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         color: '',
         horizontal: '',
         vertical: ''
-      },
-      calculated: {
-        bgColor: '',
-        columns: []
       },
       header: {
         bgColor: '',
@@ -140,6 +140,9 @@ export const mergePlainConfig = (config: Required<Config>): Required<Config> =>
   _.merge(config, {
     bgColorColumns: [],
     body: {
+      calculated: {
+        bgColor: ''
+      },
       bgColor: '',
       highlightCell: {
         textColor: '',
@@ -153,9 +156,6 @@ export const mergePlainConfig = (config: Required<Config>): Required<Config> =>
     },
     border: {
       color: ''
-    },
-    calculated: {
-      bgColor: ''
     },
     header: {
       bgColor: '',
