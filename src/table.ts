@@ -29,7 +29,7 @@ export type Row =
 /** leftPadding, text, rightPadding */
 type CellContent = [string, string, string];
 
-export class Table<T = Row> {
+export class Table<T extends unknown[] | object = Row> {
   /**
    * The dataset.
    */
@@ -201,7 +201,7 @@ export class Table<T = Row> {
       } else {
         const colName = _.isNumber(col) ? this.columnNames[col] : col;
         for (const row of this.data) {
-          data.push(_.omit(row as {}, colName));
+          data.push(_.omit(row, colName));
         }
         this.data = data;
         this.columnNames = this.columnNames.filter((name) => name !== colName);
@@ -337,7 +337,6 @@ export class Table<T = Row> {
               ? a[column].localeCompare(b[column])
               : b[column].localeCompare(a[column])
           );
-        default:
           break;
       }
     }
@@ -488,7 +487,7 @@ export class Table<T = Row> {
    * @param text the text to parse
    * @returns the parsed cell text
    */
-  private parseCellText(text: any) {
+  private parseCellText(text: unknown) {
     const { body } = this.config;
 
     if (Array.isArray(text) || _.isPlainObject(text)) return JSON.stringify(text);
@@ -754,7 +753,7 @@ export class Table<T = Row> {
     let styled = chalk;
 
     // Background color
-    if (_.isFunction(highlightRow.func) && highlightRow.func(this.data[row], row)) {
+    if (_.isFunction(highlightRow.func) && highlightRow.func<T>(this.data[row], row)) {
       styled = styled.bgHex(highlightRow.bgColor);
     } else if (striped && row % 2)
       styled = bgColor.length ? styled.bgHex(bgColor) : styled.bgHex('#444444');

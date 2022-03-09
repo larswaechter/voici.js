@@ -4,7 +4,7 @@
  * @param data  the dataset
  * @returns a `Map<Value, Occurrences>` map
  */
-export const countOccurrences = (data: any[]) => {
+export const countOccurrences = (data: unknown[]) => {
   const table = new Map<string, number>();
 
   for (const value of data) {

@@ -30,12 +30,12 @@ export type Config = Partial<{
   body: Partial<{
     bgColor: string;
     highlightCell: Partial<{
-      func: (content: any, row: number, col: string | number) => boolean;
+      func: (content: unknown, row: number, col: string | number) => boolean;
       textColor: string;
     }>;
     highlightRow: Partial<{
       bgColor: string;
-      func: (row: any, index: number) => boolean;
+      func: <T>(row: T, index: number) => boolean;
     }>;
     precision: number;
     striped: boolean;

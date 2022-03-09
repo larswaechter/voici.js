@@ -159,7 +159,7 @@ export const calculateRange = (data: number[]) => {
  * @param data the dataset
  * @returns the number of values
  */
-export const calculateCount = (data: any[]) => {
+export const calculateCount = (data: unknown[]) => {
   let counter = 0;
   for (const value of data) {
     if (String(value).length) counter++;
@@ -173,7 +173,7 @@ export const calculateCount = (data: any[]) => {
  * @param data the dataset
  * @returns the calculated most frequent value
  */
-export const calculateMostFrequent = (data: any[]) => {
+export const calculateMostFrequent = (data: unknown[]) => {
   const occurrences = countOccurrences(data);
 
   let key = '';
@@ -195,7 +195,7 @@ export const calculateMostFrequent = (data: any[]) => {
  * @param data the dataset
  * @returns the calculated most infrequent value
  */
-export const calculateMostInFrequent = (data: any[]) => {
+export const calculateMostInFrequent = (data: unknown[]) => {
   const occurrences = countOccurrences(data);
 
   let key = '';
