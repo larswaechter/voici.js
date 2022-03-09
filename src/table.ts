@@ -213,7 +213,7 @@ export class Table<T = Row> {
    * Shuffles the dataset.
    */
   shuffle() {
-    if (this.config.order.key.length)
+    if (this.config.order.column.length)
       throw new Error('Cannot shuffle dataset if a order is provided!');
     this.data = _.shuffle(this.data);
   }
@@ -321,17 +321,21 @@ export class Table<T = Row> {
    * @param order the sort order
    */
   private sort(order: Order) {
-    const { key, direction } = order;
+    const { column, direction } = order;
 
     if (this.data.length) {
-      const type = typeof this.getDataCell(0, key);
+      const type = typeof this.getDataCell(0, column);
       switch (type) {
         case 'number':
-          this.data.sort((a, b) => (direction === 'ASC' ? a[key] - b[key] : b[key] - a[key]));
+          this.data.sort((a, b) =>
+            direction === 'ASC' ? a[column] - b[column] : b[column] - a[column]
+          );
           break;
         case 'string':
           this.data.sort((a, b) =>
-            direction === 'ASC' ? a[key].localeCompare(b[key]) : b[key].localeCompare(a[key])
+            direction === 'ASC'
+              ? a[column].localeCompare(b[column])
+              : b[column].localeCompare(a[column])
           );
         default:
           break;
@@ -873,7 +877,7 @@ export class Table<T = Row> {
     if (this.touched || force) {
       this._computed = this.getComputedRow();
       this.calculateColumnWidths();
-      if (this.config.order.key.length) this.sort(this.config.order);
+      if (this.config.order.column.length) this.sort(this.config.order);
     }
     this.touched = false;
   }

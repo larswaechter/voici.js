@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import { ComputedCell } from './computed';
 
 export type Order = Partial<{
-  key: string;
+  column: string;
   direction: 'ASC' | 'DESC';
 }>;
 
@@ -112,8 +112,8 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         maxWidth: 'auto'
       },
       order: {
-        direction: 'ASC',
-        key: ''
+        column: '',
+        direction: 'ASC'
       },
       padding: {
         char: ' ',

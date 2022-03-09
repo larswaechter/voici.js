@@ -227,7 +227,7 @@ describe('Simple table', () => {
     const table = new voici.Table(data, {
       ...config,
       order: {
-        key: 'ID'
+        column: 'ID'
       }
     });
 

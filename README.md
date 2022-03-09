@@ -52,32 +52,12 @@ const config = {
 };
 ```
 
-### align
-
-| Name    | Type     | Default | Description         |
-| ------- | -------- | ------- | ------------------- |
-| `align` | `string` | `LEFT`  | The text alignment. |
-
-### bgColorColumns
-
 | Name             | Type       | Default | Description                           |
 | ---------------- | ---------- | ------- | ------------------------------------- |
+| `align`          | `string`   | `LEFT`  | The text alignment.                   |
 | `bgColorColumns` | `string[]` | `[]`    | The background color for each column. |
 
 ### body
-
-```js
-const body = {
-  bgColor: '',
-  highlightCell: {},
-  highlightRow: {},
-  precision: 3,
-  striped: true,
-  textColor: ''
-};
-```
-
-#### bgColor
 
 | Name        | Type      | Default | Description                                  |
 | ----------- | --------- | ------- | -------------------------------------------- |
@@ -102,14 +82,6 @@ const body = {
 
 ### border
 
-```js
-const border = {
-  color: '',
-  horizontal: '',
-  vertical: ''
-};
-```
-
 | Name         | Type     | Default | Description                      |
 | ------------ | -------- | ------- | -------------------------------- |
 | `color`      | `string` | `''`    | The border color.                |
@@ -117,13 +89,6 @@ const border = {
 | `vertical`   | `string` | `''`    | The vertical border character.   |
 
 ### computed
-
-```js
-const computed = {
-  bgColor: '',
-  columns: []
-};
-```
 
 | Name      | Type     | Default | Description                               |
 | --------- | -------- | ------- | ----------------------------------------- |
@@ -134,6 +99,33 @@ const computed = {
 | Name      | Type             | Default | Description                                 |
 | --------- | ---------------- | ------- | ------------------------------------------- |
 | `columns` | `ComputedCell[]` | `[]`    | The configuration for each computed column. |
+
+### Header
+
+| Name         | Type               | Default  | Description                                              |
+| ------------ | ------------------ | -------- | -------------------------------------------------------- |
+| `bgColor`    | `string`           | `''`     | The background color of the header.                      |
+| `bold`       | `boolean`          | `false`  | Whether the header names should be written in bold.      |
+| `italic`     | `boolean`          | `false`  | Whether the header names should be written in italic.    |
+| `numeration` | `boolean`          | `true`   | Whether to add a numeration column                       |
+| `textColor`  | `string`           | `''`     | The text color of the header.                            |
+| `underline`  | `boolean`          | `false`  | Whether the header names should be written in underline. |
+| `width`      | `'auto' \| number` | `'auto'` | The fixed width of each column.                          |
+| `maxWidth`   | `'auto' \| number` | `'auto'` | The fixed max-width of each column.                      |
+
+### Order
+
+| Name        | Type              | Default | Description            |
+| ----------- | ----------------- | ------- | ---------------------- |
+| `key`       | `string`          | `''`    | The column to sort by. |
+| `direction` | `'ASC' \| 'DESC'` | `'ASC'` | The sort direction.    |
+
+### Padding
+
+| Name   | Type     | Default | Description            |
+| ------ | -------- | ------- | ---------------------- |
+| `char` | `string` | `' '`   | The padding character. |
+| `size` | `number` | `2`     | The padding size.      |
 
 ## 🧩 Contributing
 
