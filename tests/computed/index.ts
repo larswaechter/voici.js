@@ -18,11 +18,11 @@ describe('Computed table', () => {
 
     const table = new voici.Table(countData, {
       ...config,
-      computed: {
+      calculated: {
         columns: [
           {
             column: 0,
-            func: voici.ComputeFunction.COUNT
+            func: voici.CalculateFunction.COUNT
           }
         ]
       }
@@ -40,11 +40,11 @@ describe('Computed table', () => {
 
     const table = new voici.Table(freqData, {
       ...config,
-      computed: {
+      calculated: {
         columns: [
           {
             column: 0,
-            func: voici.ComputeFunction.FREQ
+            func: voici.CalculateFunction.FREQ
           }
         ]
       }
@@ -62,11 +62,11 @@ describe('Computed table', () => {
 
     const table = new voici.Table(infreqData, {
       ...config,
-      computed: {
+      calculated: {
         columns: [
           {
             column: 0,
-            func: voici.ComputeFunction.INFREQ
+            func: voici.CalculateFunction.INFREQ
           }
         ]
       }
@@ -82,11 +82,11 @@ describe('Computed table', () => {
   it('MAX', () => {
     const table = new voici.Table(data, {
       ...config,
-      computed: {
+      calculated: {
         columns: [
           {
             column: 0,
-            func: voici.ComputeFunction.MAX
+            func: voici.CalculateFunction.MAX
           }
         ]
       }
@@ -102,11 +102,11 @@ describe('Computed table', () => {
   it('MEAN', () => {
     const table = new voici.Table(data, {
       ...config,
-      computed: {
+      calculated: {
         columns: [
           {
             column: 0,
-            func: voici.ComputeFunction.MEAN
+            func: voici.CalculateFunction.MEAN
           }
         ]
       }
@@ -122,11 +122,11 @@ describe('Computed table', () => {
   it('MEDIAN', () => {
     const table = new voici.Table(data, {
       ...config,
-      computed: {
+      calculated: {
         columns: [
           {
             column: 0,
-            func: voici.ComputeFunction.MEDIAN
+            func: voici.CalculateFunction.MEDIAN
           }
         ]
       }
@@ -142,11 +142,11 @@ describe('Computed table', () => {
   it('MIN', () => {
     const table = new voici.Table(data, {
       ...config,
-      computed: {
+      calculated: {
         columns: [
           {
             column: 0,
-            func: voici.ComputeFunction.MIN
+            func: voici.CalculateFunction.MIN
           }
         ]
       }
@@ -162,11 +162,11 @@ describe('Computed table', () => {
   it('RANGE', () => {
     const table = new voici.Table(data, {
       ...config,
-      computed: {
+      calculated: {
         columns: [
           {
             column: 0,
-            func: voici.ComputeFunction.RANGE
+            func: voici.CalculateFunction.RANGE
           }
         ]
       }
@@ -182,11 +182,11 @@ describe('Computed table', () => {
   it('STD', () => {
     const table = new voici.Table(data, {
       ...config,
-      computed: {
+      calculated: {
         columns: [
           {
             column: 0,
-            func: voici.ComputeFunction.STD
+            func: voici.CalculateFunction.STD
           }
         ]
       }
@@ -202,11 +202,11 @@ describe('Computed table', () => {
   it('SUM', () => {
     const table = new voici.Table(data, {
       ...config,
-      computed: {
+      calculated: {
         columns: [
           {
             column: 0,
-            func: voici.ComputeFunction.SUM
+            func: voici.CalculateFunction.SUM
           }
         ]
       }
@@ -222,11 +222,11 @@ describe('Computed table', () => {
   it('VAR', () => {
     const table = new voici.Table(data, {
       ...config,
-      computed: {
+      calculated: {
         columns: [
           {
             column: 0,
-            func: voici.ComputeFunction.VAR
+            func: voici.CalculateFunction.VAR
           }
         ]
       }

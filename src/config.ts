@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { ComputedCell } from './computed';
+import { Calculation } from './calculated';
 
 export type Order = Partial<{
   column: string;
@@ -46,9 +46,9 @@ export type Config = Partial<{
     horizontal: string;
     vertical: string;
   }>;
-  computed: Partial<{
+  calculated: Partial<{
     bgColor: string;
-    columns: ComputedCell[];
+    columns: Calculation[];
   }>;
   header: Partial<{
     bgColor: string;
@@ -97,7 +97,7 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         horizontal: '',
         vertical: ''
       },
-      computed: {
+      calculated: {
         bgColor: '',
         columns: []
       },
@@ -149,7 +149,7 @@ export const mergePlainConfig = (config: Required<Config>): Required<Config> =>
     border: {
       color: ''
     },
-    computed: {
+    calculated: {
       bgColor: ''
     },
     header: {

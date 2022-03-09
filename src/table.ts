@@ -6,7 +6,7 @@ import chalk, { Chalk } from 'chalk';
 import { resolve as resolvePath } from 'path';
 import { createReadStream, openSync, writeFileSync, OpenMode } from 'fs';
 
-import { getComputed } from './computed';
+import { getCalculated } from './calculated';
 import {
   Config,
   ImageExportConfig,
@@ -434,8 +434,8 @@ export class Table<T extends unknown[] | object = Row> {
    * @returns the values of the computed row
    */
   private getComputedRow() {
-    const { computed } = this.config;
-    const { columns } = computed;
+    const { calculated } = this.config;
+    const { columns } = calculated;
 
     if (!columns.length) return {};
 
@@ -449,7 +449,7 @@ export class Table<T extends unknown[] | object = Row> {
       for (const col of columns) values[col.column].push(row[col.column] || '');
 
     // Compute
-    for (const comp of columns) values[comp.column] = getComputed(values[comp.column], comp.func);
+    for (const comp of columns) values[comp.column] = getCalculated(values[comp.column], comp.func);
 
     return values;
   }
@@ -656,7 +656,7 @@ export class Table<T extends unknown[] | object = Row> {
    * @returns the formatted cell content
    */
   private formatBodyCellContent(row: number, col: string, content: CellContent) {
-    const { bgColorColumns, body, border, computed } = this.config;
+    const { bgColorColumns, body, border, calculated } = this.config;
     const { highlightCell, textColor } = body;
 
     const colIndex = this.columnToIndex(col);
@@ -675,8 +675,8 @@ export class Table<T extends unknown[] | object = Row> {
       const text = contentCopy[i];
 
       // Computed row
-      if (row === -1 && computed.bgColor.length) {
-        cellContent += chalk.bgHex(computed.bgColor)(text);
+      if (row === -1 && calculated.bgColor.length) {
+        cellContent += chalk.bgHex(calculated.bgColor)(text);
         continue;
       }
 
@@ -857,7 +857,7 @@ export class Table<T extends unknown[] | object = Row> {
     let content = this.data.reduce((prev, __, i) => prev + this.buildBodyRow(i), '');
 
     // Computed row
-    if (this.config.computed.columns.length)
+    if (this.config.calculated.columns.length)
       content += this.getRowSeparator('-') + this.buildBodyRow(-1);
 
     // Remove last linebreak (\n)

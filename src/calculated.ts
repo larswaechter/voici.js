@@ -1,12 +1,12 @@
 import _ from 'lodash';
 import { countOccurrences } from './helper';
 
-export type ComputedCell = {
+export type Calculation = {
   column: string | number;
-  func: ComputeFunction;
+  func: CalculateFunction;
 };
 
-export enum ComputeFunction {
+export enum CalculateFunction {
   /** The minimal value */
   MIN,
 
@@ -48,29 +48,29 @@ export enum ComputeFunction {
  * @param func the ComputeFunction
  * @returns the computed value
  */
-export const getComputed = (data: [], func: ComputeFunction) => {
+export const getCalculated = (data: [], func: CalculateFunction) => {
   switch (func) {
-    case ComputeFunction.MIN:
+    case CalculateFunction.MIN:
       return Math.min(...data);
-    case ComputeFunction.MAX:
+    case CalculateFunction.MAX:
       return Math.max(...data);
-    case ComputeFunction.SUM:
+    case CalculateFunction.SUM:
       return calculateSum(data);
-    case ComputeFunction.MEAN:
+    case CalculateFunction.MEAN:
       return calculateMean(data);
-    case ComputeFunction.MEDIAN:
+    case CalculateFunction.MEDIAN:
       return calculateMedian(data);
-    case ComputeFunction.VAR:
+    case CalculateFunction.VAR:
       return calculateVariance(data);
-    case ComputeFunction.STD:
+    case CalculateFunction.STD:
       return calculateStandardDeviation(data);
-    case ComputeFunction.RANGE:
+    case CalculateFunction.RANGE:
       return calculateRange(data);
-    case ComputeFunction.COUNT:
+    case CalculateFunction.COUNT:
       return calculateCount(data);
-    case ComputeFunction.FREQ:
+    case CalculateFunction.FREQ:
       return calculateMostFrequent(data);
-    case ComputeFunction.INFREQ:
+    case CalculateFunction.INFREQ:
       return calculateMostInFrequent(data);
     default:
       return 0;
