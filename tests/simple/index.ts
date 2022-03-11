@@ -260,9 +260,10 @@ describe('Simple tables', () => {
     const table = new voici.Table(data, {
       ...config,
       order: {
-        column: 'ID'
+        columns: ['ID'],
+        directions: ['asc']
       }
-    });
+    } as voici.Config);
 
     const result = readFileSync(__dirname + '/order.txt', {
       encoding: 'utf-8'
@@ -317,6 +318,41 @@ describe('Simple tables', () => {
         }),
       Error
     );
+  });
+
+  it('Reference datatypes', () => {
+    const refData = [
+      [
+        ['this', 'is', 'an', 'array'],
+        { prop1: 'this', prop2: 'is', prop3: 'a', prop4: 'object' },
+        new Set(['this', 'is', 'a', 'set']),
+        new Map([
+          [1, 'this'],
+          [2, 'is'],
+          [3, 'a'],
+          [4, 'map']
+        ])
+      ],
+      [
+        ['this', 'is', 'another', 'array'],
+        { prop1: 'this', prop2: 'is', prop3: 'another', prop4: 'object' },
+        new Set(['this', 'is', 'aanother', 'set']),
+        new Map([
+          [1, 'this'],
+          [2, 'is'],
+          [3, 'another'],
+          [4, 'map']
+        ])
+      ]
+    ];
+
+    const table = new voici.Table(refData, config);
+
+    const result = readFileSync(__dirname + '/reference_datatypes.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
   });
 
   it('Width', () => {
