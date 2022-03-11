@@ -1,10 +1,10 @@
 import * as _ from 'lodash';
 import { DynamicColumn, Accumulation } from './accumulation';
 
-export type Order = Partial<{
-  column: string;
-  direction: 'ASC' | 'DESC';
-}>;
+export type Order = {
+  columns: string[];
+  directions: Array<'asc'> | Array<'desc'>;
+};
 
 export type ImageExportConfig = Partial<{
   backgroundColor: string;
@@ -113,15 +113,15 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         italic: false,
         numeration: true,
         textColor: '',
-        underline: true,
+        underline: false,
         uppercase: false,
         upperFirst: false,
         width: 'auto',
         maxWidth: 'auto'
       },
       order: {
-        column: '',
-        direction: 'ASC'
+        columns: [],
+        directions: []
       },
       padding: {
         char: ' ',
