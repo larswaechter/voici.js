@@ -15,11 +15,10 @@ const data = [
   { firstname: 'Maggie', lastname: 'Simpson', age: 1 }
 ];
 
-voici
-  .fromCSV<Person>('./import.csv', {
-    headers: true,
-    delimiter: ','
-  })
-  .then((table) => {
-    console.log(table.dataset[0].firstname);
-  });
+const table = new voici.Table(data, {
+  header: {
+    width: 'stretch'
+  }
+});
+
+table.print();

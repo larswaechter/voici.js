@@ -320,7 +320,7 @@ export class Table<T extends unknown[] | object = Row> {
    * Calculates the width of each column.
    */
   private calculateColumnWidths() {
-    const { header } = this.config;
+    const { header, padding } = this.config;
     const widths: ColumnWidths = {};
 
     const data = this.dataset.slice();
@@ -358,6 +358,15 @@ export class Table<T extends unknown[] | object = Row> {
       }
 
       if (header.numeration) widths['#'] = String(this.dataset.length).length || 1;
+
+      if (header.width === 'stretch') {
+        const widthsArr = Object.values(widths);
+
+        // Calculate percentage
+        const consoleWidth = process.stdout.columns - widthsArr.length * 2 * padding.size;
+        const sum = Object.values(widthsArr).reduce((prev, val) => prev + val, 0);
+        for (const key in widths) widths[key] = Math.floor((widths[key] / sum) * consoleWidth);
+      }
     }
 
     this.columnWidths = widths;

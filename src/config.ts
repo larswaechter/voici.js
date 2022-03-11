@@ -61,7 +61,7 @@ export type Config = Partial<{
     underline: boolean;
     uppercase: boolean;
     upperFirst: boolean;
-    width: number | 'auto';
+    width: number | 'auto' | 'stretch';
     maxWidth: number | 'auto';
   }>;
   order: Order;
