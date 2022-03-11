@@ -1,6 +1,6 @@
-..#....ID......Firstname....Lastname....Email.....................Gender....Fullname...........Admin..
+  #    ID      Firstname    Lastname    Email                     Gender    Fullname           Admin  
 ======================================================================================================
-..0....1.......John.........Doe.........johndoe@gmail.com.........Male......John Doe...........true...
-..1....421.....Jane.........Doe.........doe@yahoo.com.............Female....Jane Doe...........false..
-..2....2003....Peter........Parker......spiderman@dummynet.com....Male......Peter Parker.......false..
-..3....55......Michael......Jackson.....michael@jackson.com.......Male......Michael Jackson....false..
+  0    1       John         Doe         johndoe@gmail.com         Male      John Doe           true   
+  1    421     Jane         Doe         doe@yahoo.com             Female    Jane Doe           false  
+  2    2003    Peter        Parker      spiderman@dummynet.com    Male      Peter Parker       false  
+  3    55      Michael      Jackson     michael@jackson.com       Male      Michael Jackson    false  

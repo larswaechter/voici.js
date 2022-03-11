@@ -7,9 +7,7 @@ A Node.js library for displaying table data on the terminal.
 
 ## Introduction
 
-voici.js (speak: [/vwasi/](https://dictionary.cambridge.org/dictionary/french-english/voici)) is a Node.js library written in TypeScript for beautifully displaying table data on your terminal. The provided dataset must be an array of arrays or an array of objects.
-
-Main features:
+voici.js (speak: [/vwasi/](https://dictionary.cambridge.org/dictionary/french-english/voici)) is an open source Node.js library written in TypeScript for beautifully displaying datasets in tabular format on the terminal including features like:
 
 - Text / Column / Row styling
 - Accumulation
@@ -29,7 +27,18 @@ npm i --save voici.js
 ## 🔨 Usage
 
 ```js
-import { Table } from 'voici.js';
+import * as voici from 'voici.js';
+
+const data = [
+  { firstname: 'Homer', lastname: 'Simpson', age: 39 },
+  { firstname: 'Marge', lastname: 'Simpson', age: 36 },
+  { firstname: 'Bart', lastname: 'Simpson', age: 10 },
+  { firstname: 'Lisa', lastname: 'Simpson', age: 8 },
+  { firstname: 'Maggie', lastname: 'Simpson', age: 1 }
+];
+
+const table = new voici.Table(data);
+table.print();
 ```
 
 ## 📚 Documentation

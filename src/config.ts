@@ -18,7 +18,7 @@ export const mergeImageExportConfig = (config: ImageExportConfig): Required<Imag
     {
       backgroundColor: 'black',
       color: 'white',
-      font: '16px Consolas',
+      font: '16px Courier',
       padding: 4
     },
     config
@@ -167,6 +167,6 @@ export const mergePlainConfig = (config: Required<Config>): Required<Config> =>
       underline: false
     },
     padding: {
-      char: '.'
+      char: ' '
     }
   });

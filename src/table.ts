@@ -30,7 +30,7 @@ export class Table<T extends unknown[] | object = Row> {
   /**
    * The dataset.
    */
-  private _data: T[];
+  private _dataset: T[];
 
   /**
    * The table config.
@@ -67,19 +67,25 @@ export class Table<T extends unknown[] | object = Row> {
    */
   private touched: boolean = true;
 
-  constructor(data: T[], config: Config = {}) {
-    this._data = data.slice();
+  /**
+   * Creates a new `Table` instance.
+   *
+   * @param dataset the dataset
+   * @param config the config
+   */
+  constructor(dataset: T[], config: Config = {}) {
+    this._dataset = dataset.slice();
     this._config = mergeDefaultConfig(config);
 
     this.buildColumnNames();
   }
 
-  public get data() {
-    return this._data;
+  public get dataset() {
+    return this._dataset;
   }
 
-  private set data(data: T[]) {
-    this._data = data;
+  private set dataset(dataset: T[]) {
+    this._dataset = dataset;
     this.touched = true;
   }
 
@@ -97,7 +103,7 @@ export class Table<T extends unknown[] | object = Row> {
   getDataCell(row: number, col: string | number) {
     const { header } = this.config;
     if (header.numeration && col === '#') return row;
-    return this.data[row][col];
+    return this.dataset[row][col];
   }
 
   /**
@@ -106,7 +112,7 @@ export class Table<T extends unknown[] | object = Row> {
    * @param row the row to append
    */
   appendRow(row: T) {
-    this.data.push(row);
+    this.dataset.push(row);
   }
 
   /**
@@ -115,7 +121,7 @@ export class Table<T extends unknown[] | object = Row> {
    * @param row the row to remove
    */
   removeRow(row: number) {
-    this.data.splice(row, 1);
+    this.dataset.splice(row, 1);
   }
 
   /**
@@ -124,10 +130,10 @@ export class Table<T extends unknown[] | object = Row> {
    * @param col the column to remove
    */
   removeColumn(col: string | number) {
-    if (this.data.length) {
+    if (this.dataset.length) {
       const data = [];
-      if (Array.isArray(this.data[0])) {
-        for (const row of this.data) {
+      if (Array.isArray(this.dataset[0])) {
+        for (const row of this.dataset) {
           if (Array.isArray(row)) {
             const copy = [...row];
             copy.splice(col as number, 1);
@@ -137,10 +143,10 @@ export class Table<T extends unknown[] | object = Row> {
         this.buildColumnNames();
       } else {
         const colName = _.isNumber(col) ? this.getColumNames()[col] : col;
-        for (const row of this.data) {
+        for (const row of this.dataset) {
           data.push(_.omit(row, colName));
         }
-        this.data = data;
+        this.dataset = data;
         this.columnNames = this.columnNames.filter((name) => name !== colName);
       }
     }
@@ -152,13 +158,16 @@ export class Table<T extends unknown[] | object = Row> {
   shuffle() {
     if (this.config.order.column.length)
       throw new Error('Cannot shuffle dataset if a order is provided!');
-    this.data = _.shuffle(this.data);
+    this.dataset = _.shuffle(this.dataset);
   }
 
   /**
    * Prints the table to the console.
+   *
+   * @param clear clear the console before printing
    */
-  print() {
+  print(clear: boolean = false) {
+    if (clear) console.clear();
     // tslint:disable-next-line: no-console
     console.log(this.toString());
   }
@@ -260,16 +269,16 @@ export class Table<T extends unknown[] | object = Row> {
   private sort(order: Order) {
     const { column, direction } = order;
 
-    if (this.data.length) {
+    if (this.dataset.length) {
       const type = typeof this.getDataCell(0, column);
       switch (type) {
         case 'number':
-          this.data.sort((a, b) =>
+          this.dataset.sort((a, b) =>
             direction === 'ASC' ? a[column] - b[column] : b[column] - a[column]
           );
           break;
         case 'string':
-          this.data.sort((a, b) =>
+          this.dataset.sort((a, b) =>
             direction === 'ASC'
               ? a[column].localeCompare(b[column])
               : b[column].localeCompare(a[column])
@@ -294,13 +303,13 @@ export class Table<T extends unknown[] | object = Row> {
    * Builds the column names from the dataset.
    */
   private buildColumnNames() {
-    if (!this.data.length) return;
+    if (!this.dataset.length) return;
 
     const { header } = this.config;
     const names = [];
 
     // Column names from dataset
-    for (const col in this.data[0]) names.push(String(col));
+    for (const col in this.dataset[0]) names.push(String(col));
 
     // Names of dynamic columns
     for (const entry of header.dynamic) names.push(entry.name);
@@ -333,7 +342,7 @@ export class Table<T extends unknown[] | object = Row> {
     const { header } = this.config;
     const widths: ColumnWidths = {};
 
-    const data = this.data.slice();
+    const data = this.dataset.slice();
     const colNames = this.getColumNames().slice();
 
     // Add dynamic column names => use a Set for faster lookup
@@ -367,7 +376,7 @@ export class Table<T extends unknown[] | object = Row> {
         }
       }
 
-      if (header.numeration) widths['#'] = String(this.data.length).length || 1;
+      if (header.numeration) widths['#'] = String(this.dataset.length).length || 1;
     }
 
     this.columnWidths = widths;
@@ -394,7 +403,7 @@ export class Table<T extends unknown[] | object = Row> {
     const columns = new Map<string, unknown[]>();
 
     for (const col of dynamic) {
-      const calculatedData = this.data.map((row, i) => col.func(row, i));
+      const calculatedData = this.dataset.map((row, i) => col.func(row, i));
       columns.set(col.name, calculatedData);
     }
 
@@ -446,8 +455,8 @@ export class Table<T extends unknown[] | object = Row> {
     for (const comp of columns) values[comp.column] = [];
 
     // Collect row data
-    for (let iRow = 0; iRow < this.data.length; iRow++) {
-      const row = this.data[iRow];
+    for (let iRow = 0; iRow < this.dataset.length; iRow++) {
+      const row = this.dataset[iRow];
       for (const col of columns) {
         if (dynamicColNames.has(String(col.column)))
           values[col.column].push(this.dynamicColumns.get(String(col.column))[iRow]);
@@ -500,6 +509,8 @@ export class Table<T extends unknown[] | object = Row> {
 
     if (Array.isArray(text) || _.isPlainObject(text)) return JSON.stringify(text);
     if (_.isNumber(text) && !_.isInteger(text)) return text.toFixed(body.precision);
+    if (_.isSet(text)) return JSON.stringify(Array.from(text.values()));
+    if (_.isMap(text)) return JSON.stringify(Array.from(text.entries()));
     if (text === undefined) return '';
 
     return String(text) || '';
@@ -766,7 +777,7 @@ export class Table<T extends unknown[] | object = Row> {
     let styled = chalk;
 
     // Background color
-    if (_.isFunction(highlightRow.func) && highlightRow.func<T>(this.data[row], row)) {
+    if (_.isFunction(highlightRow.func) && highlightRow.func<T>(this.dataset[row], row)) {
       styled = styled.bgHex(highlightRow.bgColor);
     } else if (striped && row % 2)
       styled = bgColor.length ? styled.bgHex(bgColor) : styled.bgHex('#444444');
@@ -867,7 +878,7 @@ export class Table<T extends unknown[] | object = Row> {
    * @returns the body content
    */
   private buildBody() {
-    let content = this.data.reduce((prev, __, i) => prev + this.buildBodyRow(i), '');
+    let content = this.dataset.reduce((prev, __, i) => prev + this.buildBodyRow(i), '');
 
     // Row of accumulation results
     if (this.config.body.accumulation.columns.length)
