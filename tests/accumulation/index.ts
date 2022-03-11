@@ -12,7 +12,7 @@ const config: voici.Config = {
   }
 };
 
-describe('Accumulated rows', () => {
+describe('Accumulation', () => {
   it('COUNT', () => {
     const countData = [[2], [7], [], [3], [201], [], [42]];
 

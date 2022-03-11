@@ -41,7 +41,7 @@ const config: voici.Config = {
   }
 };
 
-describe('Simple tables', () => {
+describe('Base', () => {
   it('Align center', () => {
     const table = new voici.Table(data, {
       align: 'CENTER',

@@ -5,7 +5,7 @@ import { readFileSync } from 'fs';
 
 import * as voici from '../../dist/index';
 
-describe('Imported datasets', () => {
+describe('Import', () => {
   it('Import CSV', () => {
     voici
       .fromCSV(join(__dirname, 'import.csv'), {
