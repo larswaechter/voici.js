@@ -32,23 +32,23 @@ export const countOccurrences = (data: unknown[]) => {
  * @param tableConfig the table config
  * @returns a new `Table` instance
  */
-export const fromCSV = (
+export const fromCSV = <T extends unknown[] | object = Row>(
   path: string,
   csvConfig: csv.ParserOptionsArgs,
   tableConfig: Config = {}
-): Promise<Table> => {
+): Promise<Table<T>> => {
   return new Promise((resolve, reject) => {
-    const data: Row[] = [];
+    const data: T[] = [];
     createReadStream(resolvePath(path))
       .pipe(csv.parse(csvConfig))
       .on('error', (err) => {
         reject(err);
       })
-      .on('data', (row) => {
+      .on('data', (row: T) => {
         data.push(row);
       })
       .on('end', () => {
-        resolve(new Table(data, tableConfig));
+        resolve(new Table<T>(data, tableConfig));
       });
   });
 };
@@ -60,15 +60,18 @@ export const fromCSV = (
  * @param tableConfig the table config
  * @returns a new `Table` instance
  */
-export const fromJSON = (path: string, tableConfig: Config = {}): Promise<Table> => {
+export const fromJSON = <T extends unknown[] | object = Row>(
+  path: string,
+  tableConfig: Config = {}
+): Promise<Table<T>> => {
   return new Promise((resolve, reject) => {
-    const data: Row[] = [];
+    const data: T[] = [];
     createReadStream(resolvePath(path))
       .pipe(jstream.parse('*'))
       .on('error', (err: Error) => {
         reject(err);
       })
-      .on('data', (row: Row) => {
+      .on('data', (row: T) => {
         data.push(row);
       })
       .on('end', () => {

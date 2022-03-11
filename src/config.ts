@@ -39,7 +39,7 @@ export type Config = Partial<{
     }>;
     highlightRow: Partial<{
       bgColor: string;
-      func: <T>(row: T, index: number) => boolean;
+      func: (row: unknown, index: number) => boolean;
     }>;
     precision: number;
     striped: boolean;

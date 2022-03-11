@@ -9,8 +9,7 @@ import {
   ImageExportConfig,
   mergeDefaultConfig,
   mergeImageExportConfig,
-  mergePlainConfig,
-  Order
+  mergePlainConfig
 } from './config';
 
 type ColumnWidths = {
@@ -759,7 +758,7 @@ export class Table<T extends unknown[] | object = Row> {
     let styled = chalk;
 
     // Background color
-    if (_.isFunction(highlightRow.func) && highlightRow.func<T>(this.dataset[row], row)) {
+    if (_.isFunction(highlightRow.func) && highlightRow.func(this.dataset[row], row)) {
       styled = styled.bgHex(highlightRow.bgColor);
     } else if (striped && row % 2)
       styled = bgColor.length ? styled.bgHex(bgColor) : styled.bgHex('#444444');
