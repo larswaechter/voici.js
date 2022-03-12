@@ -11,6 +11,7 @@ import {
   mergeImageExportConfig,
   mergePlainConfig
 } from './config';
+import { stringify } from './helper';
 
 type ColumnWidths = {
   [key: string]: number;
@@ -266,6 +267,10 @@ export class Table<T extends unknown[] | object = Row> {
    */
   private sort() {
     const { columns, directions } = this.config.order;
+    if (columns.length !== directions.length)
+      throw new Error(
+        `Number of columns (${columns.length}) does not match number of directions (${directions.length})`
+      );
     this.dataset = _.orderBy(this.dataset, columns, directions);
   }
 
@@ -495,15 +500,8 @@ export class Table<T extends unknown[] | object = Row> {
    * @returns the parsed cell text
    */
   private parseCellText(text: unknown) {
-    const { body } = this.config;
-
-    if (Array.isArray(text) || _.isPlainObject(text)) return JSON.stringify(text);
-    if (_.isNumber(text) && !_.isInteger(text)) return text.toFixed(body.precision);
-    if (_.isSet(text)) return JSON.stringify(Array.from(text.values()));
-    if (_.isMap(text)) return JSON.stringify(Array.from(text.entries()));
-    if (text === undefined) return '';
-
-    return String(text) || '';
+    if (_.isNumber(text) && !_.isInteger(text)) return text.toFixed(this.config.body.precision);
+    return stringify(text);
   }
 
   /**

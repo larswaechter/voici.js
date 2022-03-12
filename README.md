@@ -10,6 +10,7 @@ A Node.js library for displaying table data on the terminal.
 voici.js (speak: [/vwasi/](https://dictionary.cambridge.org/dictionary/french-english/voici)) is an open source Node.js library written in TypeScript for beautifully displaying datasets in tabular format on the terminal including features like:
 
 - Text / Column / Row styling
+- Column sizing
 - Accumulation
 - Dynamic columns
 - Data import from .json / .csv

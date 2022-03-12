@@ -61,6 +61,50 @@ describe('Accumulation', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('GEO_MEAN', () => {
+    const table = new voici.Table(data, {
+      ...config,
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.GEO_MEAN
+            }
+          ]
+        }
+      }
+    });
+
+    const result = readFileSync(__dirname + '/geo_mean.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('HARM_MEAN', () => {
+    const table = new voici.Table(data, {
+      ...config,
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.HARM_MEAN
+            }
+          ]
+        }
+      }
+    });
+
+    const result = readFileSync(__dirname + '/harm_mean.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('INFREQ', () => {
     const infreqData = [[2], [7], [2], [3], [7], [2], [42]];
 

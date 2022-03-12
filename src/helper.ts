@@ -1,9 +1,27 @@
+import _ from 'lodash';
 import * as csv from 'fast-csv';
 import * as jstream from 'JSONStream';
 import { resolve as resolvePath } from 'path';
 import { createReadStream } from 'fs';
 
 import { Config, Row, Table } from '.';
+
+/**
+ * Converts the given value to a string.
+ *
+ * @param value the value to stringify
+ * @returns the strinified value
+ */
+export const stringify = (value: unknown) => {
+  if (_.isString(value)) return value;
+  if (_.isNumber(value)) return value.toString();
+  if (_.isDate(value)) return value.toDateString();
+  if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
+  if (_.isSet(value)) return JSON.stringify(Array.from(value.values()));
+  if (_.isMap(value)) return JSON.stringify(Array.from(value.entries()));
+  if (_.isUndefined(value) || _.isNull(value)) return '';
+  return String(value) || '';
+};
 
 /**
  * Counts the occurrences of each value.
