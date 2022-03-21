@@ -1,4 +1,6 @@
-import _ from 'lodash';
+import _sum from 'lodash/sum';
+import _mean from 'lodash/mean';
+
 import { countOccurrences } from './helper';
 
 export type DynamicColumn = {
@@ -183,7 +185,7 @@ export const calculateMostInFrequent = (data: unknown[]) => {
  * @param data the dataset
  * @returns the calculated mean
  */
-export const calculateMean = (data: number[]) => _.mean(data);
+export const calculateMean = (data: number[]) => _mean(data);
 
 /**
  * Calculates the median.
@@ -206,7 +208,7 @@ export const calculateMedian = (data: number[]) => {
  * @param data the dataset
  * @returns the calculated sum
  */
-export const calculateSum = (data: number[]) => _.sum(data);
+export const calculateSum = (data: number[]) => _sum(data);
 
 /**
  * Calculates the range (difference between min and max).

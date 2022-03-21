@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import _merge from 'lodash/merge';
 import { DynamicColumn, Accumulation } from './accumulation';
 
 export type Order = {
@@ -14,7 +14,7 @@ export type ImageExportConfig = Partial<{
 }>;
 
 export const mergeImageExportConfig = (config: ImageExportConfig): Required<ImageExportConfig> =>
-  _.merge(
+  _merge(
     {
       backgroundColor: 'black',
       color: 'white',
@@ -60,7 +60,8 @@ export type Config = Partial<{
     textColor: string;
     underline: boolean;
     uppercase: boolean;
-    upperFirst: boolean;
+    lowercase: boolean;
+    upperfirst: boolean;
     width: number | 'auto' | 'stretch';
     maxWidth: number | 'auto';
   }>;
@@ -78,7 +79,7 @@ export type Config = Partial<{
  * @returns the merged config
  */
 export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
-  _.merge(
+  _merge(
     {
       align: 'LEFT',
       bgColorColumns: [],
@@ -115,7 +116,8 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         textColor: '',
         underline: false,
         uppercase: false,
-        upperFirst: false,
+        lowercase: false,
+        upperfirst: false,
         width: 'auto',
         maxWidth: 'auto'
       },
@@ -139,7 +141,7 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
  * @returns the merged config
  */
 export const mergePlainConfig = (config: Required<Config>): Required<Config> =>
-  _.merge(config, {
+  _merge(config, {
     bgColorColumns: [],
     body: {
       calculated: {

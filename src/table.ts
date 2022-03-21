@@ -13,15 +13,15 @@ import {
 } from './config';
 import { stringify } from './helper';
 
-type ColumnWidths = {
-  [key: string]: number;
-};
-
 export type Row =
   | {
       [key: string]: unknown;
     }
   | unknown[];
+
+type ColumnWidths = {
+  [key: string]: number;
+};
 
 /** paddingLeft, text, paddingRight */
 type CellContent = [string, string, string];
@@ -558,7 +558,8 @@ export class Table<T extends unknown[] | object = Row> {
    */
   private formatHeaderCellContent(col: string, content: CellContent): [string, number] {
     const { bgColorColumns, border, header } = this.config;
-    const { bgColor, bold, italic, textColor, underline, uppercase, upperFirst } = header;
+    const { bgColor, bold, italic, lowercase, textColor, underline, uppercase, upperfirst } =
+      header;
 
     const colIndex = this.columnToIndex(col);
     const contentCopy = content.slice();
@@ -591,7 +592,8 @@ export class Table<T extends unknown[] | object = Row> {
         if (textColor.length) chalk.hex(textColor);
 
         if (uppercase) text = text.toUpperCase();
-        else if (upperFirst) text = _.upperFirst(text);
+        else if (lowercase) text = text.toLowerCase();
+        else if (upperfirst) text = _.upperFirst(text);
 
         // Font style
         if (bold) styled = styled.bold;
