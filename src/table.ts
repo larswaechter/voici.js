@@ -23,7 +23,7 @@ export type Row =
     }
   | unknown[];
 
-/** leftPadding, text, rightPadding */
+/** paddingLeft, text, paddingRight */
 type CellContent = [string, string, string];
 
 export class Table<T extends unknown[] | object = Row> {
@@ -238,6 +238,18 @@ export class Table<T extends unknown[] | object = Row> {
   }
 
   /**
+   * Get the width of the console window.
+   * Padding is substracted from the width.
+   *
+   * @returns the console width
+   */
+  private getConsoleWidth() {
+    const { padding } = this.config;
+    const numberOfCols = this.getColumNames().length;
+    return process.stderr.columns - numberOfCols - 2 * padding.size;
+  }
+
+  /**
    * Gets the character padding of the given size.
    *
    * @param size the padding size
@@ -325,7 +337,7 @@ export class Table<T extends unknown[] | object = Row> {
    * Calculates the width of each column.
    */
   private calculateColumnWidths() {
-    const { header, padding } = this.config;
+    const { header } = this.config;
     const widths: ColumnWidths = {};
 
     const data = this.dataset.slice();
@@ -368,7 +380,7 @@ export class Table<T extends unknown[] | object = Row> {
         const widthsArr = Object.values(widths);
 
         // Calculate percentage
-        const consoleWidth = process.stdout.columns - widthsArr.length * 2 * padding.size;
+        const consoleWidth = this.getConsoleWidth();
         const sum = Object.values(widthsArr).reduce((prev, val) => prev + val, 0);
         for (const key in widths) widths[key] = Math.floor((widths[key] / sum) * consoleWidth);
       }
@@ -469,13 +481,13 @@ export class Table<T extends unknown[] | object = Row> {
   /**
    * Builds a cell content array.
    *
-   * @param leftPadding the cell's left padding
+   * @param paddingLeft the cell's left padding
    * @param text the cell's text
-   * @param rightPadding the cell's right padding
+   * @param paddingRight the cell's right padding
    * @returns the cell content
    */
-  private buildCellContent(leftPadding: number, text: string, rightPadding: number): CellContent {
-    return [this.getPadding(leftPadding), text, this.getPadding(rightPadding)];
+  private buildCellContent(paddingLeft: number, text: string, paddingRight: number): CellContent {
+    return [this.getPadding(paddingLeft), text, this.getPadding(paddingRight)];
   }
 
   /**
