@@ -1,10 +1,10 @@
-  #                 0                                 1                                 2  
-===========================================================================================
-  0    abcdefghijklmn    opqrstuv wxyz abcdefghijklmnop    rstuv wx y z abcd ef ghi jklmn  
-                                                      q                                op  
-  1       abc def gh               ijklmno pqr stuvw xy    abcd efgh iklmn op qr stuvq xy  
-                                                                                        z  
-  2       ab cd ef gh                       ij kl mn op              qrstuvw xyzabc defgh  
-  3        abcdef ghi    abc defg hijkl mnopqr stuv wxy              abc def ghi jk lmnop  
-                         z abc defgh ijkl mn opqr st uv                                    
-                                    w xyzabcdefghijklmn                                    
+               0                                 1                                 2  
+======================================================================================
+  abcdefghijklmn    opqrstuv wxyz abcdefghijklmnop    rstuv wx y z abcd ef ghi jklmn  
+                                                 q                                op  
+     abc def gh               ijklmno pqr stuvw xy    abcd efgh iklmn op qr stuvq xy  
+                                                                                   z  
+     ab cd ef gh                       ij kl mn op              qrstuvw xyzabc defgh  
+      abcdef ghi    abc defg hijkl mnopqr stuv wxy              abc def ghi jk lmnop  
+                    z abc defgh ijkl mn opqr st uv                                    
+                               w xyzabcdefghijklmn                                    

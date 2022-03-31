@@ -4,36 +4,7 @@ import { readFileSync } from 'fs';
 
 import * as voici from '../../dist/index';
 
-const data = [
-  {
-    ID: 1,
-    Firstname: 'John',
-    Lastname: 'Doe',
-    Email: 'johndoe@gmail.com',
-    Gender: 'Male'
-  },
-  {
-    ID: 421,
-    Firstname: 'Jane',
-    Lastname: 'Doe',
-    Email: 'doe@yahoo.com',
-    Gender: 'Female'
-  },
-  {
-    ID: 2003,
-    Firstname: 'Peter',
-    Lastname: 'Parker',
-    Email: 'spiderman@dummynet.com',
-    Gender: 'Male'
-  },
-  {
-    ID: 55,
-    Firstname: 'Michael',
-    Lastname: 'Jackson',
-    Email: 'michael@jackson.com',
-    Gender: 'Male'
-  }
-];
+import { defaultData } from '../data';
 
 const arrData = [
   ['abcdefghijklmn', 'opqrstuv wxyz abcdefghijklmnopq', 'rstuv wx y z abcd ef ghi jklmnop'],
@@ -46,17 +17,10 @@ const arrData = [
   ]
 ];
 
-const config: voici.Config = {
-  header: {
-    numeration: false
-  }
-};
-
 describe('Align', () => {
   it('Align center', () => {
-    const table = new voici.Table(data, {
-      align: 'CENTER',
-      ...config
+    const table = new voici.Table(defaultData, {
+      align: 'CENTER'
     });
 
     const result = readFileSync(__dirname + '/align_center.txt', {
@@ -67,7 +31,7 @@ describe('Align', () => {
   });
 
   it('Align left', () => {
-    const table = new voici.Table(data, config);
+    const table = new voici.Table(defaultData);
 
     const result = readFileSync(__dirname + '/align_left.txt', {
       encoding: 'utf-8'
@@ -77,9 +41,8 @@ describe('Align', () => {
   });
 
   it('Align right', () => {
-    const table = new voici.Table(data, {
-      align: 'RIGHT',
-      ...config
+    const table = new voici.Table(defaultData, {
+      align: 'RIGHT'
     });
 
     const result = readFileSync(__dirname + '/align_right.txt', {
@@ -91,7 +54,6 @@ describe('Align', () => {
 
   it('MaxWidth align center', () => {
     const table = new voici.Table(arrData, {
-      ...config,
       align: 'CENTER',
       header: {
         maxWidth: 30
@@ -107,7 +69,6 @@ describe('Align', () => {
 
   it('MaxWidth align left', () => {
     const table = new voici.Table(arrData, {
-      ...config,
       header: {
         maxWidth: 30
       }
@@ -122,7 +83,6 @@ describe('Align', () => {
 
   it('MaxWidth align right', () => {
     const table = new voici.Table(arrData, {
-      ...config,
       align: 'RIGHT',
       header: {
         maxWidth: 30

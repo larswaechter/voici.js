@@ -112,7 +112,7 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         columns: [],
         dynamic: [],
         italic: false,
-        numeration: true,
+        numeration: false,
         textColor: '',
         underline: false,
         uppercase: false,

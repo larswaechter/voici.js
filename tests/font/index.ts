@@ -4,47 +4,11 @@ import { readFileSync } from 'fs';
 
 import * as voici from '../../dist/index';
 
-const data = [
-  {
-    id: 1,
-    firstname: 'John',
-    lastname: 'Doe',
-    email: 'johndoe@gmail.com',
-    gender: 'Male'
-  },
-  {
-    id: 421,
-    firstname: 'Jane',
-    lastname: 'Doe',
-    email: 'doe@yahoo.com',
-    gender: 'Female'
-  },
-  {
-    id: 2003,
-    firstname: 'Peter',
-    lastname: 'Parker',
-    email: 'spiderman@dummynet.com',
-    gender: 'Male'
-  },
-  {
-    id: 55,
-    firstname: 'Michael',
-    lastname: 'Jackson',
-    email: 'michael@jackson.com',
-    gender: 'Male'
-  }
-];
-
-const config: voici.Config = {
-  header: {
-    numeration: false
-  }
-};
+import { defaultData } from '../data';
 
 describe('Font', () => {
   it('Uppercase', () => {
-    const table = new voici.Table(data, {
-      ...config,
+    const table = new voici.Table(defaultData, {
       header: {
         uppercase: true
       }
@@ -58,8 +22,7 @@ describe('Font', () => {
   });
 
   it('Lowercase', () => {
-    const table = new voici.Table(data, {
-      ...config,
+    const table = new voici.Table(defaultData, {
       header: {
         lowercase: true
       }
@@ -73,8 +36,7 @@ describe('Font', () => {
   });
 
   it('Upperfirst', () => {
-    const table = new voici.Table(data, {
-      ...config,
+    const table = new voici.Table(defaultData, {
       header: {
         upperfirst: true
       }

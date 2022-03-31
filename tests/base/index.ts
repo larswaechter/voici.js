@@ -1,56 +1,15 @@
 import 'mocha';
 import assert from 'assert';
+import _cloneDeep from 'lodash/cloneDeep';
 import { readFileSync } from 'fs';
 
 import * as voici from '../../dist/index';
 
-const data = [
-  {
-    ID: 1,
-    Firstname: 'John',
-    Lastname: 'Doe',
-    Email: 'johndoe@gmail.com',
-    Gender: 'Male'
-  },
-  {
-    ID: 421,
-    Firstname: 'Jane',
-    Lastname: 'Doe',
-    Email: 'doe@yahoo.com',
-    Gender: 'Female'
-  },
-  {
-    ID: 2003,
-    Firstname: 'Peter',
-    Lastname: 'Parker',
-    Email: 'spiderman@dummynet.com',
-    Gender: 'Male'
-  },
-  {
-    ID: 55,
-    Firstname: 'Michael',
-    Lastname: 'Jackson',
-    Email: 'michael@jackson.com',
-    Gender: 'Male'
-  }
-];
-
-const config: voici.Config = {
-  header: {
-    numeration: false
-  }
-};
+import { defaultData, arrData } from '../data';
 
 describe('Base', () => {
   it('Array dataset', () => {
-    const arrData = [
-      [1, 'John', 'Doe', 'johndoe@gmail.com', 'Male'],
-      [421, 'Jane', 'Doe', 'doe@yahoo.com', 'Female'],
-      [2003, 'Peter', 'Parker', 'spiderman@dummynet.com', 'Male'],
-      [55, 'Michael', 'Jackson', 'michael@j]ackson.com', 'Male']
-    ];
-
-    const table = new voici.Table(arrData, config);
+    const table = new voici.Table(arrData);
 
     const result = readFileSync(__dirname + '/array_dataset.txt', {
       encoding: 'utf-8'
@@ -60,8 +19,7 @@ describe('Base', () => {
   });
 
   it('Border', () => {
-    const table = new voici.Table(data, {
-      ...config,
+    const table = new voici.Table(defaultData, {
       border: {
         horizontal: '=',
         vertical: '|'
@@ -76,10 +34,9 @@ describe('Base', () => {
   });
 
   it('Columns', () => {
-    const table = new voici.Table(data, {
+    const table = new voici.Table(defaultData, {
       header: {
-        numeration: false,
-        columns: ['ID', 'Lastname', 'Gender']
+        columns: ['id', 'lastname', 'gender']
       }
     });
 
@@ -91,12 +48,11 @@ describe('Base', () => {
   });
 
   it('Dynamic', () => {
-    const table = new voici.Table(data, {
-      ...config,
+    const table = new voici.Table(defaultData, {
       header: {
         dynamic: [
-          { name: 'Fullname', func: (row) => row['Firstname'] + ' ' + row['Lastname'] },
-          { name: 'Admin', func: (row) => row['ID'] === 1 }
+          { name: 'fullname', func: (row) => row['firstname'] + ' ' + row['lastname'] },
+          { name: 'admin', func: (row) => row['id'] === 1 }
         ]
       }
     });
@@ -109,14 +65,14 @@ describe('Base', () => {
   });
 
   it('Empty', () => {
-    const arrData = [
-      [1, 'John', 'Doe', '', 'Male'],
-      [421, 'Jane', 'Doe', 'doe@yahoo.com', 'Female'],
-      [2003, '', 'Parker', 'spiderman@dummynet.com', 'Male'],
-      [55, 'Michael', 'Jackson', 'michael@j]ackson.com', '']
-    ];
+    const data = _cloneDeep(defaultData);
+    data[0].firstname = '';
+    data[1].lastname = '';
+    data[2].email = '';
+    data[3].gender = '';
+    data[4].birthdate = null;
 
-    const table = new voici.Table(arrData, config);
+    const table = new voici.Table(data);
 
     const result = readFileSync(__dirname + '/empty.txt', {
       encoding: 'utf-8'
@@ -126,8 +82,7 @@ describe('Base', () => {
   });
 
   it('Numeration', () => {
-    const table = new voici.Table(data, {
-      ...config,
+    const table = new voici.Table(defaultData, {
       header: {
         numeration: true
       }
@@ -141,11 +96,10 @@ describe('Base', () => {
   });
 
   it('Order', () => {
-    const table = new voici.Table(data, {
-      ...config,
+    const table = new voici.Table(defaultData, {
       order: {
-        columns: ['ID'],
-        directions: ['asc']
+        columns: ['gender', 'id'],
+        directions: ['asc', 'desc']
       }
     } as voici.Config);
 
@@ -157,8 +111,7 @@ describe('Base', () => {
   });
 
   it('Padding', () => {
-    const table = new voici.Table(data, {
-      ...config,
+    const table = new voici.Table(defaultData, {
       padding: {
         size: 4
       }
@@ -172,13 +125,12 @@ describe('Base', () => {
   });
 
   it('Precision', () => {
-    const arrData = [
-      [0.1, 0.435342],
-      [5.9651, 3158.23]
+    const data = [
+      [0.1, 0.435342, -12.4114],
+      [5.9651, -0.6525, 3158.23]
     ];
 
-    const table = new voici.Table(arrData, {
-      ...config,
+    const table = new voici.Table(data, {
       body: {
         precision: 2
       }
@@ -194,9 +146,8 @@ describe('Base', () => {
   it('Unknown column', () => {
     assert.throws(
       () =>
-        new voici.Table(data, {
+        new voici.Table(defaultData, {
           header: {
-            numeration: false,
             columns: ['Missing']
           }
         }),
@@ -205,7 +156,7 @@ describe('Base', () => {
   });
 
   it('Reference datatypes', () => {
-    const refData = [
+    const data = [
       [
         ['this', 'is', 'an', 'array'],
         { prop1: 'this', prop2: 'is', prop3: 'a', prop4: 'object' },
@@ -230,7 +181,7 @@ describe('Base', () => {
       ]
     ];
 
-    const table = new voici.Table(refData, config);
+    const table = new voici.Table(data);
 
     const result = readFileSync(__dirname + '/reference_datatypes.txt', {
       encoding: 'utf-8'
@@ -240,7 +191,7 @@ describe('Base', () => {
   });
 
   it('Width', () => {
-    const arrData = [
+    const data = [
       ['abcdefghijklmn', 'opqrstuv wxyz abcdefghijklmnopq', 'rstuv wx y z abcd ef ghi jklmnop'],
       [
         'abc def gh ijklm nopqrstuv wxyzabcd efg h',
@@ -255,8 +206,7 @@ describe('Base', () => {
       ]
     ];
 
-    const table = new voici.Table(arrData, {
-      ...config,
+    const table = new voici.Table(data, {
       header: {
         width: 20
       }

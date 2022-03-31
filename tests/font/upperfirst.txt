@@ -1,6 +1,8 @@
-  #    Id      Firstname    Lastname    Email                     Gender  
-==========================================================================
-  0    1       John         Doe         johndoe@gmail.com         Male    
-  1    421     Jane         Doe         doe@yahoo.com             Female  
-  2    2003    Peter        Parker      spiderman@dummynet.com    Male    
-  3    55      Michael      Jackson     michael@jackson.com       Male    
+  Id      Firstname    Lastname      Email                     Gender    Birthdate        
+==========================================================================================
+  1       John         Doe           johndoe@gmail.com         Male      Thu Aug 28 1997  
+  45      Hermine      Granger       hermine@gryffindor.com    Female    Wed Jun 12 1991  
+  421     Max          Mustermann    mamu@stermann.com         Male      Mon Nov 15 2004  
+  2003    Peter        Parker        spidy@dummynet.com        Male      Mon Feb 04 1980  
+  892     Lois         Lane          lanelois@mymail.de        Female    Fri Dec 01 1972  
+  55      Michael      Jackson       michael@jackson.com       Male      Thu Apr 22 1965  
