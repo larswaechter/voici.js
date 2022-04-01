@@ -33,6 +33,8 @@ export const countOccurrences = (data: unknown[]) => {
   const table = new Map<string, number>();
 
   for (const value of data) {
+    if (value === null || value === undefined) continue;
+
     const str = String(value);
     if (str === 'undefined') continue;
     if (table.has(str)) table.set(str, table.get(str) + 1);

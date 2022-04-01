@@ -1,5 +1,6 @@
 import _sum from 'lodash/sum';
 import _mean from 'lodash/mean';
+import _isNil from 'lodash/isNil';
 
 import { countOccurrences } from './helper';
 
@@ -76,13 +77,13 @@ export const calculateAccumulation = (data: [], func: AccumulationFunction) => {
     case AccumulationFunction.INFREQ:
       return calculateMostInFrequent(data);
     case AccumulationFunction.MAX:
-      return Math.max(...data);
+      return calculateMax(data);
     case AccumulationFunction.MEAN:
       return calculateMean(data);
     case AccumulationFunction.MEDIAN:
       return calculateMedian(data);
     case AccumulationFunction.MIN:
-      return Math.min(...data);
+      return calculateMin(data);
     case AccumulationFunction.RANGE:
       return calculateRange(data);
     case AccumulationFunction.SUM:
@@ -105,7 +106,7 @@ export const calculateAccumulation = (data: [], func: AccumulationFunction) => {
 export const calculateCount = (data: unknown[]) => {
   let counter = 0;
   for (const value of data) {
-    if (String(value).length) counter++;
+    if (!_isNil(value) && String(value).length) counter++;
   }
   return counter;
 };
@@ -122,13 +123,15 @@ export const calculateMostFrequent = (data: unknown[]) => {
   let mode: unknown;
   let modeCount = -1;
 
-  for (const val of data) {
-    if (map.has(val)) map.set(val, map.get(val) + 1);
-    else map.set(val, 1);
+  for (const value of data) {
+    if (_isNil(value)) continue;
 
-    if (map.get(val) > modeCount) {
-      modeCount = map.get(val);
-      mode = val;
+    if (map.has(value)) map.set(value, map.get(value) + 1);
+    else map.set(value, 1);
+
+    if (map.get(value) > modeCount) {
+      modeCount = map.get(value);
+      mode = value;
     }
   }
 
@@ -142,8 +145,16 @@ export const calculateMostFrequent = (data: unknown[]) => {
  * @returns the geometric mean
  */
 export const calculateGeometricMean = (data: number[]) => {
-  const product = data.reduce((prev, val) => prev * val, 1);
-  return Math.pow(product, 1 / data.length);
+  let product = 1;
+  let counter = 0;
+
+  for (const value of data) {
+    if (_isNil(value)) continue;
+    product *= value;
+    counter++;
+  }
+
+  return Math.pow(product, 1 / counter);
 };
 
 /**
@@ -153,8 +164,16 @@ export const calculateGeometricMean = (data: number[]) => {
  * @returns the harmonic mean
  */
 export const calculateHarmonicMean = (data: number[]) => {
-  const sum = data.reduce((prev, val) => prev + 1 / val, 0);
-  return data.length / sum;
+  let sum = 0;
+  let counter = 0;
+
+  for (const value of data) {
+    if (_isNil(value)) continue;
+    sum += 1 / value;
+    counter++;
+  }
+
+  return counter / sum;
 };
 
 /**
@@ -180,12 +199,39 @@ export const calculateMostInFrequent = (data: unknown[]) => {
 };
 
 /**
+ * Calculates the maximum value.
+ *
+ * @param data the dataset
+ * @returns the max value
+ */
+export const calculateMax = (data: number[]) => {
+  let max = -Infinity;
+
+  for (const value of data) {
+    if (!_isNil(value) && value > max) max = value;
+  }
+
+  return max;
+};
+
+/**
  * Calculates the mean.
  *
  * @param data the dataset
  * @returns the calculated mean
  */
-export const calculateMean = (data: number[]) => _mean(data);
+export const calculateMean = (data: number[]) => {
+  let sum = 0;
+  let counter = 0;
+
+  for (const value of data) {
+    if (_isNil(value)) continue;
+    sum += value;
+    counter++;
+  }
+
+  return sum / counter;
+};
 
 /**
  * Calculates the median.
@@ -208,7 +254,31 @@ export const calculateMedian = (data: number[]) => {
  * @param data the dataset
  * @returns the calculated sum
  */
-export const calculateSum = (data: number[]) => _sum(data);
+export const calculateSum = (data: number[]) => {
+  let sum = 0;
+
+  for (const value of data) {
+    if (!_isNil(value)) sum += value;
+  }
+
+  return sum;
+};
+
+/**
+ * Calculates the minimum value.
+ *
+ * @param data the dataset
+ * @returns the min value
+ */
+export const calculateMin = (data: number[]) => {
+  let min = Infinity;
+
+  for (const value of data) {
+    if (!_isNil(value) && value < min) min = value;
+  }
+
+  return min;
+};
 
 /**
  * Calculates the range (difference between min and max).
@@ -221,6 +291,7 @@ export const calculateRange = (data: number[]) => {
   let max = -Infinity;
 
   for (const value of data) {
+    if (_isNil(value)) continue;
     if (value < min) min = value;
     if (value > max) max = value;
   }
@@ -246,5 +317,15 @@ export const calculateStandardDeviation = (data: number[]) => {
  */
 export const calculateVariance = (data: number[]) => {
   const mean = calculateMean(data);
-  return (1 / data.length) * data.reduce((prev, val) => prev + Math.pow(val - mean, 2), 0);
+
+  let sum = 0;
+  let counter = 0;
+
+  for (const value of data) {
+    if (_isNil(value)) continue;
+    sum += Math.pow(value - mean, 2);
+    counter++;
+  }
+
+  return (1 / counter) * sum;
 };

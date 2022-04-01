@@ -467,7 +467,7 @@ export class Table<T extends unknown[] | object = Row> {
       for (const col of columns) {
         if (dynamicColNames.has(String(col.column)))
           values[col.column].push(this.dynamicColumns.get(String(col.column))[iRow]);
-        else values[col.column].push(row[col.column] || '');
+        else values[col.column].push(row[col.column]);
       }
     }
 

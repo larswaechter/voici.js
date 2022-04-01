@@ -8,9 +8,7 @@ import { arrDataNumbers } from '../data';
 
 describe('Accumulation', () => {
   it('COUNT', () => {
-    const data = [[2], [7], [], [3], [201], [], [42]];
-
-    const table = new voici.Table(data, {
+    const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
           columns: [
@@ -31,9 +29,7 @@ describe('Accumulation', () => {
   });
 
   it('FREQ', () => {
-    const data = [[2], [7], [2], [3], [7], [2], [42]];
-
-    const table = new voici.Table(data, {
+    const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
           columns: [
@@ -96,9 +92,7 @@ describe('Accumulation', () => {
   });
 
   it('INFREQ', () => {
-    const data = [[2], [7], [2], [3], [7], [2], [42]];
-
-    const table = new voici.Table(data, {
+    const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
           columns: [
@@ -196,6 +190,31 @@ describe('Accumulation', () => {
     });
 
     const result = readFileSync(__dirname + '/min.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('MULTIPLE', () => {
+    const table = new voici.Table(arrDataNumbers, {
+      body: {
+        accumulation: {
+          columns: [
+            {
+              column: 0,
+              func: voici.AccumulationFunction.MAX
+            },
+            {
+              column: 1,
+              func: voici.AccumulationFunction.MIN
+            }
+          ]
+        }
+      }
+    });
+
+    const result = readFileSync(__dirname + '/multiple.txt', {
       encoding: 'utf-8'
     });
 

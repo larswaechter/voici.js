@@ -60,10 +60,11 @@ export const arrData = [
 
 export const arrDataNumbers = [
   [2, 14],
-  [7, 3],
+  [15, 3],
   [15, 8],
-  [3, 9],
-  [201, 123],
-  [87, 92],
+  [3, null],
+  [201, 3],
+  [null, 92],
+  [15, 123],
   [42, 54]
 ];
