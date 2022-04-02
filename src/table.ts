@@ -294,7 +294,7 @@ export class Table<T extends unknown[] | object = Row> {
    */
   private getColumNames() {
     const { header } = this.config;
-    if (header.columns.length) return header.columns;
+    if (header.columns.length) return header.numeration ? ['#', ...header.columns] : header.columns;
     return this.columnNames;
   }
 
@@ -648,6 +648,8 @@ export class Table<T extends unknown[] | object = Row> {
    * @returns the header content
    */
   private buildHeader() {
+    const { header } = this.config;
+
     let content = '';
     let contentLen = 0;
 
@@ -659,7 +661,7 @@ export class Table<T extends unknown[] | object = Row> {
 
     this.tableWidth = contentLen;
 
-    content += '\n' + '='.repeat(contentLen);
+    content += '\n' + header.separator.repeat(contentLen);
 
     return content;
   }

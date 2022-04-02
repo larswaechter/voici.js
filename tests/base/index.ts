@@ -47,6 +47,21 @@ describe('Base', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('Columns Numeration', () => {
+    const table = new voici.Table(defaultData, {
+      header: {
+        columns: ['id', 'lastname', 'gender'],
+        numeration: true
+      }
+    });
+
+    const result = readFileSync(__dirname + '/columns_numeration.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('Dynamic', () => {
     const table = new voici.Table(defaultData, {
       header: {

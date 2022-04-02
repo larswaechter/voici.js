@@ -18,7 +18,7 @@ export const mergeImageExportConfig = (config: ImageExportConfig): Required<Imag
     {
       backgroundColor: 'black',
       color: 'white',
-      font: '16px Courier',
+      font: '16px Consolas',
       padding: 4
     },
     config
@@ -57,6 +57,7 @@ export type Config = Partial<{
     dynamic: DynamicColumn[];
     italic: boolean;
     numeration: boolean;
+    separator: string;
     textColor: string;
     underline: boolean;
     uppercase: boolean;
@@ -113,6 +114,7 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         dynamic: [],
         italic: false,
         numeration: false,
+        separator: '=',
         textColor: '',
         underline: false,
         uppercase: false,
