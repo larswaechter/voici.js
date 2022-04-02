@@ -23,7 +23,7 @@ export type Row =
 type CellContent = [string, string, string];
 
 /**
- * Represent a dataset in tabular format.
+ * Represent a dataset in tabular form.
  */
 export class Table<T extends unknown[] | object = Row> {
   /**
@@ -193,8 +193,8 @@ export class Table<T extends unknown[] | object = Row> {
   }
 
   /**
-   * Gets the table as plain string without styling.
-   * Can be used to write the table to a file.
+   * Gets the table as plain string without any advanced styling.
+   * Can be used to write the table to a file or to paste it as text.
    *
    * @returns the plain table string
    */
@@ -213,7 +213,7 @@ export class Table<T extends unknown[] | object = Row> {
   }
 
   /**
-   * Exports the plain table to the given file (without style).
+   * Exports the plain table to the given file (without advanced style).
    *
    * @param filepath the filepath
    * @param mode the file's open mode

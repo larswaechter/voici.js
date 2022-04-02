@@ -1,6 +1,8 @@
-# voici.js (WIP)
+# voici.js
 
 A Node.js library for displaying table data on the terminal.
+
+[![NPM](https://nodei.co/npm/voici.js.png)](https://nodei.co/npm/voici.js/)
 
 ![Tests](https://github.com/larswaechter/voici.js/actions/workflows/tests.yaml/badge.svg)
 ![Linter](https://github.com/larswaechter/voici.js/actions/workflows/linter.yaml/badge.svg)
@@ -41,6 +43,12 @@ const data = [
 const table = new voici.Table(data);
 table.print();
 ```
+
+The console output:
+
+![](./preview.png)
+
+You can find more examples [here](https://lars-waechter.gitbook.io/voici.js/examples).
 
 ## 📚 Documentation
 
