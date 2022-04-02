@@ -4,6 +4,7 @@
     "esModuleInterop": true,
     "target": "es2015",
     "declaration": true,
+    "declarationMap": true,
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",

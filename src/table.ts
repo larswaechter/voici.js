@@ -19,13 +19,12 @@ export type Row =
     }
   | unknown[];
 
-type ColumnWidths = {
-  [key: string]: number;
-};
-
 /** paddingLeft, text, paddingRight */
 type CellContent = [string, string, string];
 
+/**
+ * Represent a dataset in tabular format.
+ */
 export class Table<T extends unknown[] | object = Row> {
   /**
    * The dataset.
@@ -55,7 +54,9 @@ export class Table<T extends unknown[] | object = Row> {
   /**
    * The maximum width of each column.
    */
-  private columnWidths: ColumnWidths;
+  private columnWidths: {
+    [key: string]: number;
+  };
 
   /**
    * The table width.
@@ -338,7 +339,9 @@ export class Table<T extends unknown[] | object = Row> {
    */
   private calculateColumnWidths() {
     const { header } = this.config;
-    const widths: ColumnWidths = {};
+    const widths: {
+      [key: string]: number;
+    } = {};
 
     const data = this.dataset.slice();
     const colNames = this.getColumNames().slice();

@@ -1,4 +1,4 @@
-# voici.js
+# voici.js (WIP)
 
 A Node.js library for displaying table data on the terminal.
 

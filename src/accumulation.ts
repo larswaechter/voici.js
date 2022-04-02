@@ -1,5 +1,3 @@
-import _sum from 'lodash/sum';
-import _mean from 'lodash/mean';
 import _isNil from 'lodash/isNil';
 
 import { countOccurrences } from './helper';

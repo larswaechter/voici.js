@@ -1,11 +1,8 @@
 import * as voici from './';
 import { join } from 'path';
 
-interface Person {
-  firstname: string;
-  lastname: string;
-  age: number;
-}
+console.log('');
+console.log('');
 
 const data = [
   { firstname: 'Homer', lastname: 'Simpson', age: 39 },
@@ -15,10 +12,27 @@ const data = [
   { firstname: 'Maggie', lastname: 'Simpson', age: 1 }
 ];
 
-const table = new voici.Table(data, {
+const config = {
+  align: 'CENTER',
+  body: {
+    bgColor: '#E88873',
+    textColor: '#b4eeb4'
+  },
+  border: {
+    horizontal: '-',
+    vertical: '|'
+  },
   header: {
-    width: 'stretch'
+    upperFirst: true
+  },
+  padding: {
+    char: ' ',
+    size: 4
   }
-});
+};
 
+const table = new voici.Table(data);
 table.print();
+
+console.log('');
+console.log('');

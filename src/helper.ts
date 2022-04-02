@@ -4,7 +4,8 @@ import * as jstream from 'JSONStream';
 import { resolve as resolvePath } from 'path';
 import { createReadStream } from 'fs';
 
-import { Config, Row, Table } from '.';
+import { Config } from './config';
+import { Row, Table } from './table';
 
 /**
  * Converts the given value to a string.
