@@ -1,7 +1,7 @@
 {
   "name": "voici.js",
   "version": "1.0.0",
-  "description": "A Node.js library for displaying table data on the terminal.",
+  "description": "A Node.js library for displaying data on the terminal.",
   "author": {
     "name": "Lars Wächter",
     "url": "https://larswaechter.dev/"
