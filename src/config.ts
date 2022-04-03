@@ -1,5 +1,10 @@
 import _merge from 'lodash/merge';
-import { DynamicColumn, Accumulation } from './accumulation';
+import { Accumulation } from './accumulation';
+
+export type DynamicColumn = {
+  name: string;
+  func: (row: unknown, index: number) => unknown;
+};
 
 export type Order = {
   columns: string[];

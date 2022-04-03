@@ -2,11 +2,6 @@ import _isNil from 'lodash/isNil';
 
 import { countOccurrences } from './helper';
 
-export type DynamicColumn = {
-  name: string;
-  func: <T>(row: T, index: number) => unknown;
-};
-
 export type Accumulation = {
   column: string | number;
   func: AccumulationFunction;
