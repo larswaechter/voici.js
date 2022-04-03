@@ -16,10 +16,9 @@
     "prettier": "prettier --config ./.prettierrc --write ./src/**/*.ts",
     "lint": "eslint . --ext .ts",
     "prepare": "npm run build",
-    "preversion": "npm run lint && npm run build && npm test",
+    "preversion": "npm run lint && npm test",
     "version": "npm run prettier && npm run docs && git add .",
-    "postversion": "git push && git push --tags",
-    "prepublishOnly": "npm run lint && npm run build && npm test"
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
