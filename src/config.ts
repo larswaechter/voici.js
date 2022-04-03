@@ -31,6 +31,7 @@ export type Config = Partial<{
     accumulation: Partial<{
       bgColor: string;
       columns: Accumulation[];
+      separator: string;
     }>;
     bgColor: string;
     highlightCell: Partial<{
@@ -47,6 +48,7 @@ export type Config = Partial<{
   }>;
   border: Partial<{
     color: string;
+    groupSize: number;
     horizontal: string;
     vertical: string;
   }>;
@@ -87,7 +89,8 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
       body: {
         accumulation: {
           bgColor: '',
-          columns: []
+          columns: [],
+          separator: '-'
         },
         bgColor: '',
         highlightCell: {
@@ -104,6 +107,7 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
       },
       border: {
         color: '',
+        groupSize: 1,
         horizontal: '',
         vertical: ''
       },

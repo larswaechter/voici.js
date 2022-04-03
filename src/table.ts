@@ -436,13 +436,13 @@ export class Table<T extends unknown[] | object = Row> {
   }
 
   /**
-   * Gets the row separator (border-bottom).
+   * Builds the row separator.
    *
    * @param separator the separator character
    * @returns the row separator string
    */
-  private getRowSeparator(separator: string = this.config.border.horizontal) {
-    return separator.length ? separator.repeat(this.tableWidth) + '\n' : '';
+  private buildRowSeparator(separator: string) {
+    return separator.repeat(this.tableWidth) + '\n';
   }
 
   /**
@@ -794,6 +794,26 @@ export class Table<T extends unknown[] | object = Row> {
   }
 
   /**
+   * Builds the horizontal border for the given row.
+   *
+   * @param row the row
+   * @returns the horizontal row border
+   */
+  private buildBodyRowHorizontalBorder(row: number) {
+    const { border } = this.config;
+    const { color, groupSize, horizontal } = border;
+
+    let res =
+      horizontal.length && row < this.dataset.length - 1 && (row + 1) % groupSize === 0
+        ? this.buildRowSeparator(horizontal)
+        : '';
+
+    if (color && res.length) res = chalk.hex(color)(res);
+
+    return res;
+  }
+
+  /**
    * Builds the given body row.
    *
    * @param row the row
@@ -814,11 +834,9 @@ export class Table<T extends unknown[] | object = Row> {
     if (hasOverflow) content += this.buildBodyRowOverflow(row, colsOverflow);
 
     const formattedContent = this.formatBodyRowContent(row, content) + '\n';
+    const hzBorder = this.buildBodyRowHorizontalBorder(row);
 
-    // Row separator
-    const separator = this.getRowSeparator();
-
-    return formattedContent + separator;
+    return formattedContent + hzBorder;
   }
 
   /**
@@ -885,11 +903,13 @@ export class Table<T extends unknown[] | object = Row> {
    * @returns the body content
    */
   private buildBody() {
+    const { body } = this.config;
+
     let content = this.dataset.reduce((prev, __, i) => prev + this.buildBodyRow(i), '');
 
     // Row of accumulation results
     if (this.config.body.accumulation.columns.length)
-      content += this.getRowSeparator('-') + this.buildBodyRow(-1);
+      content += this.buildRowSeparator(body.accumulation.separator) + this.buildBodyRow(-1);
 
     // Remove last linebreak (\n)
     if (content.charCodeAt(content.length - 1) === 10)

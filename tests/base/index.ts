@@ -21,6 +21,7 @@ describe('Base', () => {
   it('Border', () => {
     const table = new voici.Table(defaultData, {
       border: {
+        groupSize: 2,
         horizontal: '=',
         vertical: '|'
       }

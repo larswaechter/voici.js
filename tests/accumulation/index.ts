@@ -11,6 +11,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -32,6 +33,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -53,6 +55,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -74,6 +77,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -95,6 +99,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -116,6 +121,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -137,6 +143,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -158,6 +165,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -179,6 +187,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -200,6 +209,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -225,6 +235,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -246,6 +257,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -267,6 +279,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -295,6 +308,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
@@ -316,6 +330,7 @@ describe('Accumulation', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
+          separator: '=',
           columns: [
             {
               column: 0,
