@@ -14,6 +14,7 @@
     "test:run": "mocha -r ts-node/register ./tests/**/*.ts",
     "docs": "typedoc",
     "prettier": "prettier --config ./.prettierrc --write ./src/**/*.ts",
+    "prettier:check": "prettier --config ./.prettierrc --check ./src/**/*.ts",
     "lint": "eslint . --ext .ts",
     "prepare": "npm run build",
     "preversion": "npm run lint && npm test",

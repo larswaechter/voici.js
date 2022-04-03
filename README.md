@@ -5,7 +5,7 @@ A Node.js library for displaying table data on the terminal.
 [![NPM](https://nodei.co/npm/voici.js.png)](https://nodei.co/npm/voici.js/)
 
 ![Tests](https://github.com/larswaechter/voici.js/actions/workflows/tests.yaml/badge.svg)
-![Linter](https://github.com/larswaechter/voici.js/actions/workflows/linter.yaml/badge.svg)
+![Linter & Prettier](https://github.com/larswaechter/voici.js/actions/workflows/linter.yaml/badge.svg)
 
 ![](./preview_large.png)
 
