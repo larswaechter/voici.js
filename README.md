@@ -7,6 +7,8 @@ A Node.js library for displaying table data on the terminal.
 ![Tests](https://github.com/larswaechter/voici.js/actions/workflows/tests.yaml/badge.svg)
 ![Linter](https://github.com/larswaechter/voici.js/actions/workflows/linter.yaml/badge.svg)
 
+![](./carbon_large.png)
+
 ## Introduction
 
 voici.js (speak: [/vwasi/](https://dictionary.cambridge.org/dictionary/french-english/voici)) is an open source Node.js library written in TypeScript for beautifully displaying datasets in tabular format on the terminal including features like:
@@ -30,7 +32,7 @@ npm i --save voici.js
 ## 🔨 Usage
 
 ```js
-import * as voici from 'voici.js';
+import { Table } from 'voici.js';
 
 const data = [
   { firstname: 'Homer', lastname: 'Simpson', age: 39 },
@@ -40,7 +42,7 @@ const data = [
   { firstname: 'Maggie', lastname: 'Simpson', age: 1 }
 ];
 
-const table = new voici.Table(data);
+const table = new Table(data);
 table.print();
 ```
 
