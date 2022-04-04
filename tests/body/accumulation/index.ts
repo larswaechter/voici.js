@@ -2,9 +2,9 @@ import 'mocha';
 import assert from 'assert';
 import { readFileSync } from 'fs';
 
-import * as voici from '../../dist/index';
+import * as voici from '../../../dist/index';
 
-import { arrDataNumbers } from '../data';
+import { arrDataNumbers } from '../../data';
 
 describe('Accumulation', () => {
   it('COUNT', () => {
