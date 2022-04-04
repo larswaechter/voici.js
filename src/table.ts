@@ -247,7 +247,7 @@ export class Table<T extends unknown[] | object = Row> {
   private getConsoleWidth() {
     const { padding } = this.config;
     const numberOfCols = this.getColumNames().length;
-    return process.stderr.columns - numberOfCols - 2 * padding.size;
+    return process.stderr.columns - numberOfCols * 2 * padding.size;
   }
 
   /**
@@ -391,14 +391,13 @@ export class Table<T extends unknown[] | object = Row> {
 
       if (header.numeration) widths['#'] = String(this.dataset.length).length || 1;
 
-      if (header.width === 'stretch') {
-        const widthsArr = Object.values(widths);
+      const widthsArr = Object.values(widths);
+      const consoleWidth = this.getConsoleWidth();
+      const sum = Object.values(widthsArr).reduce((prev, val) => prev + val, 0);
 
-        // Calculate percentage
-        const consoleWidth = this.getConsoleWidth();
-        const sum = Object.values(widthsArr).reduce((prev, val) => prev + val, 0);
+      // Calculate percentage
+      if (header.width === 'stretch' || sum >= consoleWidth)
         for (const key in widths) widths[key] = Math.floor((widths[key] / sum) * consoleWidth);
-      }
     }
 
     this.columnWidths = widths;
