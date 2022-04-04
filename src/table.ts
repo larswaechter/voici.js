@@ -426,7 +426,7 @@ export class Table<T extends unknown[] | object = Row> {
    * @param col the column's name
    * @returns the column's index
    */
-  private columnToIndex(col: string) {
+  private getColumnIndex(col: string) {
     const dynamics = this.getDynamicColumnsNames();
 
     if (dynamics.includes(col))
@@ -564,7 +564,7 @@ export class Table<T extends unknown[] | object = Row> {
     const { bgColor, bold, italic, lowercase, textColor, underline, uppercase, upperfirst } =
       header;
 
-    const colIndex = this.columnToIndex(col);
+    const colIndex = this.getColumnIndex(col);
     const contentCopy = content.slice();
 
     // Border
@@ -690,7 +690,7 @@ export class Table<T extends unknown[] | object = Row> {
     const { bgColorColumns, body, border } = this.config;
     const { accumulation, highlightCell, textColor } = body;
 
-    const colIndex = this.columnToIndex(col);
+    const colIndex = this.getColumnIndex(col);
     const contentCopy = content.slice();
 
     // Border
@@ -719,7 +719,6 @@ export class Table<T extends unknown[] | object = Row> {
 
       if (this.isBorder(text) && border.color.length) styled = styled.hex(border.color);
       else if (i === textIndex) {
-        // Text color
         if (textColor.length) styled = styled.hex(textColor);
 
         // Highlight value

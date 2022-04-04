@@ -1,6 +1,6 @@
 # voici.js
 
-A Node.js library for displaying data on the terminal.
+A Node.js library for displaying your data on the terminal🎨
 
 [![npm version](https://img.shields.io/npm/v/voici.js.svg?style=flat)](https://www.npmjs.com/package/voici.js)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/larswaechter/voici.js/blob/main/LICENSE)
