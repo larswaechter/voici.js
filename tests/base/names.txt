@@ -1,0 +1,8 @@
+  id      fName      lName         email                     gender    bdate            
+========================================================================================
+  1       John       Doe           johndoe@gmail.com         Male      Thu Aug 28 1997  
+  45      Hermine    Granger       hermine@gryffindor.com    Female    Wed Jun 12 1991  
+  421     Max        Mustermann    mamu@stermann.com         Male      Mon Nov 15 2004  
+  2003    Peter      Parker        spidy@dummynet.com        Male      Mon Feb 04 1980  
+  892     Lois       Lane          lanelois@mymail.de        Female    Fri Dec 01 1972  
+  55      Michael    Jackson       michael@jackson.com       Male      Thu Apr 22 1965  

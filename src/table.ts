@@ -335,6 +335,18 @@ export class Table<T extends unknown[] | object = Row> {
   }
 
   /**
+   * Gets the display name of the given column.
+   *
+   * @param col the column
+   * @returns the column's display name
+   */
+  private getColumnDisplayName(col: string) {
+    const { header } = this.config;
+    const { names } = header;
+    return col in names ? names[col] : col;
+  }
+
+  /**
    * Calculates the width of each column.
    */
   private calculateColumnWidths() {
@@ -347,7 +359,7 @@ export class Table<T extends unknown[] | object = Row> {
     const colNames = this.getColumNames().slice();
 
     // Add dynamic column names => use a Set for faster lookup
-    const dynamicColNames = new Set<string>(this.getDynamicColumnsNames());
+    const dynamicColNames = new Set<string>(this.getDynamicColumnNames());
     colNames.push(...dynamicColNames.values());
 
     if (_.isNumber(header.width)) {
@@ -358,11 +370,11 @@ export class Table<T extends unknown[] | object = Row> {
         widths[name] = header.width;
       }
     } else {
-      // Add calculated row to dataset
+      // Add accumulated row to dataset
       if (Object.keys(this.accumulatedRow).length) data.push(this.accumulatedRow as T);
 
       // Initalize with column text length
-      for (const name of colNames) widths[name] = name.length;
+      for (const name of colNames) widths[name] = this.getColumnDisplayName(name).length;
 
       // Search longest string / value
       for (const col of colNames) {
@@ -397,7 +409,7 @@ export class Table<T extends unknown[] | object = Row> {
    *
    * @returns the dynamic columns names.
    */
-  private getDynamicColumnsNames() {
+  private getDynamicColumnNames() {
     return this.config.header.dynamic.map((col) => col.name);
   }
 
@@ -427,7 +439,7 @@ export class Table<T extends unknown[] | object = Row> {
    * @returns the column's index
    */
   private getColumnIndex(col: string) {
-    const dynamics = this.getDynamicColumnsNames();
+    const dynamics = this.getDynamicColumnNames();
 
     if (dynamics.includes(col))
       return dynamics.findIndex((name) => name === col) + this.getColumNames().length;
@@ -455,7 +467,7 @@ export class Table<T extends unknown[] | object = Row> {
     const { columns } = accumulation;
 
     // Add dynamic column names => use a Set for faster lookup
-    const dynamicColNames = new Set<string>(this.getDynamicColumnsNames());
+    const dynamicColNames = new Set<string>(this.getDynamicColumnNames());
 
     if (!columns.length) return {};
 
@@ -549,7 +561,7 @@ export class Table<T extends unknown[] | object = Row> {
    */
   private calculateHeaderCellPadding(col: string) {
     const { padding } = this.config;
-    return this.getColumnTextWidth(col) - col.length + padding.size;
+    return this.getColumnTextWidth(col) - this.getColumnDisplayName(col).length + padding.size;
   }
 
   /**
@@ -621,22 +633,23 @@ export class Table<T extends unknown[] | object = Row> {
     const { align, padding } = this.config;
 
     let content: CellContent;
+    const displayName = this.getColumnDisplayName(col);
 
     switch (align) {
       case 'CENTER':
-        const toFill = this.getColumnTextWidth(col) - col.length;
+        const toFill = this.getColumnTextWidth(col) - displayName.length;
         const lrPadding = Math.floor(toFill / 2) + padding.size;
-        content = this.buildCellContent(lrPadding, col, lrPadding + (toFill % 2 ? 1 : 0));
+        content = this.buildCellContent(lrPadding, displayName, lrPadding + (toFill % 2 ? 1 : 0));
         break;
 
       case 'RIGHT':
         const lPadding = this.calculateHeaderCellPadding(col);
-        content = this.buildCellContent(lPadding, col, padding.size);
+        content = this.buildCellContent(lPadding, displayName, padding.size);
         break;
 
       default:
         const rPadding = this.calculateHeaderCellPadding(col);
-        content = this.buildCellContent(padding.size, col, rPadding);
+        content = this.buildCellContent(padding.size, displayName, rPadding);
     }
 
     return this.formatHeaderCellContent(col, content);
@@ -747,24 +760,24 @@ export class Table<T extends unknown[] | object = Row> {
 
     let content: CellContent;
 
-    const colText = this.getCellText(row, col);
+    const cellText = this.getCellText(row, col);
     const overflow = this.getCellText(row, col, false).substring(this.getColumnTextWidth(col));
 
     switch (align) {
       case 'CENTER':
-        const toFill = this.getColumnTextWidth(col) - colText.length;
+        const toFill = this.getColumnTextWidth(col) - cellText.length;
         const lrPadding = Math.floor(toFill / 2) + padding.size;
-        content = this.buildCellContent(lrPadding, colText, lrPadding + (toFill % 2 ? 1 : 0));
+        content = this.buildCellContent(lrPadding, cellText, lrPadding + (toFill % 2 ? 1 : 0));
         break;
 
       case 'RIGHT':
         const lPadding = this.calculateBodyCellPadding(row, col);
-        content = this.buildCellContent(lPadding, colText, padding.size);
+        content = this.buildCellContent(lPadding, cellText, padding.size);
         break;
 
       default:
         const rPadding = this.calculateBodyCellPadding(row, col);
-        content = this.buildCellContent(padding.size, colText, rPadding);
+        content = this.buildCellContent(padding.size, cellText, rPadding);
     }
 
     return [this.formatBodyCellContent(row, col, content), overflow];

@@ -97,6 +97,24 @@ describe('Base', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('Names', () => {
+    const table = new voici.Table(defaultData, {
+      header: {
+        names: {
+          firstname: 'fName',
+          lastname: 'lName',
+          birthdate: 'bdate'
+        }
+      }
+    });
+
+    const result = readFileSync(__dirname + '/names.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('Numeration', () => {
     const table = new voici.Table(defaultData, {
       header: {
