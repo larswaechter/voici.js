@@ -396,7 +396,7 @@ export class Table<T extends unknown[] | object = Row> {
       const sum = Object.values(widthsArr).reduce((prev, val) => prev + val, 0);
 
       // Calculate percentage
-      if (header.width === 'stretch' || sum >= consoleWidth)
+      if (header.width === 'stretch' || (process.env.NODE_ENV !== 'test' && sum >= consoleWidth))
         for (const key in widths) widths[key] = Math.floor((widths[key] / sum) * consoleWidth);
     }
 

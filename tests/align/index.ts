@@ -31,7 +31,9 @@ describe('Align', () => {
   });
 
   it('Align left', () => {
-    const table = new voici.Table(defaultData);
+    const table = new voici.Table(defaultData, {
+      align: 'LEFT'
+    });
 
     const result = readFileSync(__dirname + '/align_left.txt', {
       encoding: 'utf-8'
@@ -69,6 +71,7 @@ describe('Align', () => {
 
   it('MaxWidth align left', () => {
     const table = new voici.Table(arrData, {
+      align: 'LEFT',
       header: {
         maxWidth: 30
       }

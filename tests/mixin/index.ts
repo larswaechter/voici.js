@@ -34,6 +34,16 @@ describe('Mixin', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('Default', () => {
+    const table = new voici.Table(defaultData);
+
+    const result = readFileSync(__dirname + '/default.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('Empty', () => {
     const data = _cloneDeep(defaultData);
     data[0].firstname = '';
