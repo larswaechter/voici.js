@@ -608,7 +608,7 @@ export class Table<T extends unknown[] | object = Row> {
       if (this.isBorder(text) && border.color.length) styled.hex(border.color);
       else if (i === textIndex) {
         // Text color
-        if (textColor.length) chalk.hex(textColor);
+        if (textColor.length) styled = styled.hex(textColor);
 
         if (uppercase) text = text.toUpperCase();
         else if (lowercase) text = text.toLowerCase();

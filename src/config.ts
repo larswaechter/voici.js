@@ -184,8 +184,5 @@ export const mergePlainConfig = (config: Required<Config>): Required<Config> =>
       italic: false,
       textColor: '',
       underline: false
-    },
-    padding: {
-      char: ' '
     }
   });
