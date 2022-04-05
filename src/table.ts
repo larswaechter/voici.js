@@ -24,6 +24,8 @@ type CellContent = [string, string, string];
 
 /**
  * Represent a dataset in tabular form.
+ *
+ * @typeParam T Type of the dataset.
  */
 export class Table<T extends unknown[] | object = Row> {
   /**
@@ -155,6 +157,7 @@ export class Table<T extends unknown[] | object = Row> {
 
   /**
    * Shuffles the dataset.
+   * Throws an exception if a sort order os provided.
    */
   shuffle() {
     if (this.config.sort.columns.length)
