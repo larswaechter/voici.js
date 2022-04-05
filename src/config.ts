@@ -67,7 +67,7 @@ export type Config = Partial<{
       [key: string]: string;
     };
     numeration: boolean;
-    order: string[];
+    order: string[] | number[];
     separator: string;
     textColor: string;
     underline: boolean;

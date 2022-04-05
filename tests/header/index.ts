@@ -4,7 +4,7 @@ import { readFileSync } from 'fs';
 
 import * as voici from '../../dist/index';
 
-import { defaultData } from '../data';
+import { arrData, defaultData } from '../data';
 
 describe('Header', () => {
   it('Columns', () => {
@@ -93,6 +93,20 @@ describe('Header', () => {
     });
 
     const result = readFileSync(__dirname + '/numeration.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Array Order', () => {
+    const table = new voici.Table(arrData, {
+      header: {
+        order: [3, 4, 1]
+      }
+    });
+
+    const result = readFileSync(__dirname + '/order_array.txt', {
       encoding: 'utf-8'
     });
 
