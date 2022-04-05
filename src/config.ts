@@ -6,7 +6,7 @@ export type DynamicColumn = {
   func: (row: unknown, index: number) => unknown;
 };
 
-export type Order = {
+export type Sort = {
   columns: string[];
   directions: Array<'asc'> | Array<'desc'>;
 };
@@ -67,6 +67,7 @@ export type Config = Partial<{
       [key: string]: string;
     };
     numeration: boolean;
+    order: string[];
     separator: string;
     textColor: string;
     underline: boolean;
@@ -76,7 +77,7 @@ export type Config = Partial<{
     width: number | 'auto' | 'stretch';
     maxWidth: number | 'auto';
   }>;
-  order: Order;
+  sort: Sort;
   padding: Partial<{
     char: string;
     size: number;
@@ -127,6 +128,7 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         italic: false,
         names: {},
         numeration: false,
+        order: [],
         separator: '=',
         textColor: '',
         underline: false,
@@ -136,7 +138,7 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         width: 'auto',
         maxWidth: 'auto'
       },
-      order: {
+      sort: {
         columns: [],
         directions: []
       },

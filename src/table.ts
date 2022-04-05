@@ -143,7 +143,7 @@ export class Table<T extends unknown[] | object = Row> {
         }
         this.buildColumnNames();
       } else {
-        const colName = _.isNumber(col) ? this.getColumNames()[col] : col;
+        const colName = _.isNumber(col) ? this.getColumnNames()[col] : col;
         for (const row of this.dataset) {
           data.push(_.omit(row, colName));
         }
@@ -157,8 +157,8 @@ export class Table<T extends unknown[] | object = Row> {
    * Shuffles the dataset.
    */
   shuffle() {
-    if (this.config.order.columns.length)
-      throw new Error('Cannot shuffle dataset if a order is provided!');
+    if (this.config.sort.columns.length)
+      throw new Error('Cannot shuffle dataset if a sort order is provided!');
     this.dataset = _.shuffle(this.dataset);
   }
 
@@ -246,7 +246,7 @@ export class Table<T extends unknown[] | object = Row> {
    */
   private getConsoleWidth() {
     const { padding } = this.config;
-    const numberOfCols = this.getColumNames().length;
+    const numberOfCols = this.getColumnNames().length;
     return process.stderr.columns - numberOfCols * 2 * padding.size;
   }
 
@@ -279,7 +279,7 @@ export class Table<T extends unknown[] | object = Row> {
    *
    */
   private sort() {
-    const { columns, directions } = this.config.order;
+    const { columns, directions } = this.config.sort;
     if (columns.length !== directions.length)
       throw new Error(
         `Number of columns (${columns.length}) does not match number of directions (${directions.length})`
@@ -292,7 +292,7 @@ export class Table<T extends unknown[] | object = Row> {
    *
    * @returns the column names
    */
-  private getColumNames() {
+  private getColumnNames() {
     const { header } = this.config;
     if (header.columns.length) return header.numeration ? ['#', ...header.columns] : header.columns;
     return this.columnNames;
@@ -305,20 +305,22 @@ export class Table<T extends unknown[] | object = Row> {
     if (!this.dataset.length) return;
 
     const { header } = this.config;
-    const names = [];
+    const names = new Set<string>();
+
+    if (header.numeration) names.add('#');
+
+    // Column order
+    for (const col of header.order) {
+      names.add(String(col));
+    }
 
     // Column names from dataset
-    for (const col in this.dataset[0]) names.push(String(col));
+    for (const col in this.dataset[0]) names.add(String(col));
 
     // Names of dynamic columns
-    for (const entry of header.dynamic) names.push(entry.name);
+    for (const entry of header.dynamic) names.add(entry.name);
 
-    if (header.numeration) names.unshift('#');
-
-    for (const col of this.config.header.columns)
-      if (!names.includes(col)) throw new Error(`Unknown column: ${col}`);
-
-    this.columnNames = names;
+    this.columnNames = Array.from(names);
   }
 
   /**
@@ -329,7 +331,7 @@ export class Table<T extends unknown[] | object = Row> {
    */
   private getColumnTextWidth(col: string | number) {
     const { header } = this.config;
-    const colName = _.isNumber(col) ? this.getColumNames()[col] : col;
+    const colName = _.isNumber(col) ? this.getColumnNames()[col] : col;
     if (_.isNumber(header.maxWidth)) return Math.min(this.columnWidths[colName], header.maxWidth);
     return this.columnWidths[colName];
   }
@@ -356,7 +358,7 @@ export class Table<T extends unknown[] | object = Row> {
     } = {};
 
     const data = this.dataset.slice();
-    const colNames = this.getColumNames().slice();
+    const colNames = this.getColumnNames().slice();
 
     // Add dynamic column names => use a Set for faster lookup
     const dynamicColNames = new Set<string>(this.getDynamicColumnNames());
@@ -441,9 +443,9 @@ export class Table<T extends unknown[] | object = Row> {
     const dynamics = this.getDynamicColumnNames();
 
     if (dynamics.includes(col))
-      return dynamics.findIndex((name) => name === col) + this.getColumNames().length;
+      return dynamics.findIndex((name) => name === col) + this.getColumnNames().length;
 
-    return this.getColumNames().findIndex((name) => name === col);
+    return this.getColumnNames().findIndex((name) => name === col);
   }
 
   /**
@@ -665,7 +667,7 @@ export class Table<T extends unknown[] | object = Row> {
     let content = '';
     let contentLen = 0;
 
-    for (const col of this.getColumNames()) {
+    for (const col of this.getColumnNames()) {
       const [_res, _len] = this.buildHeaderCell(col);
       content += _res;
       contentLen += _len;
@@ -835,7 +837,7 @@ export class Table<T extends unknown[] | object = Row> {
     let hasOverflow = false;
     const colsOverflow: string[] = [];
 
-    for (const name of this.getColumNames()) {
+    for (const name of this.getColumnNames()) {
       const [str, overflow] = this.buildBodyCell(row, name);
       content += str;
       colsOverflow.push(overflow);
@@ -864,7 +866,7 @@ export class Table<T extends unknown[] | object = Row> {
     let hasMore = false;
 
     for (let i = 0; i < overflow.length; i++) {
-      const colName = this.getColumNames()[i];
+      const colName = this.getColumnNames()[i];
       const colWidth = this.getColumnTextWidth(colName);
       const text = overflow[i].substring(0, colWidth);
 
@@ -939,7 +941,7 @@ export class Table<T extends unknown[] | object = Row> {
       this.dynamicColumns = this.calculateDynamicColumns();
       this.accumulatedRow = this.calculateAccumulation();
       this.calculateColumnWidths();
-      if (this.config.order.columns.length) this.sort();
+      if (this.config.sort.columns.length) this.sort();
     }
     this.touched = false;
   }

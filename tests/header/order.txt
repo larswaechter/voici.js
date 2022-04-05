@@ -1,0 +1,8 @@
+  email                     gender    firstname    id      lastname      birthdate        
+==========================================================================================
+  johndoe@gmail.com         Male      John         1       Doe           Thu Aug 28 1997  
+  hermine@gryffindor.com    Female    Hermine      45      Granger       Wed Jun 12 1991  
+  mamu@stermann.com         Male      Max          421     Mustermann    Mon Nov 15 2004  
+  spidy@dummynet.com        Male      Peter        2003    Parker        Mon Feb 04 1980  
+  lanelois@mymail.de        Female    Lois         892     Lane          Fri Dec 01 1972  
+  michael@jackson.com       Male      Michael      55      Jackson       Thu Apr 22 1965  

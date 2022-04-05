@@ -99,6 +99,20 @@ describe('Header', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('Order', () => {
+    const table = new voici.Table(defaultData, {
+      header: {
+        order: ['email', 'gender', 'firstname']
+      }
+    });
+
+    const result = readFileSync(__dirname + '/order.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('Separator', () => {
     const table = new voici.Table(defaultData, {
       header: {

@@ -61,21 +61,6 @@ describe('Mixin', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
-  it('Order', () => {
-    const table = new voici.Table(defaultData, {
-      order: {
-        columns: ['gender', 'id'],
-        directions: ['asc', 'desc']
-      }
-    } as voici.Config);
-
-    const result = readFileSync(__dirname + '/order.txt', {
-      encoding: 'utf-8'
-    });
-
-    assert.strictEqual(table.toPlainString(), result);
-  });
-
   it('Padding', () => {
     const table = new voici.Table(defaultData, {
       padding: {
@@ -88,18 +73,6 @@ describe('Mixin', () => {
     });
 
     assert.strictEqual(table.toPlainString(), result);
-  });
-
-  it('Unknown column', () => {
-    assert.throws(
-      () =>
-        new voici.Table(defaultData, {
-          header: {
-            columns: ['Missing']
-          }
-        }),
-      Error
-    );
   });
 
   it('Reference datatypes', () => {
@@ -131,6 +104,21 @@ describe('Mixin', () => {
     const table = new voici.Table(data);
 
     const result = readFileSync(__dirname + '/reference_datatypes.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Sort', () => {
+    const table = new voici.Table(defaultData, {
+      sort: {
+        columns: ['gender', 'id'],
+        directions: ['asc', 'desc']
+      }
+    } as voici.Config);
+
+    const result = readFileSync(__dirname + '/sort.txt', {
       encoding: 'utf-8'
     });
 
