@@ -1,7 +1,7 @@
 {
   "name": "voici.js",
   "version": "1.0.0",
-  "description": "A Node.js library for printing your data on the terminal.",
+  "description": "A Node.js library for pretty printing your data on the terminal.",
   "author": {
     "name": "Lars Wächter",
     "url": "https://larswaechter.dev/"
@@ -11,7 +11,7 @@
   "scripts": {
     "build": "rm -rf ./dist && tsc",
     "test": "npm run build && npm run test:run",
-    "test:run": "NODE_ENV=test mocha -r ts-node/register \"./tests/**/*.ts\"",
+    "test:run": "NODE_ENV=test mocha -r ts-node/register",
     "docs": "typedoc",
     "prettier": "prettier --config ./.prettierrc --write ./src/**/*.ts",
     "prettier:check": "prettier --config ./.prettierrc --check ./src/**/*.ts",
@@ -44,6 +44,7 @@
   "devDependencies": {
     "@types/lodash": "^4.14.179",
     "@types/mocha": "^9.1.0",
+    "@types/node": "^18.14.0",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
     "@typescript-eslint/parser": "^5.14.0",
     "eslint": "^8.10.0",
@@ -55,7 +56,7 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "chalk": "^2.4.2",
+    "chalk": "^4.1.2",
     "fast-csv": "^4.3.6",
     "JSONStream": "^1.3.5",
     "lodash": "^4.17.21",

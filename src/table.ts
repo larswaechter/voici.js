@@ -797,16 +797,16 @@ export class Table<T extends unknown[] | object = Row> {
   private formatBodyRowContent(row: number, content: string) {
     const { bgColor, highlightRow, striped } = this.config.body;
 
-    let styled = chalk;
-
     // Background color
-    if (_.isFunction(highlightRow.func) && highlightRow.func(this.dataset[row], row)) {
-      styled = styled.bgHex(highlightRow.bgColor);
-    } else if (striped && row % 2)
-      styled = bgColor.length ? styled.bgHex(bgColor) : styled.bgHex('#444444');
-    else if (bgColor.length) styled = styled.bgHex(bgColor);
+    if (_.isFunction(highlightRow.func) && highlightRow.func(this.dataset[row], row))
+      return chalk.bgHex(highlightRow.bgColor)(content);
 
-    return styled(content);
+    if (striped && row % 2)
+      return (bgColor.length ? chalk.bgHex(bgColor) : chalk.bgHex('#444444'))(content);
+
+    if (bgColor.length) return chalk.bgHex(bgColor)(content);
+
+    return chalk(content);
   }
 
   /**
