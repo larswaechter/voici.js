@@ -2,8 +2,8 @@ import _isNil from 'lodash/isNil';
 
 import { countOccurrences } from './helper';
 
-export type Accumulation = {
-  column: string | number;
+export type Accumulation<TAttributes> = {
+  column: TAttributes;
   func: AccumulationFunction;
 };
 
@@ -55,7 +55,7 @@ export enum AccumulationFunction {
  * @param func the ComputeFunction
  * @returns the computed value
  */
-export const calculateAccumulation = (data: [], func: AccumulationFunction) => {
+export const calculateAccumulation = (data: any[], func: AccumulationFunction) => {
   if (!data.length) return null;
 
   switch (func) {

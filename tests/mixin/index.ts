@@ -116,7 +116,7 @@ describe('Mixin', () => {
         columns: ['gender', 'id'],
         directions: ['asc', 'desc']
       }
-    } as voici.Config);
+    });
 
     const result = readFileSync(__dirname + '/sort.txt', {
       encoding: 'utf-8'

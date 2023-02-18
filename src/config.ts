@@ -1,14 +1,35 @@
+import { Row } from './table';
 import _merge from 'lodash/merge';
 import { Accumulation } from './accumulation';
 
-export type DynamicColumn = {
-  name: string;
-  func: (row: unknown, index: number) => unknown;
+/**
+ * Type of the numeration column.
+ */
+export type TNumerationColumn = '#';
+
+/**
+ * Infer the attributes of a row.
+ * For arrays type `number` is used for indexing.
+ * Otherwise a included key of the row, like an interface's attribute.
+ */
+export type InferRowAttributes<TRow extends Row> = TRow extends unknown[] ? number : keyof TRow;
+
+/**
+ * Infer the Attributes of a row including the dynamic columns.
+ */
+export type InferAttributes<TRow extends Row, TDColumns extends string = never> =
+  | InferRowAttributes<TRow>
+  | TDColumns
+  | TNumerationColumn;
+
+export type Sort<TAttributes> = {
+  columns: TAttributes[];
+  directions: Array<'asc' | 'desc'>;
 };
 
-export type Sort = {
-  columns: string[];
-  directions: Array<'asc'> | Array<'desc'>;
+export type DynamicColumn<TRow extends Row, TDColumns extends string> = {
+  name: TDColumns;
+  func: (row: TRow, index: number) => unknown;
 };
 
 export type ImageExportConfig = Partial<{
@@ -29,18 +50,19 @@ export const mergeImageExportConfig = (config: ImageExportConfig): Required<Imag
     config
   );
 
-export type Config = Partial<{
+export type Config<TRow extends Row, TDColumns extends string = never> = Partial<{
   align: 'LEFT' | 'CENTER' | 'RIGHT';
   bgColorColumns: string[];
   body: Partial<{
+    subset: [number?, number?];
     accumulation: Partial<{
       bgColor: string;
-      columns: Accumulation[];
+      columns: Accumulation<InferAttributes<TRow, TDColumns>>[];
       separator: string;
     }>;
     bgColor: string;
     highlightCell: Partial<{
-      func: (content: unknown, row: number, col: string | number) => boolean;
+      func: (content: unknown, row: number, col: InferAttributes<TRow, TDColumns>) => boolean;
       textColor: string;
     }>;
     highlightRow: Partial<{
@@ -60,14 +82,15 @@ export type Config = Partial<{
   header: Partial<{
     bgColor: string;
     bold: boolean;
-    columns: string[];
-    dynamic: DynamicColumn[];
+    include: InferRowAttributes<TRow>[];
+    exclude: InferRowAttributes<TRow>[];
+    dynamic: DynamicColumn<TRow, TDColumns>[];
     italic: boolean;
-    names: {
-      [key: string]: string;
-    };
+    displayNames: Partial<{
+      [key in InferAttributes<TRow, never>]: string;
+    }>;
     numeration: boolean;
-    order: string[] | number[];
+    order: InferAttributes<TRow, TDColumns>[];
     separator: string;
     textColor: string;
     underline: boolean;
@@ -77,7 +100,7 @@ export type Config = Partial<{
     width: number | 'auto' | 'stretch';
     maxWidth: number | 'auto';
   }>;
-  sort: Sort;
+  sort: Sort<InferRowAttributes<TRow>>;
   padding: Partial<{
     char: string;
     size: number;
@@ -90,12 +113,15 @@ export type Config = Partial<{
  * @param config the config
  * @returns the merged config
  */
-export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
+export const mergeDefaultConfig = <TRow extends Row, TDColumns extends string>(
+  config: Partial<Config<TRow, TDColumns>>
+): Required<Config<TRow, TDColumns>> =>
   _merge(
     {
       align: 'LEFT',
       bgColorColumns: [],
       body: {
+        subset: [],
         accumulation: {
           bgColor: '',
           columns: [],
@@ -123,10 +149,11 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
       header: {
         bgColor: '',
         bold: false,
-        columns: [],
+        include: [],
+        exclude: [],
         dynamic: [],
         italic: false,
-        names: {},
+        displayNames: {},
         numeration: false,
         order: [],
         separator: '=',
@@ -157,7 +184,9 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
  * @param config the config
  * @returns the merged config
  */
-export const mergePlainConfig = (config: Required<Config>): Required<Config> =>
+export const mergePlainConfig = <TRow extends Row, TDColumns extends string>(
+  config: Required<Config<TRow, TDColumns>>
+): Required<Config<TRow, TDColumns>> =>
   _merge(config, {
     bgColorColumns: [],
     body: {

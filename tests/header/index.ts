@@ -7,29 +7,86 @@ import * as voici from '../../dist/index';
 import { arrData, defaultData } from '../data';
 
 describe('Header', () => {
-  it('Columns', () => {
+  it('Include', () => {
     const table = new voici.Table(defaultData, {
       header: {
-        columns: ['id', 'lastname', 'gender']
+        include: ['id', 'lastname', 'gender']
       }
     });
 
-    const result = readFileSync(__dirname + '/columns.txt', {
+    const result = readFileSync(__dirname + '/include_exclude.txt', {
       encoding: 'utf-8'
     });
 
     assert.strictEqual(table.toPlainString(), result);
   });
 
-  it('Columns Numeration', () => {
+  it('Exclude', () => {
     const table = new voici.Table(defaultData, {
       header: {
-        columns: ['id', 'lastname', 'gender'],
+        exclude: ['firstname', 'email', 'birthdate']
+      }
+    });
+
+    const result = readFileSync(__dirname + '/include_exclude.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Include Array', () => {
+    const table = new voici.Table(arrData, {
+      header: {
+        include: [0, 2, 4]
+      }
+    });
+
+    const result = readFileSync(__dirname + '/include_exclude_array.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Exclude Array', () => {
+    const table = new voici.Table(arrData, {
+      header: {
+        exclude: [1, 3, 5]
+      }
+    });
+
+    const result = readFileSync(__dirname + '/include_exclude_array.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Include Numeration', () => {
+    const table = new voici.Table(defaultData, {
+      header: {
+        include: ['id', 'lastname', 'gender'],
         numeration: true
       }
     });
 
-    const result = readFileSync(__dirname + '/columns_numeration.txt', {
+    const result = readFileSync(__dirname + '/include_exclude_numeration.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Exclude Numeration', () => {
+    const table = new voici.Table(defaultData, {
+      header: {
+        exclude: ['firstname', 'email', 'birthdate'],
+        numeration: true
+      }
+    });
+
+    const result = readFileSync(__dirname + '/include_exclude_numeration.txt', {
       encoding: 'utf-8'
     });
 
@@ -70,7 +127,7 @@ describe('Header', () => {
   it('Names', () => {
     const table = new voici.Table(defaultData, {
       header: {
-        names: {
+        displayNames: {
           firstname: 'fName',
           lastname: 'lName',
           birthdate: 'bdate'

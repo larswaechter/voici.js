@@ -3,6 +3,7 @@ import assert from 'assert';
 import { readFileSync } from 'fs';
 
 import * as voici from '../../dist/index';
+import { arrData } from '../data';
 
 describe('Body', () => {
   it('Precision', () => {
@@ -18,6 +19,34 @@ describe('Body', () => {
     });
 
     const result = readFileSync(__dirname + '/precision.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Subset Max', () => {
+    const table = new voici.Table(arrData, {
+      body: {
+        subset: [3]
+      }
+    });
+
+    const result = readFileSync(__dirname + '/subset_max.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Subset MinMax', () => {
+    const table = new voici.Table(arrData, {
+      body: {
+        subset: [2, 4]
+      }
+    });
+
+    const result = readFileSync(__dirname + '/subset_min_max.txt', {
       encoding: 'utf-8'
     });
 

@@ -276,7 +276,7 @@ describe('Accumulation', () => {
   });
 
   it('SUM dynamic', () => {
-    const table = new voici.Table(arrDataNumbers, {
+    const table = new voici.Table<(typeof arrDataNumbers)[0], 'Double'>(arrDataNumbers, {
       body: {
         accumulation: {
           separator: '=',
@@ -293,7 +293,7 @@ describe('Accumulation', () => {
         }
       },
       header: {
-        dynamic: [{ name: 'Double', func: (row) => row[0] * 2 }]
+        dynamic: [{ name: 'Double', func: (row) => (row[0] == null ? 0 : row[0]) * 2 }]
       }
     });
 
