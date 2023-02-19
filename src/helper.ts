@@ -59,7 +59,7 @@ export const countOccurrences = (data: unknown[]) => {
  * @param tableConfig the table config
  * @returns a new `Table` instance
  */
-export const fromCSV = <TRow extends Row, TDColumns extends string = never>(
+export const fromCSV = <TRow extends Row, TDColumns extends object = never>(
   path: string,
   csvConfig: csv.ParserOptionsArgs,
   tableConfig: Config<TRow, TDColumns> = {}
@@ -87,7 +87,7 @@ export const fromCSV = <TRow extends Row, TDColumns extends string = never>(
  * @param tableConfig the table config
  * @returns a new `Table` instance
  */
-export const fromJSON = <TRow extends Row, TDColumns extends string = never>(
+export const fromJSON = <TRow extends Row, TDColumns extends object = never>(
   path: string,
   tableConfig: Config<TRow, TDColumns> = {}
 ): Promise<Table<TRow, TDColumns>> => {

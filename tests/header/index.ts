@@ -94,12 +94,19 @@ describe('Header', () => {
   });
 
   it('Dynamic', () => {
-    const table = new voici.Table(defaultData, {
+    interface IDynamicAttributes {
+      fullname: string;
+      admin: boolean;
+    }
+
+    const table = new voici.Table<(typeof defaultData)[number], IDynamicAttributes>(defaultData, {
       header: {
-        dynamic: [
-          { name: 'fullname', func: (row) => row['firstname'] + ' ' + row['lastname'] },
-          { name: 'admin', func: (row) => row['id'] === 1 }
-        ]
+        dynamic: {
+          fullname: (row) => row['firstname'] + ' ' + row['lastname'],
+          admin(row) {
+            return row['id'] === 1;
+          }
+        }
       }
     });
 

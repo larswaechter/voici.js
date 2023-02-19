@@ -1,5 +1,6 @@
-import { Row } from './table';
 import _merge from 'lodash/merge';
+
+import { Row } from './table';
 import { Accumulation } from './accumulation';
 
 /**
@@ -15,11 +16,18 @@ export type TNumerationColumn = '#';
 export type InferRowAttributes<TRow extends Row> = TRow extends unknown[] ? number : keyof TRow;
 
 /**
+ * Infer the attributes of a dynamic column.
+ */
+export type InferDynamicAttribute<TDColumns extends object> = TDColumns extends never
+  ? never
+  : keyof TDColumns;
+
+/**
  * Infer the Attributes of a row including the dynamic columns.
  */
-export type InferAttributes<TRow extends Row, TDColumns extends string = never> =
+export type InferAttributes<TRow extends Row, TDColumns extends object = never> =
   | InferRowAttributes<TRow>
-  | TDColumns
+  | InferDynamicAttribute<TDColumns>
   | TNumerationColumn;
 
 export type Sort<TAttributes> = {
@@ -27,9 +35,8 @@ export type Sort<TAttributes> = {
   directions: Array<'asc' | 'desc'>;
 };
 
-export type DynamicColumn<TRow extends Row, TDColumns extends string> = {
-  name: TDColumns;
-  func: (row: TRow, index: number) => unknown;
+export type DynamicColumn<TRow extends Row, TDColumns extends object> = {
+  [Key in keyof TDColumns]: (row: TRow, index: number) => TDColumns[keyof TDColumns];
 };
 
 export type ImageExportConfig = Partial<{
@@ -50,14 +57,14 @@ export const mergeImageExportConfig = (config: ImageExportConfig): Required<Imag
     config
   );
 
-export type Config<TRow extends Row, TDColumns extends string = never> = Partial<{
+export type Config<TRow extends Row, TDColumns extends object = never> = Partial<{
   align: 'LEFT' | 'CENTER' | 'RIGHT';
   bgColorColumns: string[];
   body: Partial<{
     subset: [number?, number?];
     accumulation: Partial<{
       bgColor: string;
-      columns: Accumulation<InferAttributes<TRow, TDColumns>>[];
+      columns: Partial<Accumulation<TRow, TDColumns>>;
       separator: string;
     }>;
     bgColor: string;
@@ -84,10 +91,10 @@ export type Config<TRow extends Row, TDColumns extends string = never> = Partial
     bold: boolean;
     include: InferRowAttributes<TRow>[];
     exclude: InferRowAttributes<TRow>[];
-    dynamic: DynamicColumn<TRow, TDColumns>[];
+    dynamic: DynamicColumn<TRow, TDColumns>;
     italic: boolean;
     displayNames: Partial<{
-      [key in InferAttributes<TRow, never>]: string;
+      [key in InferAttributes<TRow>]: string;
     }>;
     numeration: boolean;
     order: InferAttributes<TRow, TDColumns>[];
@@ -113,7 +120,7 @@ export type Config<TRow extends Row, TDColumns extends string = never> = Partial
  * @param config the config
  * @returns the merged config
  */
-export const mergeDefaultConfig = <TRow extends Row, TDColumns extends string>(
+export const mergeDefaultConfig = <TRow extends Row, TDColumns extends object>(
   config: Partial<Config<TRow, TDColumns>>
 ): Required<Config<TRow, TDColumns>> =>
   _merge(
@@ -124,7 +131,7 @@ export const mergeDefaultConfig = <TRow extends Row, TDColumns extends string>(
         subset: [],
         accumulation: {
           bgColor: '',
-          columns: [],
+          columns: {},
           separator: '-'
         },
         bgColor: '',
@@ -151,7 +158,7 @@ export const mergeDefaultConfig = <TRow extends Row, TDColumns extends string>(
         bold: false,
         include: [],
         exclude: [],
-        dynamic: [],
+        dynamic: {},
         italic: false,
         displayNames: {},
         numeration: false,
@@ -184,7 +191,7 @@ export const mergeDefaultConfig = <TRow extends Row, TDColumns extends string>(
  * @param config the config
  * @returns the merged config
  */
-export const mergePlainConfig = <TRow extends Row, TDColumns extends string>(
+export const mergePlainConfig = <TRow extends Row, TDColumns extends object>(
   config: Required<Config<TRow, TDColumns>>
 ): Required<Config<TRow, TDColumns>> =>
   _merge(config, {
