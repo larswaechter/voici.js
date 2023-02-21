@@ -39,24 +39,6 @@ export type DynamicColumn<TRow extends Row, TDColumns extends object> = {
   [Key in keyof TDColumns]: (row: TRow, index: number) => TDColumns[keyof TDColumns];
 };
 
-export type ImageExportConfig = Partial<{
-  backgroundColor: string;
-  color: string;
-  font: string;
-  padding: number;
-}>;
-
-export const mergeImageExportConfig = (config: ImageExportConfig): Required<ImageExportConfig> =>
-  _merge(
-    {
-      backgroundColor: 'black',
-      color: 'white',
-      font: '16px Consolas',
-      padding: 4
-    },
-    config
-  );
-
 export type Config<TRow extends Row, TDColumns extends object = never> = Partial<{
   align: 'LEFT' | 'CENTER' | 'RIGHT';
   bgColorColumns: string[];
