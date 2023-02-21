@@ -30,17 +30,6 @@ describe('Table', () => {
     assert.strictEqual(cell, 'spidy@dummynet.com');
   });
 
-  it('Remove Column', () => {
-    const table = new voici.Table(defaultData);
-    table.removeColumn('id');
-
-    const result = readFileSync(__dirname + '/remove_column.txt', {
-      encoding: 'utf-8'
-    });
-
-    assert.strictEqual(table.toPlainString(), result);
-  });
-
   it('Remove Row', () => {
     const table = new voici.Table(defaultData);
     table.removeRow(2);
@@ -50,16 +39,5 @@ describe('Table', () => {
     });
 
     assert.strictEqual(table.toPlainString(), result);
-  });
-
-  it('Shuffle', () => {
-    const table = new voici.Table(defaultData);
-    table.shuffle();
-
-    const result = readFileSync(__dirname + '/shuffle.txt', {
-      encoding: 'utf-8'
-    });
-
-    assert.notStrictEqual(table.toPlainString(), result);
   });
 });

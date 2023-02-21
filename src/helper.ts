@@ -1,4 +1,10 @@
-import _ from 'lodash';
+import isSet from 'lodash/isSet';
+import isMap from 'lodash/isMap';
+import isDate from 'lodash/isDate';
+import isString from 'lodash/isString';
+import isNumber from 'lodash/isNumber';
+import isPlainObject from 'lodash/isPlainObject';
+
 import * as csv from 'fast-csv';
 import * as jstream from 'JSONStream';
 import { resolve as resolvePath } from 'path';
@@ -14,13 +20,13 @@ import { Row, Table } from './table';
  * @returns the strinified value
  */
 export const stringify = (value: unknown) => {
-  if (_.isString(value)) return value;
-  if (_.isNumber(value)) return value.toString();
-  if (_.isDate(value)) return value.toDateString();
-  if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
-  if (_.isSet(value)) return JSON.stringify(Array.from(value.values()));
-  if (_.isMap(value)) return JSON.stringify(Array.from(value.entries()));
-  if (_.isUndefined(value) || _.isNull(value)) return '';
+  if (isString(value)) return value;
+  if (isNumber(value)) return value.toString();
+  if (isDate(value)) return value.toDateString();
+  if (isPlainObject(value) || Array.isArray(value)) return JSON.stringify(value);
+  if (isSet(value)) return JSON.stringify(Array.from(value.values()));
+  if (isMap(value)) return JSON.stringify(Array.from(value.entries()));
+  if (value == undefined || value == null) return '';
   return String(value) || '';
 };
 
@@ -53,23 +59,23 @@ export const countOccurrences = (data: unknown[]) => {
  * @param tableConfig the table config
  * @returns a new `Table` instance
  */
-export const fromCSV = <T extends unknown[] | object = Row>(
+export const fromCSV = <TRow extends Row, TDColumns extends object = never>(
   path: string,
   csvConfig: csv.ParserOptionsArgs,
-  tableConfig: Config = {}
-): Promise<Table<T>> => {
+  tableConfig: Config<TRow, TDColumns> = {}
+): Promise<Table<TRow, TDColumns>> => {
   return new Promise((resolve, reject) => {
-    const data: T[] = [];
+    const data: TRow[] = [];
     createReadStream(resolvePath(path))
       .pipe(csv.parse(csvConfig))
       .on('error', (err) => {
         reject(err);
       })
-      .on('data', (row: T) => {
+      .on('data', (row: TRow) => {
         data.push(row);
       })
       .on('end', () => {
-        resolve(new Table<T>(data, tableConfig));
+        resolve(new Table(data, tableConfig));
       });
   });
 };
@@ -81,22 +87,36 @@ export const fromCSV = <T extends unknown[] | object = Row>(
  * @param tableConfig the table config
  * @returns a new `Table` instance
  */
-export const fromJSON = <T extends unknown[] | object = Row>(
+export const fromJSON = <TRow extends Row, TDColumns extends object = never>(
   path: string,
-  tableConfig: Config = {}
-): Promise<Table<T>> => {
+  tableConfig: Config<TRow, TDColumns> = {}
+): Promise<Table<TRow, TDColumns>> => {
   return new Promise((resolve, reject) => {
-    const data: T[] = [];
+    const data: TRow[] = [];
     createReadStream(resolvePath(path))
       .pipe(jstream.parse('*'))
       .on('error', (err: Error) => {
         reject(err);
       })
-      .on('data', (row: T) => {
+      .on('data', (row: TRow) => {
         data.push(row);
       })
       .on('end', () => {
         resolve(new Table(data, tableConfig));
       });
   });
+};
+
+/**
+ * Checks whether given `array` contains the given `val`.
+ * There is NO strict comparison.
+ * Can be useful when working with numeric attributes and their string counterparts.
+ *
+ * @param array array to search in
+ * @param val value to search
+ * @returns whether `val` is included or not
+ */
+export const arrayIncludes = (array: string[] | number[], val: string | number) => {
+  for (const item of array) if (val == item) return true;
+  return false;
 };

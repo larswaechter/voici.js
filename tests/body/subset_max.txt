@@ -1,0 +1,5 @@
+  0       1          2          3                         4         5                
+=====================================================================================
+  2003    Peter      Parker     spiderman@dummynet.com    Male      Mon Feb 04 1980  
+  892     Lois       Lane       lanelois@mymail.de        Female    Fri Dec 01 1972  
+  55      Michael    Jackson    michael@j]ackson.com      Male      Thu Apr 22 1965  

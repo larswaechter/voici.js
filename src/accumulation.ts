@@ -1,10 +1,11 @@
 import _isNil from 'lodash/isNil';
+import { InferAttributes } from './config';
 
 import { countOccurrences } from './helper';
+import { Row } from './table';
 
-export type Accumulation = {
-  column: string | number;
-  func: AccumulationFunction;
+export type Accumulation<TRow extends Row, TDColumns extends object> = {
+  [Key in InferAttributes<TRow, TDColumns>]: AccumulationFunction;
 };
 
 export enum AccumulationFunction {
@@ -55,7 +56,7 @@ export enum AccumulationFunction {
  * @param func the ComputeFunction
  * @returns the computed value
  */
-export const calculateAccumulation = (data: [], func: AccumulationFunction) => {
+export const calculateAccumulation = (data: unknown[], func: AccumulationFunction) => {
   if (!data.length) return null;
 
   switch (func) {
@@ -64,27 +65,27 @@ export const calculateAccumulation = (data: [], func: AccumulationFunction) => {
     case AccumulationFunction.FREQ:
       return calculateMostFrequent(data);
     case AccumulationFunction.GEO_MEAN:
-      return calculateGeometricMean(data);
+      return calculateGeometricMean(data as number[]);
     case AccumulationFunction.HARM_MEAN:
-      return calculateHarmonicMean(data);
+      return calculateHarmonicMean(data as number[]);
     case AccumulationFunction.INFREQ:
       return calculateMostInFrequent(data);
     case AccumulationFunction.MAX:
-      return calculateMax(data);
+      return calculateMax(data as number[]);
     case AccumulationFunction.MEAN:
-      return calculateMean(data);
+      return calculateMean(data as number[]);
     case AccumulationFunction.MEDIAN:
-      return calculateMedian(data);
+      return calculateMedian(data as number[]);
     case AccumulationFunction.MIN:
-      return calculateMin(data);
+      return calculateMin(data as number[]);
     case AccumulationFunction.RANGE:
-      return calculateRange(data);
+      return calculateRange(data as number[]);
     case AccumulationFunction.SUM:
-      return calculateSum(data);
+      return calculateSum(data as number[]);
     case AccumulationFunction.STD:
-      return calculateStandardDeviation(data);
+      return calculateStandardDeviation(data as number[]);
     case AccumulationFunction.VAR:
-      return calculateVariance(data);
+      return calculateVariance(data as number[]);
     default:
       return null;
   }

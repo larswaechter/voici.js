@@ -1,4 +1,17 @@
-export const defaultData = [
+export type Nullable<T> = {
+  [K in keyof T]: T[K] | null;
+};
+
+export interface IDefaultData {
+  id: number;
+  firstname: string;
+  lastname: string;
+  email: string;
+  gender: string;
+  birthdate: Date;
+}
+
+export const defaultData: Nullable<IDefaultData>[] = [
   {
     id: 1,
     firstname: 'John',
