@@ -93,17 +93,12 @@ export const calculateAccumulation = (data: unknown[], func: AccumulationFunctio
 
 /**
  * Counts the number of values (non-empty cells).
+ * The following values are considered as empty: `null`, `undefined`, empty `string`.
  *
  * @param data the dataset
  * @returns the number of values
  */
-export const calculateCount = (data: unknown[]) => {
-  let counter = 0;
-  for (const value of data) {
-    if (!_isNil(value) && String(value).length) counter++;
-  }
-  return counter;
-};
+export const calculateCount = (data: unknown[]) => data.filter((value) => !_isNil(value)).length;
 
 /**
  * Calculates the most frequent value.
