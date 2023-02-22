@@ -1,7 +1,7 @@
   0                       1                       2                     
 ========================================================================
   abcdefghijklmn          opqrstuv wxyz abcdef    rstuv wx y z abcd ef  
-                          ghijklmnopq              ghi jklmnop          
+                          ghijklmnopq             ghi jklmnop           
   abc def gh ijklm nop    ijklmno pqr stuvw xy    abcd efgh iklmn op q  
   qrstuv wxyzabcd efg                             r stuvq xyz           
   h                                                                     

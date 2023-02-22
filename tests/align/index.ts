@@ -8,7 +8,7 @@ import { defaultData } from '../data';
 
 const arrData = [
   ['abcdefghijklmn', 'opqrstuv wxyz abcdefghijklmnopq', 'rstuv wx y z abcd ef ghi jklmnop'],
-  ['abc def gh ', 'ijklmno pqr stuvw xy', 'abcd efgh iklmn op qr stuvq xyz'],
+  ['abc def gh', 'ijklmno pqr stuvw xy', 'abcd efgh iklmn op qr stuvq xyz'],
   ['ab cd ef gh', 'ij kl mn op', 'qrstuvw xyzabc defgh'],
   [
     'abcdef ghi',

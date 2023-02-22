@@ -533,6 +533,8 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
       );
     else text = this.parseCellText(this.getDataCell(row, col));
 
+    text = text.trim();
+
     if (cropped) text = text.substring(0, this.getColumnWidth(col));
 
     return text;
@@ -765,7 +767,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
     let content: CellContent;
 
     const cellText = this.getCellText(row, col);
-    const overflow = this.getCellText(row, col, false).substring(this.getColumnWidth(col));
+    const overflow = this.getCellText(row, col, false).substring(this.getColumnWidth(col)).trim();
 
     // Set cell content with according padding
     switch (align) {
@@ -862,7 +864,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    * Builds the subsequent lines (overflow) of the given row.
    *
    * @param row the initial row
-   * @param overflow the text overflow
+   * @param overflow the text overflow for each solumn
    * @returns the subsequent lines
    */
   private buildBodyRowOverflow(row: RowIndex, overflow: string[]) {
