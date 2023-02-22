@@ -61,6 +61,7 @@ export type Config<TRow extends Row, TDColumns extends object = never> = Partial
     precision: number;
     striped: boolean;
     textColor: string;
+    peek: number | [number, number];
   }>;
   border: Partial<{
     color: string;
@@ -127,7 +128,8 @@ export const mergeDefaultConfig = <TRow extends Row, TDColumns extends object>(
         },
         precision: 3,
         striped: false,
-        textColor: ''
+        textColor: '',
+        peek: 0
       },
       border: {
         color: '',

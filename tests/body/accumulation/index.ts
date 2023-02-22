@@ -6,7 +6,7 @@ import * as voici from '../../../dist/index';
 
 import { arrDataNumbers } from '../../data';
 
-describe('Accumulation', () => {
+describe('Body Accumulation', () => {
   it('COUNT', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {

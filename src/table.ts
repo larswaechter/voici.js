@@ -128,7 +128,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    * @param col the cell's col
    * @returns the cell's value
    */
-  getDataCell(row: RowIndex, col: string | number) {
+  getDataCell(row: RowIndex, col: string) {
     const { header } = this.config;
     if (header.numeration && col === '#') return row;
     return this.dataset[row][col];
@@ -302,11 +302,10 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    * @param col the column
    * @returns the column's text width
    */
-  private getColumnWidth(col: string | number) {
+  private getColumnWidth(col: string) {
     const { header } = this.config;
-    const colName = isNumber(col) ? this.columnNames[col] : col;
-    if (isNumber(header.maxWidth)) return Math.min(this.columnWidths.get(colName), header.maxWidth);
-    return this.columnWidths.get(colName);
+    if (isNumber(header.maxWidth)) return Math.min(this.columnWidths.get(col), header.maxWidth);
+    return this.columnWidths.get(col);
   }
 
   /**
@@ -492,7 +491,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    * @param col the cell's column
    * @returns the empty cell content
    */
-  private buildEmptyCellContent(col: string | number) {
+  private buildEmptyCellContent(col: string) {
     const { padding } = this.config;
     return this.buildCellContent(
       padding.size,
@@ -634,19 +633,23 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
 
     switch (align) {
       case 'CENTER':
-        const toFill = this.getColumnWidth(col) - displayName.length;
-        const lrPadding = Math.floor(toFill / 2) + padding.size;
-        content = this.buildCellContent(lrPadding, displayName, lrPadding + (toFill % 2 ? 1 : 0));
+        const paddingSize = this.getColumnWidth(col) - displayName.length;
+        const paddingLR = Math.floor(paddingSize / 2) + padding.size;
+        content = this.buildCellContent(
+          paddingLR,
+          displayName,
+          paddingLR + (paddingSize % 2 ? 1 : 0)
+        );
         break;
 
       case 'RIGHT':
-        const lPadding = this.calculateHeaderCellPadding(col);
-        content = this.buildCellContent(lPadding, displayName, padding.size);
+        const paddingL = this.calculateHeaderCellPadding(col);
+        content = this.buildCellContent(paddingL, displayName, padding.size);
         break;
 
       default:
-        const rPadding = this.calculateHeaderCellPadding(col);
-        content = this.buildCellContent(padding.size, displayName, rPadding);
+        const paddingR = this.calculateHeaderCellPadding(col);
+        content = this.buildCellContent(padding.size, displayName, paddingR);
     }
 
     return this.formatHeaderCellContent(col, content);
@@ -772,19 +775,19 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
     // Set cell content with according padding
     switch (align) {
       case 'CENTER':
-        const toFill = this.getColumnWidth(col) - cellText.length;
-        const lrPadding = Math.floor(toFill / 2) + padding.size;
-        content = this.buildCellContent(lrPadding, cellText, lrPadding + (toFill % 2 ? 1 : 0));
+        const paddingSize = this.getColumnWidth(col) - cellText.length;
+        const paddingLR = Math.floor(paddingSize / 2) + padding.size;
+        content = this.buildCellContent(paddingLR, cellText, paddingLR + (paddingSize % 2 ? 1 : 0));
         break;
 
       case 'RIGHT':
-        const lPadding = this.calculateBodyCellPadding(row, col);
-        content = this.buildCellContent(lPadding, cellText, padding.size);
+        const paddingL = this.calculateBodyCellPadding(row, col);
+        content = this.buildCellContent(paddingL, cellText, padding.size);
         break;
 
       default:
-        const rPadding = this.calculateBodyCellPadding(row, col);
-        content = this.buildCellContent(padding.size, cellText, rPadding);
+        const paddingR = this.calculateBodyCellPadding(row, col);
+        content = this.buildCellContent(padding.size, cellText, paddingR);
     }
 
     return [this.formatBodyCellContent(row, col, content), overflow];
@@ -885,12 +888,12 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
       else {
         switch (align) {
           case 'CENTER':
-            const toFill = colWidth - text.length;
-            const lrPadding = Math.floor(toFill / 2) + padding.size;
+            const paddingSize = colWidth - text.length;
+            const paddingLR = Math.floor(paddingSize / 2) + padding.size;
             content += this.formatBodyCellContent(
               row,
               colName,
-              this.buildCellContent(lrPadding, text, lrPadding + (toFill % 2 ? 1 : 0))
+              this.buildCellContent(paddingLR, text, paddingLR + (paddingSize % 2 ? 1 : 0))
             );
             break;
 
@@ -922,13 +925,63 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
   }
 
   /**
+   * Builds the peek row.
+   * The placeholder row for the hidden rows if the `peek` config is set.
+   *
+   * @returns the peek row
+   */
+  private buildBodyPeekRow() {
+    const { border } = this.config;
+    const { horizontal, vertical } = border;
+
+    const res: [string, string, string, string] = [
+      border.vertical,
+      '',
+      border.vertical,
+      this.buildBodyRowHorizontalBorder(1)
+    ];
+
+    const separatorLen = Math.floor(0.75 * this.tableWidth);
+    const paddingSize = this.tableWidth - separatorLen - 2 * vertical.length;
+    const paddingLR = Math.floor(paddingSize / 2);
+
+    res[1] =
+      this.getPadding(paddingLR) +
+      '<' +
+      (horizontal || '-').repeat(separatorLen - 2) +
+      '>' +
+      this.getPadding(paddingLR + (paddingSize % 2 ? 1 : 0));
+
+    return res.join('');
+  }
+
+  /**
    * Builds the body.
    *
    * @returns the body content
    */
   private buildBody() {
     const { body } = this.config;
-    const rows: string[] = this.dataset.map((_, i) => this.buildBodyRow(i));
+    const { peek } = body;
+
+    let rows: string[] = [];
+
+    // Peek
+    if (
+      (Array.isArray(peek) && peek[0] + peek[1] < this.dataset.length) ||
+      (peek > 0 && peek < this.dataset.length / 2)
+    ) {
+      const [lowerTo, upperFrom] = Array.isArray(peek)
+        ? [peek[0], this.dataset.length - peek[1]]
+        : [peek, this.dataset.length - peek];
+
+      for (let i = 0; i < lowerTo; i++) rows.push(this.buildBodyRow(i)); // Top
+      if (upperFrom < this.dataset.length && lowerTo > 0) rows.push(this.buildBodyPeekRow()); // Peek placeholder
+      for (let i = upperFrom; i < this.dataset.length; i++) rows.push(this.buildBodyRow(i)); // Bottom
+    } else {
+      // No peek
+      rows = this.dataset.map((_, i) => this.buildBodyRow(i));
+    }
 
     // Row of accumulation results
     if (Object.keys(body.accumulation.columns).length)
