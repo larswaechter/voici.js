@@ -29,15 +29,4 @@ describe('Table', () => {
 
     assert.strictEqual(cell, 'spidy@dummynet.com');
   });
-
-  it('Remove Row', () => {
-    const table = new voici.Table(defaultData);
-    table.removeRow(2);
-
-    const result = readFileSync(__dirname + '/remove_row.txt', {
-      encoding: 'utf-8'
-    });
-
-    assert.strictEqual(table.toPlainString(), result);
-  });
 });

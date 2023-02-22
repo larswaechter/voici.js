@@ -6,6 +6,22 @@ import isNumber from 'lodash/isNumber';
 import isPlainObject from 'lodash/isPlainObject';
 
 /**
+ * Extract the types of the according attributes.
+ */
+export type AttributesTypes<T extends object, Key extends keyof T = keyof T> = T[Key];
+
+/**
+ * Convert an union to array union.
+ *
+ * @example
+ * ```ts
+ * UnionToArray<string | number> // Array<string> | Array<number>
+ * ```
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type UnionToArray<T> = T extends any ? T[] : never;
+
+/**
  * Converts the given value to a string.
  *
  * @param value the value to stringify

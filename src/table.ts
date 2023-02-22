@@ -7,14 +7,15 @@ import isFunction from 'lodash/isFunction';
 import chalk, { Chalk } from 'chalk';
 import { openSync, writeFileSync, OpenMode } from 'fs';
 
-import { arrayIncludes, stringify } from './helper';
 import { calculateAccumulation } from './accumulation';
+import { arrayIncludes, stringify } from './helper';
 import {
   Config,
   InferAttributes,
   mergeDefaultConfig,
   mergePlainConfig,
-  InferDynamicAttribute
+  InferDynamicAttribute,
+  ExtendedRow
 } from './config';
 
 /** borderLeft?, paddingLeft, text, paddingRight, borderRight? */
@@ -45,7 +46,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
   /**
    * The dataset.
    */
-  private _dataset: TRow[];
+  private _dataset: ExtendedRow<TRow, TDColumns>[];
 
   /**
    * The table config.
@@ -56,12 +57,6 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    * The row containing the accumulated data.
    */
   private accumulatedRow: AccumulationRow<TRow, TDColumns>;
-
-  /**
-   * The dynamic columns' data.
-   * A dynamic column is a custom column whose values are based on a provided function.
-   */
-  private dynamicColumns: Map<InferDynamicAttribute<TDColumns>, unknown[]> = new Map();
 
   /**
    * The column names.
@@ -92,14 +87,14 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    */
   constructor(dataset: TRow[], config: Config<TRow, TDColumns> = {}) {
     this._config = mergeDefaultConfig(config);
-    this.dataset = dataset;
+    this.dataset = this.buildDataset(dataset);
   }
 
   public get dataset() {
     return this._dataset;
   }
 
-  private set dataset(dataset: TRow[]) {
+  private set dataset(dataset: ExtendedRow<TRow, TDColumns>[]) {
     const { body } = this._config;
     const { subset } = body;
 
@@ -132,25 +127,6 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
     const { header } = this.config;
     if (header.numeration && col === '#') return row;
     return this.dataset[row][col];
-  }
-
-  /**
-   * Appends the given row to the dataset.
-   *
-   * @param row the row to append
-   */
-  appendRow(row: TRow) {
-    this.dataset.push(row);
-  }
-
-  /**
-   * Removes the given row from the dataset.
-   *
-   * @param row the row to remove
-   */
-  removeRow(row: RowIndex) {
-    this.touched = true;
-    this.dataset.splice(row, 1);
   }
 
   /**
@@ -214,6 +190,28 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
     writeFileSync(fd, this.toPlainString(), {
       encoding: 'utf-8'
     });
+  }
+
+  /**
+   * Merges the user dataset with the dynamic columns.
+   *
+   * @param dataset
+   * @returns the new dataset
+   */
+  private buildDataset(dataset: TRow[]): ExtendedRow<TRow, TDColumns>[] {
+    const { header } = this.config;
+    const { dynamic } = header;
+
+    const dynamicColumnsNames = Object.keys(dynamic) as InferDynamicAttribute<TDColumns>[];
+
+    // Merges each row of the dataset with the dynamic columns.
+    return dataset.map((row, i) => ({
+      ...row,
+      ...dynamicColumnsNames.reduce(
+        (prev, val) => ({ ...prev, [val]: dynamic[val](row, i) }),
+        {} as ExtendedRow<TRow, TDColumns>
+      )
+    }));
   }
 
   /**
@@ -290,9 +288,6 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
         if (!arrayIncludes(exclude, col)) names.add(String(col));
       });
 
-    // Names of dynamic columns
-    for (const entry in header.dynamic) names.add(entry as string);
-
     this.columnNames = Array.from(names);
   }
 
@@ -331,10 +326,6 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
     const data = this.dataset.slice();
     const colNames = this.columnNames.slice();
 
-    // Add dynamic column names => use a Set for faster lookup
-    const dynamicColNames = new Set<string>(this.getDynamicColumnNames() as string[]);
-    colNames.push(...dynamicColNames.values());
-
     if (isNumber(header.width)) {
       // Fixed width
       for (const name of colNames) {
@@ -344,22 +335,16 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
       }
     } else {
       // Add accumulated row to dataset
-      if (Object.keys(this.accumulatedRow).length) data.push(this.accumulatedRow as TRow);
+      if (Object.keys(this.accumulatedRow).length)
+        data.push(this.accumulatedRow as ExtendedRow<TRow, TDColumns>); // TODO:
 
       // Initalize with column text length
       for (const name of colNames) widths.set(name, this.getColumnDisplayName(name).length);
 
       // Search longest string / value
       for (const col of colNames) {
-        // Dynamic column
-        if (dynamicColNames.has(col)) {
-          const values = this.dynamicColumns.get(col as InferDynamicAttribute<TDColumns>);
-          for (const val of values)
-            widths.set(col, Math.max(widths.get(col), this.parseCellText(val).length));
-        } else {
-          for (let iRow = 0; iRow < data.length; iRow++)
-            widths.set(col, Math.max(widths.get(col), this.parseCellText(data[iRow][col]).length));
-        }
+        for (let iRow = 0; iRow < data.length; iRow++)
+          widths.set(col, Math.max(widths.get(col), this.parseCellText(data[iRow][col]).length));
       }
 
       if (header.numeration) widths.set('#', String(this.dataset.length).length || 1);
@@ -380,48 +365,13 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
   }
 
   /**
-   * Gets the names of the dynamic columns.
-   *
-   * @returns the dynamic columns names.
-   */
-  private getDynamicColumnNames() {
-    return Object.keys(this.config.header.dynamic) as InferDynamicAttribute<TDColumns>[];
-  }
-
-  /**
-   * Calculates the values for each dynamic column.
-   *
-   * @returns the calculated values
-   */
-  private calculateDynamicColumns() {
-    const { header } = this.config;
-    const { dynamic } = header;
-
-    const names = Object.keys(dynamic) as InferDynamicAttribute<TDColumns>[];
-    const columns = new Map<InferDynamicAttribute<TDColumns>, unknown[]>();
-
-    for (const col of names) {
-      const calculatedData = this.dataset.map((row, i) => dynamic[col](row, i));
-      columns.set(col, calculatedData);
-    }
-
-    return columns;
-  }
-
-  /**
    * Gets the index of the given column.
    *
    * @param col the column's name
    * @returns the column's index
    */
   private getColumnIndex(col: string) {
-    const cols = this.columnNames;
-    const dynamics = this.getDynamicColumnNames();
-
-    let offset = 0;
-    if (dynamics.includes(col as InferDynamicAttribute<TDColumns>)) offset = cols.length;
-
-    return cols.findIndex((name) => name === col) + offset;
+    return this.columnNames.findIndex((name) => name === col);
   }
 
   /**
@@ -443,12 +393,9 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
     const { accumulation } = this.config.body;
     const { columns } = accumulation;
 
-    const names = Object.keys(columns) as InferDynamicAttribute<TDColumns>[];
+    const names = Object.keys(columns) as InferAttributes<TRow, TDColumns>[];
 
     if (!names.length) return {} as AccumulationRow<TRow, TDColumns>;
-
-    // Add dynamic column names => use a Set for faster lookup
-    const dynamicNames = new Set<InferDynamicAttribute<TDColumns>>(this.getDynamicColumnNames());
 
     // For each column store the values in an array
     const container = new Map<InferAttributes<TRow, TDColumns>, unknown[]>();
@@ -460,15 +407,13 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
     for (let iRow = 0; iRow < this.dataset.length; iRow++) {
       const row = this.dataset[iRow];
       for (const col of names) {
-        if (dynamicNames.has(col)) container.get(col).push(this.dynamicColumns.get(col)[iRow]);
-        else container.get(col).push(row[col as string]);
+        container.get(col).push(row[col as string]);
       }
     }
 
     // Calculate acc value for each column
     const results: AccumulationRow<TRow, TDColumns> = {} as AccumulationRow<TRow, TDColumns>;
-    for (const col of names)
-      results[col] = calculateAccumulation(container.get(col), columns[col as string]);
+    for (const col of names) results[col] = calculateAccumulation(container.get(col), columns[col]);
 
     return results;
   }
@@ -524,12 +469,6 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
 
     if (isAccumulatedRowIndex(row)) text = this.parseCellText(this.accumulatedRow[col]);
     else if (col === '#') text = this.parseCellText(row);
-    else if (
-      Array.from(this.dynamicColumns.keys()).includes(col as InferDynamicAttribute<TDColumns>)
-    )
-      text = this.parseCellText(
-        this.dynamicColumns.get(col as InferDynamicAttribute<TDColumns>)[row]
-      );
     else text = this.parseCellText(this.getDataCell(row, col));
 
     text = text.trim();
@@ -764,7 +703,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    * @param col the cell's column
    * @returns the cell content
    */
-  private buildBodyCell(row: RowIndex, col: string) {
+  private buildBodyCell(row: RowIndex, col: string): [string, string] {
     const { align, padding } = this.config;
 
     let content: CellContent;
@@ -842,14 +781,18 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    * @returns the row content
    */
   private buildBodyRow(row: RowIndex) {
+    const { body } = this.config;
+
     let rowContent = '';
     let hasOverflow = false;
+
+    if (isFunction(body.filterRow) && !body.filterRow(this.dataset[row], row)) return '';
 
     // Overflowd text that did not fit in 1 single row
     const txtOverflow: string[] = [];
 
-    for (const name of this.columnNames) {
-      const [cell, overflow] = this.buildBodyCell(row, name);
+    for (const col of this.columnNames) {
+      const [cell, overflow] = this.buildBodyCell(row, col);
       rowContent += cell;
       txtOverflow.push(overflow);
       if (overflow.length) hasOverflow = true;
@@ -987,7 +930,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
     if (Object.keys(body.accumulation.columns).length)
       rows.push(this.buildRowSeparator(body.accumulation.separator), this.buildBodyRow(-1));
 
-    return rows.join('\n');
+    return rows.filter((row) => row.length).join('\n');
   }
 
   /**
@@ -999,7 +942,6 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
   private build(force: boolean = false) {
     if (this.touched || force) {
       this.buildColumnNames();
-      this.dynamicColumns = this.calculateDynamicColumns();
       this.accumulatedRow = this.calculateAccumulation();
       this.calculateColumnWidths();
       if (this.config.sort.columns.length) this.sort();

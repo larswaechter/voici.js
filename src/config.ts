@@ -39,6 +39,13 @@ export type DynamicColumn<TRow extends Row, TDColumns extends object> = {
   [Key in keyof TDColumns]: (row: TRow, index: number) => TDColumns[keyof TDColumns];
 };
 
+/**
+ * A extended row is a row that combines the values of a `dataset` and a `dynamicColumns` row.
+ */
+export type ExtendedRow<TRow extends Row, TDColumns extends object> = [TDColumns] extends [never]
+  ? { [Key in keyof TRow]: TRow[Key] }
+  : { [Key in keyof (TRow & TDColumns)]: (TRow & TDColumns)[Key] };
+
 export type Config<TRow extends Row, TDColumns extends object = never> = Partial<{
   align: 'LEFT' | 'CENTER' | 'RIGHT';
   bgColorColumns: string[];
@@ -50,13 +57,14 @@ export type Config<TRow extends Row, TDColumns extends object = never> = Partial
       separator: string;
     }>;
     bgColor: string;
+    filterRow: (row: ExtendedRow<TRow, TDColumns>, index: number) => boolean;
     highlightCell: Partial<{
       func: (content: unknown, row: number, col: InferAttributes<TRow, TDColumns>) => boolean;
       textColor: string;
     }>;
     highlightRow: Partial<{
       bgColor: string;
-      func: (row: unknown, index: number) => boolean;
+      func: (row: ExtendedRow<TRow, TDColumns>, index: number) => boolean;
     }>;
     precision: number;
     striped: boolean;
@@ -90,7 +98,7 @@ export type Config<TRow extends Row, TDColumns extends object = never> = Partial
     width: number | 'auto' | 'stretch';
     maxWidth: number | 'auto';
   }>;
-  sort: Sort<InferRowAttributes<TRow>>;
+  sort: Sort<InferAttributes<TRow, TDColumns>>;
   padding: Partial<{
     char: string;
     size: number;
@@ -118,6 +126,7 @@ export const mergeDefaultConfig = <TRow extends Row, TDColumns extends object>(
           separator: '-'
         },
         bgColor: '',
+        filterRow: null,
         highlightCell: {
           func: null,
           textColor: '#FFBA08'
