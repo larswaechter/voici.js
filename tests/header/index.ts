@@ -63,30 +63,30 @@ describe('Header', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
-  it('Include Numeration', () => {
+  it('Include Origin', () => {
     const table = new voici.Table(defaultData, {
       header: {
         include: ['id', 'lastname', 'gender'],
-        numeration: true
+        origin: true
       }
     });
 
-    const result = readFileSync(__dirname + '/include_exclude_numeration.txt', {
+    const result = readFileSync(__dirname + '/include_exclude_origin.txt', {
       encoding: 'utf-8'
     });
 
     assert.strictEqual(table.toPlainString(), result);
   });
 
-  it('Exclude Numeration', () => {
+  it('Exclude Origin', () => {
     const table = new voici.Table(defaultData, {
       header: {
         exclude: ['firstname', 'email', 'birthdate'],
-        numeration: true
+        origin: true
       }
     });
 
-    const result = readFileSync(__dirname + '/include_exclude_numeration.txt', {
+    const result = readFileSync(__dirname + '/include_exclude_origin.txt', {
       encoding: 'utf-8'
     });
 
@@ -149,14 +149,14 @@ describe('Header', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
-  it('Numeration', () => {
+  it('Origin', () => {
     const table = new voici.Table(defaultData, {
       header: {
-        numeration: true
+        origin: true
       }
     });
 
-    const result = readFileSync(__dirname + '/numeration.txt', {
+    const result = readFileSync(__dirname + '/origin.txt', {
       encoding: 'utf-8'
     });
 

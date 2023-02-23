@@ -11,7 +11,7 @@
   "scripts": {
     "build": "rm -rf ./dist && tsc",
     "test": "npm run build && npm run test:run",
-    "test:run": "NODE_ENV=test mocha -r ts-node/register",
+    "test:run": "NODE_ENV=test nyc mocha -r ts-node/register",
     "docs": "typedoc",
     "prettier": "prettier --config ./.prettierrc --write ./src/**/*.ts",
     "prettier:check": "prettier --config ./.prettierrc --check ./src/**/*.ts",
@@ -51,6 +51,7 @@
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.5.0",
     "mocha": "^9.2.1",
+    "nyc": "^15.1.0",
     "prettier": "^2.5.1",
     "ts-node": "^10.7.0",
     "typedoc": "^0.22.12",

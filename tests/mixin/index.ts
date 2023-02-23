@@ -124,4 +124,15 @@ describe('Mixin', () => {
 
     assert.strictEqual(table.toPlainString(), result);
   });
+
+  it('Sort Exception', () => {
+    const table = new voici.Table(defaultData, {
+      sort: {
+        columns: ['gender', 'id'],
+        directions: ['asc']
+      }
+    });
+
+    assert.throws(table.toPlainString);
+  });
 });
