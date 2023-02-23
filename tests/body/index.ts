@@ -1,11 +1,49 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import 'mocha';
 import assert from 'assert';
 import { readFileSync } from 'fs';
 
 import * as voici from '../../dist/index';
-import { arrData } from '../data';
+import { arrData, defaultData } from '../data';
 
 describe('Body', () => {
+  it('Filter row', () => {
+    const table = new voici.Table(defaultData, {
+      body: {
+        filterRow: (row) => row.gender === 'Male'
+      }
+    });
+
+    const result = readFileSync(__dirname + '/filter_row.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Filter dynamic row', () => {
+    interface IDummy {
+      fullname: string;
+    }
+
+    const table = new voici.Table<(typeof defaultData)[number], IDummy>(defaultData, {
+      header: {
+        dynamic: {
+          fullname: (row) => row.firstname + ' ' + row.lastname
+        }
+      },
+      body: {
+        filterRow: (row) => row.fullname === 'Lois Lane'
+      }
+    });
+
+    const result = readFileSync(__dirname + '/filter_dynamic_row.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('Precision', () => {
     const data = [
       [0.1, 0.435342, -12.4114],

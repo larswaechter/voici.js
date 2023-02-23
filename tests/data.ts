@@ -62,7 +62,9 @@ export const defaultData: Nullable<IDefaultData>[] = [
   }
 ];
 
-export const arrData = [
+export type TArrData = [number, string, string, string, string, Date];
+
+export const arrData: TArrData[] = [
   [1, 'John', 'Doe', 'johndoe@gmail.com', 'Male', new Date(1997, 7, 28)],
   [45, 'Hermine', 'Granger', 'hermine@gryffindor.com', 'Female', new Date(1991, 5, 12)],
   [421, 'Max', 'Mustermann', 'mamu@stermann.com', 'Male', new Date(2004, 10, 15)],

@@ -159,6 +159,27 @@ describe('Body Accumulation', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('MEDIAN odd', () => {
+    const data = [[2], [4], [1], [3], [5]];
+
+    const table = new voici.Table(data, {
+      body: {
+        accumulation: {
+          separator: '=',
+          columns: {
+            0: voici.AccumulationFunction.MEDIAN
+          }
+        }
+      }
+    });
+
+    const result = readFileSync(__dirname + '/median_odd.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('MIN', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
