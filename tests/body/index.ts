@@ -7,6 +7,32 @@ import * as voici from '../../dist/index';
 import { arrData, defaultData } from '../data';
 
 describe('Body', () => {
+  it('Fill empty', () => {
+    const data = [
+      { firstname: 'Jane', lastname: 'Doe', gender: 'Female', age: 28, friends: ['John'] },
+      { firstname: 'John', lastname: 'Doe', gender: 'Male', age: 26, friends: [] },
+      { firstname: 'Subject', lastname: 'A', gender: '', age: NaN, friends: [] },
+      { firstname: 'Subject', lastname: 'B', gender: NaN, friends: [] },
+      { firstname: 'Subject', lastname: 'C', gender: NaN, friends: [] }
+    ];
+
+    const table = new voici.Table(data, {
+      body: {
+        fillEmpty: {
+          gender: () => 'none',
+          age: () => 99,
+          friends: () => ['Jane']
+        }
+      }
+    });
+
+    const result = readFileSync(__dirname + '/fill_empty.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('Filter row', () => {
     const table = new voici.Table(defaultData, {
       body: {

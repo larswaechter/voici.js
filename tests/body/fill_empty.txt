@@ -1,0 +1,7 @@
+  firstname    lastname    gender    age    friends   
+======================================================
+  Jane         Doe         Female    28     ["John"]  
+  John         Doe         Male      26     ["Jane"]  
+  Subject      A           none      99     ["Jane"]  
+  Subject      B           none      99     ["Jane"]  
+  Subject      C           none      99     ["Jane"]  

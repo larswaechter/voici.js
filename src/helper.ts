@@ -8,7 +8,7 @@ import isPlainObject from 'lodash/isPlainObject';
 /**
  * Extract the types of the according attributes.
  */
-export type AttributesTypes<T extends object, Key extends keyof T = keyof T> = T[Key];
+export type InferAttributesTypes<T extends object, Key extends keyof T = keyof T> = T[Key];
 
 /**
  * Convert an union to array union.
@@ -20,6 +20,23 @@ export type AttributesTypes<T extends object, Key extends keyof T = keyof T> = T
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type UnionToArray<T> = T extends any ? T[] : never;
+
+/**
+ * Checks whether the given value is empty.
+ *
+ * @param value the value to check
+ * @returns whether the value is empty
+ */
+export const isEmpty = (value: any) => {
+  if (value === undefined || value === null) return true;
+  if (typeof value === 'number' && isNaN(value)) return true;
+  if (isString(value) && !value.trim().length) return true;
+  if (isSet(value) && !value.size) return true;
+  if (isMap(value) && !value.size) return true;
+  if (typeof value === 'object' && !Object.keys(value).length) return true;
+
+  return false;
+};
 
 /**
  * Converts the given value to a string.
