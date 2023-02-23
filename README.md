@@ -12,17 +12,18 @@ A Node.js library for pretty printing your data on the terminal🎨
 
 ## 📍 Introduction
 
-voici.js (speak: [/vwasi/](https://dictionary.cambridge.org/dictionary/french-english/voici)) is an open source Node.js library written in TypeScript for beautifully displaying datasets in tabular form on the terminal including features like:
+voici.js (*speak*: [/vwasi/](https://dictionary.cambridge.org/dictionary/french-english/voici)) is an open source Node.js library written in TypeScript for beautifully displaying datasets in tabular form on the terminal, including features like:
 
-- Text / Column / Row styling
+- Text & column & row styling
+- Highlighting & filtering
+- Dynamic columns
 - Column sizing
 - Accumulation
-- Dynamic columns
-- Data import from .json / .csv
-- Table export to .png / .txt
+- Table export
+- Type System
 - Sorting
 
-Check out the [website](https://lars-waechter.gitbook.io/voici.js/).
+and many more! Check out the [website](https://lars-waechter.gitbook.io/voici.js/).
 
 ## 💻 Installation
 
