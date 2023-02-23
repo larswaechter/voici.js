@@ -7,7 +7,7 @@ import isFunction from 'lodash/isFunction';
 import chalk, { Chalk } from 'chalk';
 import { openSync, writeFileSync, OpenMode } from 'fs';
 
-import { arrayIncludes, stringify } from './helper';
+import { arrayIncludes, isEmpty, stringify } from './helper';
 import { calculateAccumulation } from './accumulation';
 import {
   Config,
@@ -128,7 +128,13 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    * @returns the cell's value
    */
   getDataCell(row: RowIndex, col: InferDatasetRowAttributesOrigin<TRow, TDColumns>) {
-    return this.dataset[row][col];
+    const { body } = this.config;
+    const { fillEmpty } = body;
+
+    const cell = this.dataset[row][col];
+    if (isFunction(fillEmpty[col]) && isEmpty(cell)) return fillEmpty[col](this.dataset[row], row);
+
+    return cell;
   }
 
   /**

@@ -35,7 +35,8 @@ export type InferAttributesOrigin<TRow extends Row, TDColumns extends object = n
   | TOriginColumn;
 
 /**
- * A dataset row is a row that combines the values of a `dataset` and a `dynamicColumns` row.
+ * A dataset row is a row that combines the values of a `dataset` row,
+ * `dynamicColumns` row and the {@link TOriginColumn}.
  */
 export type DatasetRow<TRow extends Row, TDColumns extends object> = [TDColumns] extends [never]
   ? { [Key in keyof TRow as InferRowAttributesOrigin<TRow>]: TRow[Key] } // No dynamic columns provided
@@ -66,12 +67,28 @@ export type Sort<TAttributes> = {
   directions: Array<'asc' | 'desc'>;
 };
 
-export type DynamicColumn<TRow extends Row, TDColumns extends object> = {
+/**
+ * A dynamic column can have an attribute of the according interface as key.
+ * The functions return value must match with the interface's attribute's type.
+ */
+export type DynamicColumnOption<TRow extends Row, TDColumns extends object> = {
   [Key in keyof TDColumns]: (row: TRow, index: number) => TDColumns[keyof TDColumns];
 };
 
-export type AccumulationRow<TRow extends object, TDColumns extends object> = {
-  [K in InferDatasetRowAttributesOrigin<TRow, TDColumns>]: unknown;
+/**
+ * A `FillEmpty` function can be applied to all dataset columns including dynamic ones.
+ * Only the origin column is omitted.
+ */
+export type FillEmptyOption<TRow extends Row> = {
+  [Key in keyof Omit<TRow, TOriginColumn>]: (row: TRow, index: number) => TRow[Key];
+};
+
+/**
+ * An accumulation can be applied to any column in the dataset.
+ * Including the dynamic and origin columns.
+ */
+export type AccumulationRow<TRow extends Row, TDColumns extends object> = {
+  [Key in InferDatasetRowAttributesOrigin<TRow, TDColumns>]: unknown;
 };
 
 export type Config<TRow extends Row, TDColumns extends object = never> = Partial<{
@@ -85,6 +102,7 @@ export type Config<TRow extends Row, TDColumns extends object = never> = Partial
       separator: string;
     }>;
     bgColor: string;
+    fillEmpty: Partial<FillEmptyOption<DatasetRow<TRow, TDColumns>>>;
     filterRow: (row: DatasetRow<TRow, TDColumns>, index: number) => boolean;
     highlightCell: Partial<{
       func: (content: unknown, row: number, col: InferAttributes<TRow, TDColumns>) => boolean;
@@ -110,7 +128,7 @@ export type Config<TRow extends Row, TDColumns extends object = never> = Partial
     bold: boolean;
     include: InferRowAttributes<TRow>[];
     exclude: InferRowAttributes<TRow>[];
-    dynamic: DynamicColumn<TRow, TDColumns>;
+    dynamic: DynamicColumnOption<TRow, TDColumns>;
     italic: boolean;
     displayNames: Partial<{
       [key in InferAttributesOrigin<TRow, TDColumns>]: string;
@@ -154,6 +172,7 @@ export const mergeDefaultConfig = <TRow extends Row, TDColumns extends object>(
           separator: '-'
         },
         bgColor: '',
+        fillEmpty: {},
         filterRow: null,
         highlightCell: {
           func: null,
