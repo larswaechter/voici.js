@@ -8,6 +8,27 @@ import * as voici from '../../dist/index';
 import { defaultData, arrData } from '../data';
 
 describe('Mixin', () => {
+  it('Stringify', () => {
+    assert.strictEqual(voici.stringify('abc'), 'abc');
+    assert.strictEqual(voici.stringify('123'), '123');
+    assert.strictEqual(voici.stringify(new Date(2020, 7, 31)), 'Mon Aug 31 2020');
+    assert.strictEqual(voici.stringify({ k1: 'a', k2: 'b' }), '{"k1":"a","k2":"b"}');
+    assert.strictEqual(voici.stringify(['abc', '123']), '["abc","123"]');
+    assert.strictEqual(voici.stringify(new Set(['abc', '123'])), '["abc","123"]');
+    assert.strictEqual(
+      voici.stringify(
+        new Map([
+          ['key1', 'abc'],
+          ['key2', '123']
+        ])
+      ),
+      '[["key1","abc"],["key2","123"]]'
+    );
+    assert.strictEqual(voici.stringify(NaN), '');
+    assert.strictEqual(voici.stringify(undefined), '');
+    assert.strictEqual(voici.stringify(null), '');
+  });
+
   it('Array dataset', () => {
     const table = new voici.Table(arrData);
 

@@ -27,6 +27,7 @@ export type UnionToArray<T> = T extends any ? T[] : never;
  * @param value the value to check
  * @returns whether the value is empty
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isEmpty = (value: any) => {
   if (value === undefined || value === null) return true;
   if (typeof value === 'number' && isNaN(value)) return true;
@@ -44,19 +45,21 @@ export const isEmpty = (value: any) => {
  * @param value the value to stringify
  * @returns the strinified value
  */
-export const stringify = (value: unknown) => {
+export const stringify = (value: unknown): string => {
+  if (value == undefined || value == null) return '';
+  if (typeof value === 'number' && isNaN(value)) return '';
   if (isString(value)) return value;
   if (isNumber(value)) return value.toString();
   if (isDate(value)) return value.toDateString();
   if (isPlainObject(value) || Array.isArray(value)) return JSON.stringify(value);
   if (isSet(value)) return JSON.stringify(Array.from(value.values()));
   if (isMap(value)) return JSON.stringify(Array.from(value.entries()));
-  if (value == undefined || value == null) return '';
   return String(value) || '';
 };
 
 /**
  * Counts the occurrences of each value.
+ * The values `null` and `undefined` are ignored.
  *
  * @param data  the dataset
  * @returns a `Map<Value, Occurrences>` map
