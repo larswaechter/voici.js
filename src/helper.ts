@@ -1,11 +1,43 @@
-import _ from 'lodash';
-import * as csv from 'fast-csv';
-import * as jstream from 'JSONStream';
-import { resolve as resolvePath } from 'path';
-import { createReadStream } from 'fs';
+import isSet from 'lodash/isSet';
+import isMap from 'lodash/isMap';
+import isDate from 'lodash/isDate';
+import isString from 'lodash/isString';
+import isNumber from 'lodash/isNumber';
+import isPlainObject from 'lodash/isPlainObject';
 
-import { Config } from './config';
-import { Row, Table } from './table';
+/**
+ * Extract the types of the according attributes.
+ */
+export type InferAttributesTypes<T extends object, Key extends keyof T = keyof T> = T[Key];
+
+/**
+ * Convert an union to array union.
+ *
+ * @example
+ * ```ts
+ * UnionToArray<string | number> // Array<string> | Array<number>
+ * ```
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type UnionToArray<T> = T extends any ? T[] : never;
+
+/**
+ * Checks whether the given value is empty.
+ *
+ * @param value the value to check
+ * @returns whether the value is empty
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const isEmpty = (value: any) => {
+  if (value === undefined || value === null) return true;
+  if (typeof value === 'number' && isNaN(value)) return true;
+  if (isString(value) && !value.trim().length) return true;
+  if (isSet(value) && !value.size) return true;
+  if (isMap(value) && !value.size) return true;
+  if (typeof value === 'object' && !Object.keys(value).length) return true;
+
+  return false;
+};
 
 /**
  * Converts the given value to a string.
@@ -13,19 +45,21 @@ import { Row, Table } from './table';
  * @param value the value to stringify
  * @returns the strinified value
  */
-export const stringify = (value: unknown) => {
-  if (_.isString(value)) return value;
-  if (_.isNumber(value)) return value.toString();
-  if (_.isDate(value)) return value.toDateString();
-  if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
-  if (_.isSet(value)) return JSON.stringify(Array.from(value.values()));
-  if (_.isMap(value)) return JSON.stringify(Array.from(value.entries()));
-  if (_.isUndefined(value) || _.isNull(value)) return '';
+export const stringify = (value: unknown): string => {
+  if (value == undefined || value == null) return '';
+  if (typeof value === 'number' && isNaN(value)) return '';
+  if (isString(value)) return value;
+  if (isNumber(value)) return value.toString();
+  if (isDate(value)) return value.toDateString();
+  if (isPlainObject(value) || Array.isArray(value)) return JSON.stringify(value);
+  if (isSet(value)) return JSON.stringify(Array.from(value.values()));
+  if (isMap(value)) return JSON.stringify(Array.from(value.entries()));
   return String(value) || '';
 };
 
 /**
  * Counts the occurrences of each value.
+ * The values `null` and `undefined` are ignored.
  *
  * @param data  the dataset
  * @returns a `Map<Value, Occurrences>` map
@@ -46,57 +80,15 @@ export const countOccurrences = (data: unknown[]) => {
 };
 
 /**
- * Creates a new `Table` instance from a .csv file stream.
+ * Checks whether given `array` contains the given `val`.
+ * There is NO strict comparison.
+ * Can be useful when working with numeric attributes and their string counterparts.
  *
- * @param path the .csv filepath
- * @param csvConfig the fast-csv config
- * @param tableConfig the table config
- * @returns a new `Table` instance
+ * @param array array to search in
+ * @param val value to search
+ * @returns whether `val` is included or not
  */
-export const fromCSV = <T extends unknown[] | object = Row>(
-  path: string,
-  csvConfig: csv.ParserOptionsArgs,
-  tableConfig: Config = {}
-): Promise<Table<T>> => {
-  return new Promise((resolve, reject) => {
-    const data: T[] = [];
-    createReadStream(resolvePath(path))
-      .pipe(csv.parse(csvConfig))
-      .on('error', (err) => {
-        reject(err);
-      })
-      .on('data', (row: T) => {
-        data.push(row);
-      })
-      .on('end', () => {
-        resolve(new Table<T>(data, tableConfig));
-      });
-  });
-};
-
-/**
- * Creates a new `Table` instance from a .json file stream.
- *
- * @param path the .json filepath
- * @param tableConfig the table config
- * @returns a new `Table` instance
- */
-export const fromJSON = <T extends unknown[] | object = Row>(
-  path: string,
-  tableConfig: Config = {}
-): Promise<Table<T>> => {
-  return new Promise((resolve, reject) => {
-    const data: T[] = [];
-    createReadStream(resolvePath(path))
-      .pipe(jstream.parse('*'))
-      .on('error', (err: Error) => {
-        reject(err);
-      })
-      .on('data', (row: T) => {
-        data.push(row);
-      })
-      .on('end', () => {
-        resolve(new Table(data, tableConfig));
-      });
-  });
+export const arrayIncludes = (array: string[] | number[], val: string | number) => {
+  for (const item of array) if (val == item) return true;
+  return false;
 };

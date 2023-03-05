@@ -1,55 +1,121 @@
 import _merge from 'lodash/merge';
+
+import { Row } from './table';
 import { Accumulation } from './accumulation';
 
-export type DynamicColumn = {
-  name: string;
-  func: (row: unknown, index: number) => unknown;
+/**
+ * Type of the origin column.
+ * The origin value is the index of the row in the original dataset.
+ */
+export type TOriginColumn = '#';
+
+/**
+ * Infers the attributes of a row.
+ * For arrays type `number` is used for indexing.
+ * Otherwise a included key of the row, like an interface's attribute.
+ */
+export type InferRowAttributes<TRow extends Row> = TRow extends unknown[] ? number : keyof TRow;
+export type InferRowAttributesOrigin<TRow extends Row> = InferRowAttributes<TRow> | TOriginColumn;
+
+/**
+ * Infers the attributes of a dynamic column or `never` if none provided.
+ */
+export type InferDynamicAttributes<TDColumns extends object> = [TDColumns] extends [never]
+  ? never
+  : keyof TDColumns;
+
+/**
+ * Infers the attributes of a row including the dynamic and origin columns.
+ */
+export type InferAttributes<TRow extends Row, TDColumns extends object = never> =
+  | InferRowAttributes<TRow>
+  | InferDynamicAttributes<TDColumns>;
+export type InferAttributesOrigin<TRow extends Row, TDColumns extends object = never> =
+  | InferAttributes<TRow, TDColumns>
+  | TOriginColumn;
+
+/**
+ * A dataset row is a row that combines the values of a `dataset` row,
+ * `dynamicColumns` row and the {@link TOriginColumn}.
+ */
+export type DatasetRow<TRow extends Row, TDColumns extends object> = [TDColumns] extends [never]
+  ? { [Key in keyof TRow as InferRowAttributesOrigin<TRow>]: TRow[Key] } // No dynamic columns provided
+  : {
+      [Key in keyof (TRow & TDColumns) as InferAttributesOrigin<TRow, TDColumns>]: (TRow &
+        TDColumns)[Key];
+    }; // Dynamic columns provided
+
+/**
+ * Infers the keys of a {@link DatasetRow}.
+ */
+export type InferDatasetRowAttributes<
+  TRow extends Row,
+  TDColumns extends object
+> = keyof DatasetRow<TRow, TDColumns>;
+
+/**
+ * Infers the keys of a {@link DatasetRow} including the {@link TOriginColumn}.
+ */
+export type InferDatasetRowAttributesOrigin<TRow extends Row, TDColumns extends object> =
+  | InferDatasetRowAttributes<TRow, TDColumns>
+  | TOriginColumn;
+
+// <===== Config specific =====>
+
+export type Sort<TAttributes> = {
+  columns: TAttributes[];
+  directions: Array<'asc' | 'desc'>;
 };
 
-export type Sort = {
-  columns: string[];
-  directions: Array<'asc'> | Array<'desc'>;
+/**
+ * A dynamic column can have an attribute of the according interface as key.
+ * The functions return value must match with the interface's attribute's type.
+ */
+export type DynamicColumnOption<TRow extends Row, TDColumns extends object> = {
+  [Key in keyof TDColumns]: (row: TRow, index: number) => TDColumns[keyof TDColumns];
 };
 
-export type ImageExportConfig = Partial<{
-  backgroundColor: string;
-  color: string;
-  font: string;
-  padding: number;
-}>;
+/**
+ * A `FillEmpty` function can be applied to all dataset columns including dynamic ones.
+ * Only the origin column is omitted.
+ */
+export type FillEmptyOption<TRow extends Row> = {
+  [Key in keyof Omit<TRow, TOriginColumn>]: (row: TRow, index: number) => TRow[Key];
+};
 
-export const mergeImageExportConfig = (config: ImageExportConfig): Required<ImageExportConfig> =>
-  _merge(
-    {
-      backgroundColor: 'black',
-      color: 'white',
-      font: '16px Consolas',
-      padding: 4
-    },
-    config
-  );
+/**
+ * An accumulation can be applied to any column in the dataset.
+ * Including the dynamic and origin columns.
+ */
+export type AccumulationRow<TRow extends Row, TDColumns extends object> = {
+  [Key in InferDatasetRowAttributesOrigin<TRow, TDColumns>]: unknown;
+};
 
-export type Config = Partial<{
+export type Config<TRow extends Row, TDColumns extends object = never> = Partial<{
   align: 'LEFT' | 'CENTER' | 'RIGHT';
   bgColorColumns: string[];
   body: Partial<{
+    subset: [number?, number?];
     accumulation: Partial<{
       bgColor: string;
-      columns: Accumulation[];
+      columns: Partial<Accumulation<TRow, TDColumns>>;
       separator: string;
     }>;
     bgColor: string;
+    fillEmpty: Partial<FillEmptyOption<DatasetRow<TRow, TDColumns>>>;
+    filterRow: (row: DatasetRow<TRow, TDColumns>, index: number) => boolean;
     highlightCell: Partial<{
-      func: (content: unknown, row: number, col: string | number) => boolean;
+      func: (content: unknown, row: number, col: InferAttributes<TRow, TDColumns>) => boolean;
       textColor: string;
     }>;
     highlightRow: Partial<{
       bgColor: string;
-      func: (row: unknown, index: number) => boolean;
+      func: (row: DatasetRow<TRow, TDColumns>, index: number) => boolean;
     }>;
     precision: number;
     striped: boolean;
     textColor: string;
+    peek: number | [number, number];
   }>;
   border: Partial<{
     color: string;
@@ -60,14 +126,15 @@ export type Config = Partial<{
   header: Partial<{
     bgColor: string;
     bold: boolean;
-    columns: string[];
-    dynamic: DynamicColumn[];
+    include: InferRowAttributes<TRow>[];
+    exclude: InferRowAttributes<TRow>[];
+    dynamic: DynamicColumnOption<TRow, TDColumns>;
     italic: boolean;
-    names: {
-      [key: string]: string;
-    };
-    numeration: boolean;
-    order: string[] | number[];
+    displayNames: Partial<{
+      [key in InferAttributesOrigin<TRow, TDColumns>]: string;
+    }>;
+    origin: boolean;
+    order: InferAttributesOrigin<TRow, TDColumns>[];
     separator: string;
     textColor: string;
     underline: boolean;
@@ -77,7 +144,7 @@ export type Config = Partial<{
     width: number | 'auto' | 'stretch';
     maxWidth: number | 'auto';
   }>;
-  sort: Sort;
+  sort: Sort<InferAttributesOrigin<TRow, TDColumns>>;
   padding: Partial<{
     char: string;
     size: number;
@@ -90,18 +157,23 @@ export type Config = Partial<{
  * @param config the config
  * @returns the merged config
  */
-export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
+export const mergeDefaultConfig = <TRow extends Row, TDColumns extends object>(
+  config: Partial<Config<TRow, TDColumns>>
+): Required<Config<TRow, TDColumns>> =>
   _merge(
     {
       align: 'LEFT',
       bgColorColumns: [],
       body: {
+        subset: [],
         accumulation: {
           bgColor: '',
-          columns: [],
+          columns: {},
           separator: '-'
         },
         bgColor: '',
+        fillEmpty: {},
+        filterRow: null,
         highlightCell: {
           func: null,
           textColor: '#FFBA08'
@@ -112,7 +184,8 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
         },
         precision: 3,
         striped: false,
-        textColor: ''
+        textColor: '',
+        peek: 0
       },
       border: {
         color: '',
@@ -123,11 +196,12 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
       header: {
         bgColor: '',
         bold: false,
-        columns: [],
-        dynamic: [],
+        include: [],
+        exclude: [],
+        dynamic: {},
         italic: false,
-        names: {},
-        numeration: false,
+        displayNames: {},
+        origin: false,
         order: [],
         separator: '=',
         textColor: '',
@@ -157,7 +231,9 @@ export const mergeDefaultConfig = (config: Partial<Config>): Required<Config> =>
  * @param config the config
  * @returns the merged config
  */
-export const mergePlainConfig = (config: Required<Config>): Required<Config> =>
+export const mergePlainConfig = <TRow extends Row, TDColumns extends object>(
+  config: Required<Config<TRow, TDColumns>>
+): Required<Config<TRow, TDColumns>> =>
   _merge(config, {
     bgColorColumns: [],
     body: {

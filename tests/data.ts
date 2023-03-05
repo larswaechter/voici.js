@@ -1,4 +1,17 @@
-export const defaultData = [
+export type Nullable<T> = {
+  [K in keyof T]: T[K] | null;
+};
+
+export interface IDefaultData {
+  id: number;
+  firstname: string;
+  lastname: string;
+  email: string;
+  gender: string;
+  birthdate: Date;
+}
+
+export const defaultData: Nullable<IDefaultData>[] = [
   {
     id: 1,
     firstname: 'John',
@@ -49,7 +62,9 @@ export const defaultData = [
   }
 ];
 
-export const arrData = [
+export type TArrData = [number, string, string, string, string, Date];
+
+export const arrData: TArrData[] = [
   [1, 'John', 'Doe', 'johndoe@gmail.com', 'Male', new Date(1997, 7, 28)],
   [45, 'Hermine', 'Granger', 'hermine@gryffindor.com', 'Female', new Date(1991, 5, 12)],
   [421, 'Max', 'Mustermann', 'mamu@stermann.com', 'Male', new Date(2004, 10, 15)],

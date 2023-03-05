@@ -6,18 +6,15 @@ import * as voici from '../../../dist/index';
 
 import { arrDataNumbers } from '../../data';
 
-describe('Accumulation', () => {
+describe('Body Accumulation', () => {
   it('COUNT', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.COUNT
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.COUNT
+          }
         }
       }
     });
@@ -34,12 +31,9 @@ describe('Accumulation', () => {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.FREQ
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.FREQ
+          }
         }
       }
     });
@@ -56,12 +50,9 @@ describe('Accumulation', () => {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.GEO_MEAN
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.GEO_MEAN
+          }
         }
       }
     });
@@ -78,12 +69,9 @@ describe('Accumulation', () => {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.HARM_MEAN
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.HARM_MEAN
+          }
         }
       }
     });
@@ -100,12 +88,9 @@ describe('Accumulation', () => {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.INFREQ
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.INFREQ
+          }
         }
       }
     });
@@ -122,12 +107,9 @@ describe('Accumulation', () => {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.MAX
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.MAX
+          }
         }
       }
     });
@@ -144,12 +126,9 @@ describe('Accumulation', () => {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.MEAN
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.MEAN
+          }
         }
       }
     });
@@ -166,12 +145,9 @@ describe('Accumulation', () => {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.MEDIAN
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.MEDIAN
+          }
         }
       }
     });
@@ -183,17 +159,35 @@ describe('Accumulation', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('MEDIAN odd', () => {
+    const data = [[2], [4], [1], [3], [5]];
+
+    const table = new voici.Table(data, {
+      body: {
+        accumulation: {
+          separator: '=',
+          columns: {
+            0: voici.AccumulationFunction.MEDIAN
+          }
+        }
+      }
+    });
+
+    const result = readFileSync(__dirname + '/median_odd.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
   it('MIN', () => {
     const table = new voici.Table(arrDataNumbers, {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.MIN
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.MIN
+          }
         }
       }
     });
@@ -210,16 +204,10 @@ describe('Accumulation', () => {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.MAX
-            },
-            {
-              column: 1,
-              func: voici.AccumulationFunction.MIN
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.MAX,
+            1: voici.AccumulationFunction.MIN
+          }
         }
       }
     });
@@ -236,12 +224,9 @@ describe('Accumulation', () => {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.RANGE
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.RANGE
+          }
         }
       }
     });
@@ -258,12 +243,9 @@ describe('Accumulation', () => {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.STD
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.STD
+          }
         }
       }
     });
@@ -276,24 +258,25 @@ describe('Accumulation', () => {
   });
 
   it('SUM dynamic', () => {
-    const table = new voici.Table(arrDataNumbers, {
+    interface ITest {
+      Double: number;
+    }
+
+    const table = new voici.Table<(typeof arrDataNumbers)[number], ITest>(arrDataNumbers, {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.SUM
-            },
-            {
-              column: 'Double',
-              func: voici.AccumulationFunction.SUM
-            }
-          ]
+
+          columns: {
+            0: voici.AccumulationFunction.SUM,
+            Double: voici.AccumulationFunction.SUM
+          }
         }
       },
       header: {
-        dynamic: [{ name: 'Double', func: (row) => row[0] * 2 }]
+        dynamic: {
+          Double: (row) => (row[0] == null ? 0 : row[0]) * 2
+        }
       }
     });
 
@@ -309,12 +292,9 @@ describe('Accumulation', () => {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.SUM
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.SUM
+          }
         }
       }
     });
@@ -331,12 +311,9 @@ describe('Accumulation', () => {
       body: {
         accumulation: {
           separator: '=',
-          columns: [
-            {
-              column: 0,
-              func: voici.AccumulationFunction.VAR
-            }
-          ]
+          columns: {
+            0: voici.AccumulationFunction.VAR
+          }
         }
       }
     });
