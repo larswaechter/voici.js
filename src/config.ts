@@ -18,7 +18,7 @@ export type InferRowAttributes<TRow extends Row> = TRow extends unknown[] ? numb
 export type InferRowAttributesOrigin<TRow extends Row> = InferRowAttributes<TRow> | TOriginColumn;
 
 /**
- * Infers the attributes of a dynamic column or `never` if none provided.
+ * Infers the attributes of the dynamic columns or `never` if none provided.
  */
 export type InferDynamicAttributes<TDColumns extends object> = [TDColumns] extends [never]
   ? never
@@ -131,7 +131,7 @@ export type Config<TRow extends Row, TDColumns extends object = never> = Partial
     dynamic: DynamicColumnOption<TRow, TDColumns>;
     italic: boolean;
     displayNames: Partial<{
-      [key in InferAttributesOrigin<TRow, TDColumns>]: string;
+      [key in InferRowAttributesOrigin<TRow>]: string;
     }>;
     origin: boolean;
     order: InferAttributesOrigin<TRow, TDColumns>[];
