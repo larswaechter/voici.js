@@ -17,7 +17,8 @@ import {
   InferDynamicAttributes,
   DatasetRow,
   InferDatasetRowAttributesOrigin,
-  AccumulationRow
+  AccumulationRow,
+  InferRowAttributesOrigin
 } from './config';
 
 type CellContent = [
@@ -131,7 +132,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
     const { body } = this.config;
     const { fillEmpty } = body;
 
-    const cell = this.dataset[row][col];
+    const cell = row === -1 ? this.accumulatedRow[col] : this.dataset[row][col];
     if (isFunction(fillEmpty[col]) && isEmpty(cell)) return fillEmpty[col](this.dataset[row], row);
 
     return cell;
@@ -310,8 +311,6 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    * @returns the column's text width
    */
   private getColumnWidth(col: InferDatasetRowAttributesOrigin<TRow, TDColumns>) {
-    const { header } = this.config;
-    if (isNumber(header.maxWidth)) return Math.min(this.columnWidths.get(col), header.maxWidth);
     return this.columnWidths.get(col);
   }
 
@@ -321,12 +320,12 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    * @param col the column
    * @returns the column's display name `string`
    */
-  private getColumnDisplayName(col: InferDatasetRowAttributesOrigin<TRow, TDColumns>) {
+  private getColumnDisplayName(col: InferDatasetRowAttributesOrigin<TRow, TDColumns>): string {
     const { header } = this.config;
     const { displayNames } = header;
 
     return Object.prototype.hasOwnProperty.call(displayNames, col)
-      ? displayNames[col as InferAttributes<TRow, TDColumns>]
+      ? displayNames[col as InferRowAttributesOrigin<TRow>]
       : col.toString();
   }
 
@@ -355,14 +354,21 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
       if (Object.keys(this.accumulatedRow).length)
         data.push(this.accumulatedRow as DatasetRow<TRow, TDColumns>); // TODO:
 
-      // Initalize with column text length
-      for (const name of colNames) widths.set(name, this.getColumnDisplayName(name).length);
+      const maxWidth =
+        isNumber(header.maxWidth) && header.maxWidth > 0
+          ? +header.maxWidth
+          : Number.MAX_SAFE_INTEGER;
+
+      // Initalize with maxWidth / column text length
+      for (const name of colNames)
+        widths.set(name, Math.min(this.getColumnDisplayName(name).length, maxWidth));
 
       // Search longest string / value
       for (const col of colNames) {
         for (let iRow = 0; iRow < data.length; iRow++) {
-          const text = data[iRow][col];
-          widths.set(col, Math.max(widths.get(col), this.parseCellText(text).length));
+          const text = this.getDataCell(iRow === this.dataset.length ? -1 : iRow, col); // -1 => accumulated row
+          const textLen = Math.min(this.parseCellText(text).length, maxWidth);
+          widths.set(col, Math.max(widths.get(col), textLen));
         }
       }
 
