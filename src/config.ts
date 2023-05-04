@@ -105,8 +105,11 @@ export type Config<TRow extends Row, TDColumns extends object = never> = Partial
     fillEmpty: Partial<FillEmptyOption<DatasetRow<TRow, TDColumns>>>;
     filterRow: (row: DatasetRow<TRow, TDColumns>, index: number) => boolean;
     highlightCell: Partial<{
+      bold: boolean;
       func: (content: unknown, row: number, col: InferAttributes<TRow, TDColumns>) => boolean;
+      italic: boolean;
       textColor: string;
+      underline: boolean;
     }>;
     highlightRow: Partial<{
       bgColor: string;
@@ -175,8 +178,11 @@ export const mergeDefaultConfig = <TRow extends Row, TDColumns extends object>(
         fillEmpty: {},
         filterRow: null,
         highlightCell: {
+          bold: false,
           func: null,
-          textColor: '#FFBA08'
+          italic: false,
+          textColor: '#FFBA08',
+          underline: false
         },
         highlightRow: {
           bgColor: '#FFBA08',
