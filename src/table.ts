@@ -726,8 +726,12 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
             row,
             col as InferAttributes<TRow, TDColumns>
           )
-        )
+        ) {
           styled = styled.hex(highlightCell.textColor);
+          if (highlightCell.bold) styled = styled.bold;
+          if (highlightCell.italic) styled = styled.italic;
+          if (highlightCell.underline) styled = styled.underline;
+        }
       }
 
       cellContent += styled(text);
@@ -955,7 +959,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
     // Peek
     if (
       (Array.isArray(peek) && peek[0] + peek[1] < this.dataset.length) ||
-      (peek > 0 && peek < this.dataset.length / 2)
+      (isNumber(peek) && peek > 0 && peek < this.dataset.length / 2)
     ) {
       const [lowerTo, upperFrom] = Array.isArray(peek)
         ? [peek[0], this.dataset.length - peek[1]]
