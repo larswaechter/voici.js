@@ -273,6 +273,25 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
   }
 
   /**
+   * Calculates the width of the complete table.
+   * The table width is based on the width of the columns, the padding and the border.
+   *
+   * @returns the table width
+   */
+  private calculateTableWidth() {
+    const { padding, border } = this.config;
+    const numberOfCols = this.columnNames.length;
+
+    const borderLen = border.vertical.length ? border.vertical.length * (numberOfCols + 1) : 0;
+
+    return (
+      Array.from(this.columnWidths.values()).reduce((prev, val) => prev + val, 0) +
+      numberOfCols * padding.size * 2 +
+      borderLen
+    );
+  }
+
+  /**
    * Builds the column names from the dataset in the right order.
    * The result is stored in {@link Table.columnNames}.
    *
@@ -318,15 +337,23 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    * Gets the display name of the given column.
    *
    * @param col the column
+   * @param cropped whether the column name should be cropped or not.
    * @returns the column's display name `string`
    */
-  private getColumnDisplayName(col: InferDatasetRowAttributesOrigin<TRow, TDColumns>): string {
+  private getColumnDisplayName(
+    col: InferDatasetRowAttributesOrigin<TRow, TDColumns>,
+    cropped: boolean = false
+  ): string {
     const { header } = this.config;
     const { displayNames } = header;
 
-    return Object.prototype.hasOwnProperty.call(displayNames, col)
+    let name = Object.prototype.hasOwnProperty.call(displayNames, col)
       ? displayNames[col as InferRowAttributesOrigin<TRow>]
       : col.toString();
+
+    if (cropped) name = name.substring(0, this.getColumnWidth(col));
+
+    return name;
   }
 
   /**
@@ -342,13 +369,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
 
     if (isNumber(header.width)) {
       // Fixed width
-      for (const name of colNames) {
-        if (name.toString().length > header.width)
-          throw new Error(
-            `Column "${name.toString()}" is longer than max. column width (${header.width})`
-          );
-        widths.set(name, header.width);
-      }
+      for (const name of colNames) widths.set(name, header.width);
     } else {
       // Add accumulated row to dataset
       if (Object.keys(this.accumulatedRow).length)
@@ -507,6 +528,86 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
   }
 
   /**
+   * Builds the subsequent lines (overflow) of the given row.
+   * Set `row=0` for the header.
+   *
+   * @param row the initial row
+   * @param overflow the text overflow for each solumn
+   * @returns the subsequent lines
+   */
+  private buildRowOverflow(row: RowIndex, overflow: string[]) {
+    const { align, padding } = this.config;
+
+    let content = '\n';
+
+    // A overflowed row might have overflow as well (makes sense, right?)
+    let hasOverflow = false;
+
+    for (let i = 0; i < overflow.length; i++) {
+      const colName = this.columnNames[i];
+      const colWidth = this.getColumnWidth(colName);
+      const text = overflow[i].substring(0, colWidth);
+
+      if (!text.length)
+        content +=
+          row == 0
+            ? this.formatHeaderCellContent(colName, this.buildEmptyCellContent(colName))
+            : this.formatBodyCellContent(row, colName, this.buildEmptyCellContent(colName));
+      else {
+        switch (align) {
+          case 'CENTER':
+            const paddingSize = colWidth - text.length;
+            const paddingLR = Math.floor(paddingSize / 2) + padding.size;
+            const cellContentCenter = this.buildCellContent(
+              paddingLR,
+              text,
+              paddingLR + (paddingSize % 2 ? 1 : 0)
+            );
+
+            content +=
+              row == 0
+                ? this.formatHeaderCellContent(colName, cellContentCenter)
+                : this.formatBodyCellContent(row, colName, cellContentCenter);
+            break;
+
+          case 'RIGHT':
+            const cellContentRight = this.buildCellContent(
+              colWidth - text.length + padding.size,
+              text,
+              padding.size
+            );
+
+            content +=
+              row == 0
+                ? this.formatHeaderCellContent(colName, cellContentRight)
+                : this.formatBodyCellContent(row, colName, cellContentRight);
+            break;
+
+          default:
+            const cellContentLeft = this.buildCellContent(
+              padding.size,
+              text,
+              colWidth - text.length + padding.size
+            );
+
+            content +=
+              row == 0
+                ? this.formatHeaderCellContent(colName, cellContentLeft)
+                : this.formatBodyCellContent(row, colName, cellContentLeft);
+        }
+
+        // Cut overflow and check if there's more left
+        overflow[i] = overflow[i].substring(colWidth);
+        if (overflow[i].length) hasOverflow = true;
+      }
+    }
+
+    if (hasOverflow) content += this.buildRowOverflow(row, overflow);
+
+    return content;
+  }
+
+  /**
    * Calculates the header cell padding.
    * The padding is based on the column's width and its display name.
    *
@@ -515,7 +616,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    */
   private calculateHeaderCellPadding(col: InferDatasetRowAttributesOrigin<TRow, TDColumns>) {
     const { padding } = this.config;
-    return this.getColumnWidth(col) - this.getColumnDisplayName(col).length + padding.size;
+    return this.getColumnWidth(col) - this.getColumnDisplayName(col, true).length + padding.size;
   }
 
   /**
@@ -529,7 +630,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
   private formatHeaderCellContent(
     col: InferDatasetRowAttributesOrigin<TRow, TDColumns>,
     content: CellContent
-  ): [content: string, contentLen: number] {
+  ) {
     const { bgColorColumns, border, header } = this.config;
     const { bgColor, bold, italic, lowercase, textColor, underline, uppercase, upperfirst } =
       header;
@@ -554,7 +655,6 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
      */
 
     let cellContent = '';
-    let cellContentLen = 0;
 
     for (let i = 0; i < contentCopy.length; i++) {
       let text = contentCopy[i];
@@ -582,26 +682,26 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
         if (underline) styled = styled.underline;
       }
 
-      cellContentLen += text.length;
       cellContent += styled(text);
     }
 
-    return [cellContent, cellContentLen];
+    return cellContent;
   }
 
   /**
    * Builds the given header cell content.
    *
    * @param col the cell's column
-   * @returns the cell content and its length
+   * @returns the built cell content
    */
   private buildHeaderCell(
     col: InferDatasetRowAttributesOrigin<TRow, TDColumns>
-  ): [content: string, contentLen: number] {
+  ): [content: string, overflow: string] {
     const { align, padding } = this.config;
 
     let content: CellContent;
-    const displayName = this.getColumnDisplayName(col);
+    const displayName = this.getColumnDisplayName(col, true);
+    const overflow = this.getColumnDisplayName(col).substring(this.getColumnWidth(col)).trim();
 
     switch (align) {
       case 'CENTER':
@@ -624,29 +724,36 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
         content = this.buildCellContent(padding.size, displayName, paddingR);
     }
 
-    return this.formatHeaderCellContent(col, content);
+    return [this.formatHeaderCellContent(col, content), overflow];
   }
 
   /**
    * Builds the header.
    *
-   * @returns the header content
+   * @returns the built header
    */
   private buildHeader() {
     const { header } = this.config;
 
-    let content = '';
-    this.tableWidth = 0;
+    let rowContent = '';
+    let hasOverflow = false;
+
+    // Overflowed text that did not fit in 1 single row
+    const txtOverflow: string[] = [];
 
     for (const col of this.columnNames) {
-      const [cell, width] = this.buildHeaderCell(col);
-      content += cell;
-      this.tableWidth += width;
+      const [cell, overflow] = this.buildHeaderCell(col);
+      rowContent += cell;
+
+      txtOverflow.push(overflow);
+      if (overflow.length) hasOverflow = true;
     }
 
-    content += '\n' + this.buildRowSeparator(header.separator);
+    if (hasOverflow) rowContent += this.buildRowOverflow(0, txtOverflow);
 
-    return content;
+    rowContent += '\n' + this.buildRowSeparator(header.separator);
+
+    return rowContent;
   }
 
   /**
@@ -745,7 +852,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    *
    * @param row the cell's row
    * @param col the cell's column
-   * @returns the cell content
+   * @returns the built cell content
    */
   private buildBodyCell(
     row: RowIndex,
@@ -825,7 +932,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
    * Builds the given body row.
    *
    * @param row the row
-   * @returns the row content
+   * @returns the built row content
    */
   private buildBodyRow(row: RowIndex) {
     const { body } = this.config;
@@ -835,7 +942,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
 
     if (isFunction(body.filterRow) && !body.filterRow(this.dataset[row], row)) return '';
 
-    // Overflowd text that did not fit in 1 single row
+    // Overflowed text that did not fit in 1 single row
     const txtOverflow: string[] = [];
 
     for (const col of this.columnNames) {
@@ -845,73 +952,12 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
       if (overflow.length) hasOverflow = true;
     }
 
-    if (hasOverflow) rowContent += this.buildBodyRowOverflow(row, txtOverflow);
+    if (hasOverflow) rowContent += this.buildRowOverflow(row, txtOverflow);
 
     const formattedContent = this.formatBodyRowContent(row, rowContent);
     const hzBorder = this.buildBodyRowHorizontalBorder(row);
 
     return formattedContent + hzBorder;
-  }
-
-  /**
-   * Builds the subsequent lines (overflow) of the given row.
-   *
-   * @param row the initial row
-   * @param overflow the text overflow for each solumn
-   * @returns the subsequent lines
-   */
-  private buildBodyRowOverflow(row: RowIndex, overflow: string[]) {
-    const { align, padding } = this.config;
-
-    let content = '\n';
-
-    // A overflowed row might have overflow as well (makes sense, right?)
-    let hasOverflow = false;
-
-    for (let i = 0; i < overflow.length; i++) {
-      const colName = this.columnNames[i];
-      const colWidth = this.getColumnWidth(colName);
-      const text = overflow[i].substring(0, colWidth);
-
-      if (!text.length)
-        content += this.formatBodyCellContent(row, colName, this.buildEmptyCellContent(colName));
-      else {
-        switch (align) {
-          case 'CENTER':
-            const paddingSize = colWidth - text.length;
-            const paddingLR = Math.floor(paddingSize / 2) + padding.size;
-            content += this.formatBodyCellContent(
-              row,
-              colName,
-              this.buildCellContent(paddingLR, text, paddingLR + (paddingSize % 2 ? 1 : 0))
-            );
-            break;
-
-          case 'RIGHT':
-            content += this.formatBodyCellContent(
-              row,
-              colName,
-              this.buildCellContent(colWidth - text.length + padding.size, text, padding.size)
-            );
-            break;
-
-          default:
-            content += this.formatBodyCellContent(
-              row,
-              colName,
-              this.buildCellContent(padding.size, text, colWidth - text.length + padding.size)
-            );
-        }
-
-        // Cut overflow and check if there's more left
-        overflow[i] = overflow[i].substring(colWidth);
-        if (overflow[i].length) hasOverflow = true;
-      }
-    }
-
-    if (hasOverflow) content += this.buildBodyRowOverflow(row, overflow);
-
-    return content;
   }
 
   /**
@@ -948,7 +994,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
   /**
    * Builds the body.
    *
-   * @returns the body content
+   * @returns the build body
    */
   private buildBody() {
     const { body } = this.config;
@@ -991,6 +1037,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
       this.buildColumnNames();
       this.accumulatedRow = this.calculateAccumulation();
       this.calculateColumnWidths();
+      this.tableWidth = this.calculateTableWidth();
       if (this.config.sort.columns.length) this.sort();
     }
     this.touched = false;
