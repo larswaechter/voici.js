@@ -93,6 +93,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
   constructor(dataset: TRow[], config: Config<TRow, TDColumns> = {}) {
     this._config = mergeDefaultConfig(config);
     this.dataset = this.buildDataset(dataset);
+    this.build();
   }
 
   public get dataset() {
@@ -119,6 +120,14 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
 
   public get config() {
     return this._config;
+  }
+
+  public get columns() {
+    return this.columnNames;
+  }
+
+  public get shape(): [rows: number, columns: number] {
+    return [this.dataset.length, this.columns.length];
   }
 
   /**
