@@ -1,0 +1,16 @@
+  0                  1                  2                
+=========================================================
+  abcdefghijklmn     opqrstuv wxyz a    rstuv wx y z ab  
+                     bcdefghijklmnop    cd ef ghi jklmn  
+                     q                  op               
+  abc def gh ijkl    ijklmno pqr stu    abcd efgh iklmn  
+  m nopqrstuv wxy    vw xy              op qr stuvq xyz  
+  zabcd efg h                                            
+  ab cd ef gh        ij kl mn op        qrstuvw xyzabc   
+                                        defgh            
+  abcdefghijklmno    abc defg hijkl     abc def ghi jk   
+  pqrstuv wxyz ab    mnopqr stuv wxy    lmnop            
+  cdefghijklmn op    z abc defgh ijk                     
+  qr stuvw           l mn opqr st uv                     
+                     w xyzabcdefghij                     
+                     klmn                                

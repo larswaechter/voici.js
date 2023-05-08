@@ -55,6 +55,34 @@ describe('Mixin', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('Columns', () => {
+    interface IDynamic {
+      fullname: string;
+    }
+
+    const table = new voici.Table<(typeof defaultData)[number], IDynamic>(defaultData, {
+      header: {
+        dynamic: {
+          fullname: (row) => row.firstname + ' ' + row.lastname
+        }
+      }
+    });
+
+    assert.deepEqual(table.columns, [
+      'id',
+      'firstname',
+      'lastname',
+      'email',
+      'gender',
+      'birthdate',
+      'fullname'
+    ]);
+
+    const table2 = new voici.Table(arrData);
+
+    assert.deepEqual(table2.columns, ['0', '1', '2', '3', '4', '5']);
+  });
+
   it('Default', () => {
     const table = new voici.Table(defaultData);
 
@@ -131,6 +159,22 @@ describe('Mixin', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
+  it('Shape', () => {
+    interface IDynamic {
+      fullname: string;
+    }
+
+    const table = new voici.Table<(typeof defaultData)[number], IDynamic>(defaultData, {
+      header: {
+        dynamic: {
+          fullname: (row) => row.firstname + ' ' + row.lastname
+        }
+      }
+    });
+
+    assert.deepEqual(table.shape, [6, 7]);
+  });
+
   it('Sort', () => {
     const table = new voici.Table(defaultData, {
       sort: {
@@ -147,13 +191,13 @@ describe('Mixin', () => {
   });
 
   it('Sort Exception', () => {
-    const table = new voici.Table(defaultData, {
-      sort: {
-        columns: ['gender', 'id'],
-        directions: ['asc']
-      }
+    assert.throws(() => {
+      new voici.Table(defaultData, {
+        sort: {
+          columns: ['gender', 'id'],
+          directions: ['asc']
+        }
+      });
     });
-
-    assert.throws(table.toPlainString);
   });
 });

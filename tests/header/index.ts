@@ -99,7 +99,7 @@ describe('Header', () => {
       admin: boolean;
     }
 
-    const table = new voici.Table<(typeof defaultData)[number], IDynamicAttributes>(defaultData, {
+    const table = new voici.Table<typeof defaultData[number], IDynamicAttributes>(defaultData, {
       header: {
         dynamic: {
           fullname: (row) => row['firstname'] + ' ' + row['lastname'],
@@ -233,7 +233,7 @@ describe('Header', () => {
     assert.strictEqual(table.toPlainString(), result);
   });
 
-  it('Width', () => {
+  it('Width Overflow', () => {
     const data = [
       ['abcdefghijklmn', 'opqrstuv wxyz abcdefghijklmnopq', 'rstuv wx y z abcd ef ghi jklmnop'],
       [
@@ -255,7 +255,57 @@ describe('Header', () => {
       }
     });
 
-    const result = readFileSync(__dirname + '/width.txt', {
+    const result = readFileSync(__dirname + '/width_overflow.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('Width Header Overflow', () => {
+    const data = [
+      {
+        'this-is-a-very-long-header-name-12345678910': 'ABC',
+        'this-is-another-very-long-header-name-12345678910': 'DEF'
+      }
+    ];
+
+    const table = new voici.Table(data, {
+      header: {
+        width: 20
+      }
+    });
+
+    const result = readFileSync(__dirname + '/width_header_overflow.txt', {
+      encoding: 'utf-8'
+    });
+
+    assert.strictEqual(table.toPlainString(), result);
+  });
+
+  it('MaxWidth', () => {
+    const data = [
+      ['abcdefghijklmn', 'opqrstuv wxyz abcdefghijklmnopq', 'rstuv wx y z abcd ef ghi jklmnop'],
+      [
+        'abc def gh ijklm nopqrstuv wxyzabcd efg h',
+        'ijklmno pqr stuvw xy',
+        'abcd efgh iklmn op qr stuvq xyz'
+      ],
+      ['ab cd ef gh', 'ij kl mn op', 'qrstuvw xyzabc defgh'],
+      [
+        'abcdefghijklmnopqrstuv wxyz abcdefghijklmn opqr stuvw',
+        'abc defg hijkl mnopqr stuv wxyz abc defgh ijkl mn opqr st uvw xyzabcdefghijklmn',
+        'abc def ghi jk lmnop'
+      ]
+    ];
+
+    const table = new voici.Table(data, {
+      header: {
+        maxWidth: 15
+      }
+    });
+
+    const result = readFileSync(__dirname + '/max_width.txt', {
       encoding: 'utf-8'
     });
 
