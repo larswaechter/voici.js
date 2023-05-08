@@ -1,6 +1,6 @@
 {
   "name": "voici.js",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A Node.js library for pretty printing your data on the terminal.",
   "author": {
     "name": "Lars Wächter",
