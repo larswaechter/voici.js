@@ -2,9 +2,9 @@
 
 A Node.js library for pretty printing your data on the terminal🎨
 
-[![npm version](https://img.shields.io/npm/v/voici.js.svg?style=flat)](https://www.npmjs.com/package/voici.js)
+[![npm version](https://img.shields.io/npm/v/voici.js.svg?style=flat)](https://www.npmjs.com/package/voici.js/)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/larswaechter/voici.js/blob/main/LICENSE)
-[![Documentation](https://img.shields.io/badge/GitBook-Docu-lightblue)](https://lars-waechter.gitbook.io/voici.js/)
+[![Documentation](https://img.shields.io/badge/GitBook-Docu-lightblue)](https://voici.larswaechter.dev/)
 ![Tests](https://github.com/larswaechter/voici.js/actions/workflows/tests.yaml/badge.svg)
 ![Linter](https://github.com/larswaechter/voici.js/actions/workflows/linter.yaml/badge.svg)
 
@@ -25,7 +25,7 @@ voici.js (_speak_: [/vwasi/](https://dictionary.cambridge.org/dictionary/french-
 
 and many more!
 
-Check out the [GitBook](https://lars-waechter.gitbook.io/voici.js/) for more features or create an [issue](https://github.com/larswaechter/voici.js/issues) if you're missing one.
+Check out the [GitBook](https://voici.larswaechter.dev/) for more features or create an [issue](https://github.com/larswaechter/voici.js/issues) if you're missing one.
 
 ## 💻 Installation
 
@@ -64,13 +64,13 @@ The console output:
   Maggie       Simpson     1
 ```
 
-You can find many more examples [here](https://lars-waechter.gitbook.io/voici.js/examples).
+You can find many more examples [here](https://voici.larswaechter.dev/examples).
 
 ## 📚 Documentation
 
 The following documentations are available:
 
-- [GitBook](https://github.com/larswaechter/voici.js)
+- [GitBook](https://voici.larswaechter.dev/)
 - [TypeDoc](https://larswaechter.github.io/voici.js/)
 
 Otherwise check out the [tests](https://github.com/larswaechter/voici.js/blob/master/tests/) for more examples.
