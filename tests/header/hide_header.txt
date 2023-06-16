@@ -1,0 +1,3 @@
+  clean             clean local cache         
+  pull              pull origin docs          
+  help [command]    display help for command  
