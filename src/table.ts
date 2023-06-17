@@ -171,7 +171,11 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
     };
 
     this.build(true);
-    const str = this.buildHeader() + '\n' + this.buildBody();
+    const {
+      header: { visible: headerVisible }
+    } = this._config;
+
+    const str = headerVisible ? this.buildHeader() + '\n' + this.buildBody() : this.buildBody();
 
     this._config = configBackup;
 
