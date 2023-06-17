@@ -146,7 +146,7 @@ export type Config<TRow extends Row, TDColumns extends object = never> = Partial
     upperfirst: boolean;
     width: number | 'auto' | 'stretch';
     maxWidth: number | 'auto';
-    visible: boolean
+    visible: boolean;
   }>;
   sort: Sort<InferAttributesOrigin<TRow, TDColumns>>;
   padding: Partial<{
