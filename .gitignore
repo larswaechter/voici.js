@@ -105,3 +105,6 @@ dist
 
 # Playground
 src/run.ts
+
+# vscode 
+.vscode

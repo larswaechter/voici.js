@@ -146,6 +146,7 @@ export type Config<TRow extends Row, TDColumns extends object = never> = Partial
     upperfirst: boolean;
     width: number | 'auto' | 'stretch';
     maxWidth: number | 'auto';
+    visible: boolean;
   }>;
   sort: Sort<InferAttributesOrigin<TRow, TDColumns>>;
   padding: Partial<{
@@ -216,7 +217,8 @@ export const mergeDefaultConfig = <TRow extends Row, TDColumns extends object>(
         lowercase: false,
         upperfirst: false,
         width: 'auto',
-        maxWidth: 'auto'
+        maxWidth: 'auto',
+        visible: true
       },
       sort: {
         columns: [],

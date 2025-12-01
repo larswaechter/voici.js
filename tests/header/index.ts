@@ -311,4 +311,23 @@ describe('Header', () => {
 
     assert.strictEqual(table.toPlainString(), result);
   });
+
+  it('Hide Header',() => {
+    const data = [
+      ['clean', 'clean local cache'],
+      ['pull', 'pull origin docs'],
+      ['help [command]', 'display help for command'],
+    ];
+
+    const table = new voici.Table(data, {
+      header: {
+        visible: false
+      }
+    });
+
+    const result = readFileSync(__dirname + '/hide_header.txt', {
+      encoding: 'utf-8'
+    });
+    assert.strictEqual(table.toPlainString(), result);
+  })
 });
