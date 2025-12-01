@@ -4,7 +4,7 @@ import isInteger from 'lodash/isInteger';
 import upperFirst from 'lodash/upperFirst';
 import isFunction from 'lodash/isFunction';
 
-import chalk, { Chalk } from 'chalk';
+import chalk, { ChalkInstance } from 'chalk';
 import { openSync, writeFileSync, OpenMode } from 'fs';
 
 import { arrayIncludes, isEmpty, stringify } from './helper';
@@ -671,7 +671,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
 
     for (let i = 0; i < contentCopy.length; i++) {
       let text = contentCopy[i];
-      let styled: Chalk = chalk;
+      let styled: ChalkInstance = chalk;
 
       // Background
       if (bgColorColumns.length) {
@@ -828,7 +828,7 @@ export class Table<TRow extends Row, TDColumns extends object = never> {
        *  - text color
        */
 
-      let styled: Chalk = chalk;
+      let styled: ChalkInstance = chalk;
 
       // Column background
       if (bgColorColumns.length)
