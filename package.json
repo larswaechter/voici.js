@@ -29,7 +29,8 @@
     "url": "https://github.com/larswaechter/voici.js/issues"
   },
   "files": [
-    "dist/"
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
   ],
   "types": "dist/index.d.ts",
   "keywords": [
